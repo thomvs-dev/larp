@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0, A1 done. A2: full sweep done, gate conditions 1–3 pass; spread run for condition 4 pending on Thomas's machine**
+Status: **Part A — A0, A1, A2 done (GATE A2 passed). Next: A3 statistical fast mode**
 Last updated: 2026-11-02
 
 ---
@@ -128,9 +128,9 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] Pretrained CIFAR-10 ResNet-20 (`cimsim/models/cifar_resnet.py`, hash-checked weights) + side-by-side sweep script (`validation/a2_asim_compare.py`, 13 configs, both simulators).
 - [x] Smoke run (200 images, 3 configs): fake-quant 92.0/92.0, ADC 8 b 92.0/92.0, ADC 6 b 59.0/60.0 (cimsim/ASiM); cimsim ~9× faster. (`results/a2_smoke/`)
 - [x] Full sweep on Thomas's machine (1,000 test images, 13 configs). (`results/a2_resnet20/`)
-- [ ] Comparison table + discussion in `validation/asim_repro.md`. (sweep table, gate evaluation and discussion written; spread results to add)
-- [ ] Spread run for gate condition 4: low-ADC configs with `--backend reference` vs `fast`, compared image by image (`validation/a2_spread.py`) ← Thomas, commands in `validation/asim_repro.md` "Spread run".
-- [ ] **GATE A2:** accuracy trends match ASiM (vs ADC bits, nrow, noise, encoding); per-config difference ≤ 1% absolute at ADC ≥ 8 b and for fake-quant; at ADC ≤ 6 b within the run-to-run spread of either simulator (findings F6); `bs_n64_adc8` difference explained by F4. (Criterion approved by Thomas 2026-11-02.)
+- [x] Comparison table + discussion in `validation/asim_repro.md`.
+- [x] Spread run for gate condition 4: low-ADC configs with `--backend reference` vs `fast`, compared image by image (`validation/a2_spread.py`). (`results/a2_spread_*`)
+- [x] **GATE A2:** accuracy trends match ASiM (vs ADC bits, nrow, noise, encoding); per-config difference ≤ 1% absolute at ADC ≥ 8 b and for fake-quant; at ADC ≤ 6 b within the run-to-run spread of either simulator (findings F6); `bs_n64_adc8` difference explained by F4. (Criterion approved by Thomas 2026-11-02.) Passed 2026-11-02: max diff 0.8% at ADC ≥ 8 b; n64 +2.1% = F4; ADC ≤ 6 b diffs ≤ 1.2% vs measured spread ≤ 1.4% (`validation/asim_repro.md`).
 
 ### A3 — Statistical fast mode
 
@@ -242,11 +242,11 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 ## 6. Status
 
 - Current part: **A**
-- Current milestone: **A2** (spread run pending on Thomas's machine)
+- Current milestone: **A3** (statistical fast mode)
 - Next tasks, in order:
-  1. Thomas: `git fetch origin; git reset --hard origin/main`, then the spread run (3 commands in `validation/asim_repro.md` "Spread run", ~1 h, most of it ASiM).
-  2. Agent: add spread results to `validation/asim_repro.md`; decide GATE A2 condition 4.
-  3. Agent: then A3 (statistical mode).
+  1. Thomas: `git fetch origin; git reset --hard origin/main` (the spread results are now committed).
+  2. Agent: A3 design (error model, what is measured per layer, how it is injected, how GATE A3 is run on the CPU budget) in `docs/part_a_plan.md`, then the first A3 task: error-distribution measurement in bit-accurate mode.
+  3. Note for A3/A5: bit-accurate numbers at coarse ADC carry float-rounding spread (F6); GATE A3's ±2% tolerance must be compared against the bit-accurate run's own fast-vs-reference spread on the same tokens.
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
 ---
@@ -278,6 +278,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — GATE A2 criterion approved by Thomas; ADC-architecture sub-tasks added to A7 (error models), B0 (cost, sharing ratio), B3 (conversion scheduling). — `CLAUDE.md`
 - 2026-11-02 — `run_ppl.py`: window length defaults to model context (cap 2048); `--max-tokens` for the CPU subset; git stderr silenced. — `scripts/run_ppl.py`
 - 2026-11-02 — A2 full sweep (1,000 images, 13 configs, git bcde8c5b): fake-quant and all ADC ≥ 8 b configs within 0.8% of ASiM; bs_n64_adc8 cimsim 92.4 / ASiM 90.3, explained by F4; ADC ≤ 6 b diffs −0.4 … +1.2%. Trends match for ADC bits, nrow, noise, encoding. cimsim 1.6–66× faster on bit-accurate configs. Gate conditions 1–3 pass; condition 4 needs measured spread. Added `--backend` and per-image predictions to the A2 script, and `validation/a2_spread.py`. — `results/a2_resnet20/`, `validation/asim_repro.md`
+- 2026-11-02 — A2 spread run (5 low-ADC configs, 1,000 images): cimsim fast vs reference differ by up to 1.4% accuracy, 29% of predictions at n128/ADC 6 b; cimsim vs ASiM ≤ 1.2%, 33%. Reruns reproduce the sweep exactly. **GATE A2 passed.** F6 updated with measured spread. — `results/a2_spread_fast/`, `results/a2_spread_ref/`, `validation/asim_repro.md`, `docs/findings.md`
 
 ---
 

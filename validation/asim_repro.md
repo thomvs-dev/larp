@@ -1,6 +1,6 @@
 # A2 — Reproduction of ASiM on ResNet-20 / CIFAR-10
 
-Status: full sweep done (1,000 images, 13 configs). GATE A2 conditions 1–3 pass; condition 4 (ADC ≤ 6 b within run-to-run spread) waits for the spread run (section "Spread run").
+Status: **GATE A2 passed** (2026-11-02). Full sweep (1,000 images, 13 configs) and spread run done; all four conditions pass.
 
 ## Setup
 
@@ -61,7 +61,7 @@ Git `bcde8c5b`, i7-12700H, 14 threads, batch 100, cimsim backend `fast`. FP32 on
 | 1. Trends match (ADC bits, nrow, noise, encoding) | all | **Pass.** Every sweep direction moves the same way by about the same amount in both simulators (below). |
 | 2. Fake-quant and ADC ≥ 8 b: \|diff\| ≤ 1% | ideal, n128/n255 adc8, rn1, rn2, nl2, bp2_adc8 | **Pass.** Max \|diff\| 0.8% (noise configs, both at chance level). |
 | 3. `bs_n64_adc8` explained by F4 | bs_n64_adc8 | **Pass.** cimsim gives 92.40%, identical to nrow 128 at the same ADC, as expected when every channel is computed. ASiM gives 90.30%: with nrow 64 and 3×3 kernels it splits 64-channel inputs into 10 channel groups but computes 9, so one input channel is missing in every conv with 64 input channels (F4). The 2.1% is the cost of that dropped channel, not a semantic difference. |
-| 4. ADC ≤ 6 b: \|diff\| within run-to-run spread | n128 adc6/5/4, n255_adc6, bp2_adc6 | **Pending.** Diffs are −0.4 … +1.2%. F6 predicts spread of this size, but the criterion needs it measured — see "Spread run". |
+| 4. ADC ≤ 6 b: \|diff\| within run-to-run spread | n128 adc6/5/4, n255_adc6, bp2_adc6 | **Pass.** \|cimsim − ASiM\| ≤ 1.2%; cimsim's own fast-vs-reference spread is up to 1.4% on the same configs (see "Spread run"). |
 
 #### What the sweep shows (both simulators)
 
@@ -83,4 +83,32 @@ python validation/a2_spread.py results/a2_spread_fast results/a2_spread_ref
 
 Decision rule: condition 4 passes if, for each config, \|cimsim − ASiM\| is no larger than the largest \|fast − reference\| accuracy difference over the five configs, or if both pairs disagree on a similar fraction of images. If fast and reference agree exactly while cimsim and ASiM do not, the gap is not explained by float rounding and needs a layer-by-layer check at those configs.
 
-(results to be filled)
+#### Results — `results/a2_spread_fast/`, `results/a2_spread_ref/` (git 9c6486c7)
+
+Both reruns reproduce the full-sweep numbers exactly (cimsim fast and ASiM give the same accuracies as in `results/a2_resnet20/`), so each implementation is deterministic; the spread below comes only from which float path is used.
+
+| Config | fast | reference | ASiM | fast − ref | cimsim (fast) − ASiM | ref − ASiM | images differing: fast vs ref | fast vs ASiM | ref vs ASiM |
+|---|---|---|---|---|---|---|---|---|---|
+| bs_n128_adc6 | 60.20 | 61.30 | 59.00 | −1.10 | +1.20 | +2.30 | 29.2% | 33.0% | 34.9% |
+| bs_n128_adc5 | 12.80 | 13.30 | 13.10 | −0.50 | −0.30 | +0.20 | 69.6% | 77.2% | 75.4% |
+| bs_n128_adc4 | 9.90 | 9.50 | 10.30 | +0.40 | −0.40 | −0.80 | 75.0% | 75.2% | 74.1% |
+| bs_n255_adc6 | 13.00 | 11.60 | 13.00 | +1.40 | +0.00 | −1.40 | 68.7% | 69.1% | 67.9% |
+| bp2_n128_adc6 | 12.90 | 11.60 | 13.10 | +1.30 | −0.20 | −1.50 | 56.8% | 70.6% | 68.1% |
+
+(The "fast − ref" column is fast minus reference; `spread.md` prints it as reference minus fast.)
+
+Reading:
+
+- The two cimsim backends compute the same thing (≤ 1e-5 per layer) and still differ by up to 1.4% in accuracy and on 29% of predictions at nrow 128 / ADC 6 b. This is the float-rounding spread of one simulator.
+- cimsim–ASiM differences (max 1.2%) are inside that spread for every config, and the fraction of images classified differently (33% at ADC 6 b) is close to the fast-vs-reference fraction (29%). The three implementations behave like three float paths of the same semantics; no pair stands out. Condition 4 passes.
+- At ADC 5 b and below (and nrow 255 / 2-bit cycles at 6 b) accuracy is near chance and 57–77% of predictions differ between any two runs: the network output is effectively noise, so only the trend (collapse) is meaningful there, which both simulators show.
+- Consequence for later work: an accuracy (or perplexity) number from a bit-accurate run at coarse ADC carries an uncertainty of this size from float rounding alone. Reported low-ADC numbers should come with a fast-vs-reference (or seed) spread. Recorded in findings F6.
+
+## Verdict
+
+GATE A2 passed on 2026-11-02:
+
+1. Trends match for ADC bits, nrow, noise and input encoding.
+2. Fake-quant and every ADC ≥ 8 b config within 0.8% (criterion 1%).
+3. `bs_n64_adc8` (+2.1%) explained by ASiM's dropped channel group (F4).
+4. ADC ≤ 6 b differences (≤ 1.2%) within the measured run-to-run spread (≤ 1.4% between cimsim's own backends; ≤ 2.3% between any two of the three implementations).

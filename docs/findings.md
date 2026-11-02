@@ -74,6 +74,7 @@ Observations from runs that affect the design or the paper. Each entry: what was
 
 - Seen: ResNet-20, nrow 128, ADC 6 b, no noise: cimsim and ASiM disagree on 30% of top-1 predictions for the same 10 images, although every one of the 20 conv layers matches ASiM to 1.3e-6 when given identical inputs (checked with hooks inside the network). At fake-quant and ADC 10 b the two agree on all predictions.
 - Cause: float rounding differences of ~1e-7 flip a few activation codes at the next layer's quantizer; with a coarse ADC each flip changes many column MACs by 1, which moves ADC codes and is multiplied by large shift-add weights. The error compounds over 18 layers.
+- Measured (A2 spread run, 1,000 images, `results/a2_spread_*`): cimsim `fast` vs `reference` backends, which agree to ≤ 1e-5 per layer, differ by up to 1.4% accuracy and on 29% of predictions at nrow 128 / ADC 6 b (61.3 vs 60.2%); cimsim vs ASiM differ on 33%. Below ADC 6 b, where accuracy is near chance, 57–77% of predictions differ between any two runs. Each implementation on its own is deterministic (reruns reproduce exactly).
 - Consequence: A2 compares accuracy over many images, not logits; at low ADC precision a per-config spread between simulators of a few % is expected and is not a semantic difference. Report run-to-run spread (e.g. different batch compositions) alongside such numbers. The same sensitivity applies to LLM bit-accurate runs.
 
 ## Machine / speed notes
