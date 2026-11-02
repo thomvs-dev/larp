@@ -9,11 +9,11 @@ Plan and status: `CLAUDE.md`. Design and maths: `docs/part_a_plan.md`.
 Code lives at https://github.com/thomvs-dev/larp (branch `main`). To link an existing `D:\japan` folder to it without touching your files:
 
 ```bash
-git init
+git init -b main
 git remote add origin https://github.com/thomvs-dev/larp.git
 git fetch origin
 git reset --mixed origin/main     # adopt the remote history; working files are kept
-git branch -u origin/main main
+git branch -u origin/main
 git status                       # should show no differences
 ```
 
