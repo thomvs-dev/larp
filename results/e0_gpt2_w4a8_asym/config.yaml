@@ -1,0 +1,7 @@
+default:
+  mode: fake_quant
+  w_bits: 4
+  w_gran: per_channel
+  w_quant: asymmetric
+  x_bits: 8
+  x_gran: per_token

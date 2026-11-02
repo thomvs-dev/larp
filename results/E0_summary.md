@@ -10,7 +10,8 @@ WikiText-2 test set, full (≈286.5k tokens), non-overlapping windows of the mod
 | W8A8 | 8 b per-channel | 8 b per-token | 27.942 | +0.29 | 30.151 | +0.20 |
 | W8A8 per-tensor (ASiM style) | 8 b per-tensor | 8 b per-tensor | 30.451 | +2.80 | 57.452 | +27.50 |
 | W6A6 | 6 b per-channel | 6 b per-token | 31.952 | +4.30 | 36.391 | +6.44 |
-| W4A8 | 4 b per-channel | 8 b per-token | 51.094 | +23.44 | 47.457 | +17.51 |
+| W4A8 | 4 b per-channel (symmetric) | 8 b per-token | 51.094 | +23.44 | 47.457 | +17.51 |
+| W4A8 asym | 4 b per-channel, zero point | 8 b per-token | 37.395 | +9.74 | 38.897 | +8.95 |
 
 Extra reference: OPT-125M FP32 at seq 1024 = 31.761 (`results/e0_opt125m_fp32/`).
 
@@ -23,10 +24,10 @@ Extra reference: OPT-125M FP32 at seq 1024 = 31.761 (`results/e0_opt125m_fp32/`)
 ## Findings
 
 1. **Per-tensor scaling (ASiM's default) breaks GPT-2:** +27.5 perplexity at W8A8, vs +0.2 with per-token scaling. OPT-125M is hurt less (+2.8). This is the activation-outlier problem: a few channels with large magnitude set the per-tensor scale, and every other value gets only a few quantization levels. It directly motivates A5 (outlier statistics) and A6 (mitigation), and it means ASiM's per-tensor setup cannot be used unchanged for LLMs.
-2. **W4A8 is much worse than published 4-bit round-to-nearest numbers** (OPT-125M +23 here vs roughly +10 for 4-bit RTN in the GPTQ paper). Most likely cause: our weights use **symmetric** quantization with levels −7…+7 (15 levels, ASiM convention, matches two's-complement bit planes in the array), while the published RTN uses **asymmetric** min-max with 16 levels and a zero point. Not a bug, but it should be confirmed with an asymmetric-weight option before any W4 result is reported. W8 is unaffected in practice.
+2. **W4A8 symmetric is much worse than published 4-bit RTN; asymmetric matches it.** Symmetric (−7…+7, ASiM/two's-complement): OPT-125M 51.09. Asymmetric with zero point: 37.39 vs published 4-bit RTN 37.28 (weights only). Confirmed in `results/e0_*_w4a8_asym/` (findings F2).
 3. **W6A6 costs +4.3 / +6.4** — usable as a lower-precision operating point for sweeps.
 
 ## Open items
 
 - `git` hash is `unknown` for all runs: `D:\japan` is not a git repository yet.
-- Confirm finding 2 (asymmetric 4-bit weight option) — low priority, W8 is the main operating point.
+- Finding 2 confirmed (asymmetric runs added 2026-11-02).

@@ -113,7 +113,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] `CIMLinear`: weight bit-slicing, input bit-serial and bit-parallel encoding, row grouping by `nrow`.
 - [x] ADC model: configurable bits, fixed full-scale range, clipping (ASiM semantics).
 - [x] ADC range option: calibrated full scale per layer / cycle / (cycle, plane), MSE (default) or percentile; `cimsim.calibrate_adc_range`; `run_ppl.py` calibrates on WikiText-2 train tokens. (`cimsim/core/calib.py`, findings F5)
-- [x] Asymmetric (zero-point) weight quantization option (`w_quant: asymmetric`): unsigned planes + exact digital zero-point correction, both executors. Confirmation run for F2 pending (`config/experiments/e0_w4a8_asym.yaml`).
+- [x] Asymmetric (zero-point) weight quantization option (`w_quant: asymmetric`): unsigned planes + exact digital zero-point correction, both executors. F2 confirmed: OPT-125M W4A8 asym 37.39 vs published 4-bit RTN 37.28 (symmetric: 51.09). (`results/e0_*_w4a8_asym/`)
 - [x] Noise injection: Gaussian random noise and nonlinearity (ASiM-style `rand_noise_sigma`, `non_linear_sigma`), seeded per layer.
 - [x] Signed weight handling documented: two's complement planes (`docs/assumptions.md` #1). Differential / offset schemes: optional, later.
 - [x] Event counter: ADC conversions (total / analog), array cycles, MACs, weight bits written.
@@ -126,7 +126,8 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] Layer-level equivalence with ASiM `ASiMLinear` (zero noise, 7 configs incl. bit-parallel, unsigned): max rel. error ≤ 1e-6 (`tests/test_asim_equivalence.py`). Noise std matches within ~1% (manual check).
 - [x] `CIMConv2d` (ASiM channel-group row mapping), matches `ASiMConv2d` ≤1e-6 (14 cases, both backends); ASiM conv group-skipping issue found (F4).
 - [x] Pretrained CIFAR-10 ResNet-20 (`cimsim/models/cifar_resnet.py`, hash-checked weights) + side-by-side sweep script (`validation/a2_asim_compare.py`, 13 configs, both simulators).
-- [ ] Run the sweep on Thomas's machine (1,000 test images) ← Thomas: `python validation/a2_asim_compare.py --name a2_resnet20 --n-images 1000`.
+- [x] Smoke run (200 images, 3 configs): fake-quant 92.0/92.0, ADC 8 b 92.0/92.0, ADC 6 b 59.0/60.0 (cimsim/ASiM); cimsim ~9× faster. (`results/a2_smoke/`)
+- [ ] Full sweep on Thomas's machine (1,000 test images) ← Thomas: `python validation/a2_asim_compare.py --name a2_resnet20 --n-images 1000`.
 - [ ] Comparison table + discussion in `validation/asim_repro.md`.
 - [ ] **GATE A2:** accuracy trends match ASiM; per-point difference within ~1% absolute (or explained). Proposed refinement (needs Thomas's OK, see Section 8): ≤1% at ADC ≥ 8 b and fake-quant; at ADC ≤ 6 b within run-to-run spread (findings F6).
 
@@ -239,9 +240,9 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A2** (runs pending on Thomas's machine)
 - Next tasks, in order:
-  1. Thomas: `git pull`; `pip install pillow`; `pytest -q`.
-  2. Thomas: runs (commands in README): F5 OPT-125M ADC 6 b calibrated (2 runs, ~10 min each); F2 check `e0_w4a8_asym` (OPT-125M + GPT-2, ~6 min each); A2 smoke (`--configs quick --n-images 200`), then full A2 sweep (1–2 h). Commit `results/` and push.
-  3. Agent: fill `validation/asim_repro.md` from A2 results; decide GATE A2 (with Thomas's OK on the refined criterion); update findings F2/F5 with real-model numbers.
+  1. Thomas: `git pull` (see README "Git" if it complains about untracked results), then the full A2 sweep (1–2 h).
+  2. Thomas: decide on the proposed GATE A2 criterion (Section 8).
+  3. Agent: fill `validation/asim_repro.md` from `results/a2_resnet20/`; decide GATE A2.
   4. Agent: then A3 (statistical mode).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
@@ -268,6 +269,9 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — Asymmetric weights (`w_quant: asymmetric`), unsigned planes in both executors, exact zero-point correction. — `cimsim/quant.py`, `cimsim/core/*`
 - 2026-11-02 — Layers refactored onto `_CIMBase`; `CIMConv2d` added (ASiM channel-group mapping); `swap_linears` also replaces Conv2d. Matches `ASiMConv2d` ≤1e-6 in 14 layer cases; found ASiM conv skips channel groups when ceil(C/floor(nrow/k²)) > ceil(C·k²/nrow) (F4). 173 tests pass. — `cimsim/core/layers.py`, `tests/test_calib_asym_conv.py`
 - 2026-11-02 — A2 prep: pretrained ResNet-20 (chenyaofo, hash 4118986f, strict load OK), ASiM bridge, sweep script (smoke-tested on synthetic data). All 20 conv layers match ASiM to 1.3e-6 inside the network, but at ADC 6 b whole-network predictions differ on 30% of images (float-noise amplification, F6). cimsim ~8× faster than ASiM on ResNet-20. — `cimsim/models/cifar_resnet.py`, `validation/`
+- 2026-11-02 — F2 resolved: W4A8 with asymmetric weights OPT-125M 37.39 / GPT-2 38.90 (symmetric 51.09 / 47.46; published 4-bit RTN OPT-125M 37.28). — `results/e0_*_w4a8_asym/`
+- 2026-11-02 — F5 confirmed on OPT-125M (8,192 tokens, bit-serial W8A8, nrow 128, ADC 6 b): MSE-calibrated ADC range PPL 30.81 (per layer and per (cycle, plane) identical) vs 12,962 with ASiM's full-range ADC and 30.45 fake-quant. Calibration picks FS = 63 (1 MAC unit per ADC step) for every 6-bit layer. Calibration 327 s. — `results/f5_opt125m_adc6_cal_*/`
+- 2026-11-02 — A2 smoke (200 images): cimsim vs ASiM within 1% on 3 configs; ~9× faster. Fixed a Windows crash in the A2 script (table written in cp1252, now UTF-8 + ASCII; `--table-only` rebuilds a table from results.json); all result files now written as UTF-8. — `results/a2_smoke/`, `validation/a2_asim_compare.py`, `scripts/run_ppl.py`
 - 2026-11-02 — `run_ppl.py`: window length defaults to model context (cap 2048); `--max-tokens` for the CPU subset; git stderr silenced. — `scripts/run_ppl.py`
 
 ---

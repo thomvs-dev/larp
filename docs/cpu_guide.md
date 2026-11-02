@@ -15,7 +15,7 @@ OPT-125M-sized model (12 layers, d=768, FFN 3072), random weights, 128 tokens, *
 | bit_accurate, bit-serial, ADC 8, 1% noise | 148 | 2.5 min | ~12 h |
 | bit_accurate, `backend: reference` | 186 | 3.2 min | ~15 h |
 
-**Thomas's machine (i7-12700H, 14 threads):** OPT-125M, first 8,192 tokens: fake_quant 10 s total; bit-accurate bit-serial 608 s (≈ 74 ms/token, ~2.5 min per 2048-token window). FP32 full test set ≈ 5 min.
+**Thomas's machine (i7-12700H, 14 threads):** OPT-125M, first 8,192 tokens: fake_quant 10 s total; bit-accurate bit-serial 608 s (≈ 74 ms/token, ~2.5 min per 2048-token window). FP32 full test set ≈ 5 min. ADC range calibration (2,048 train tokens, OPT-125M, 72 layers): ≈ 5.5 min. ResNet-20, 200 CIFAR-10 images, bit-accurate: cimsim ≈ 12 s, ASiM ≈ 103 s.
 
 Fast vs reference executor on one 768×3072 layer: 2.4–3.4× faster noise-free, ~1.5× with noise (random number generation dominates). Configs where the ADC is lossless (e.g. nrow 255 with an 8-bit ADC, or no ADC) skip the bit-level loop and cost the same as fake_quant.
 

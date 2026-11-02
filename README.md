@@ -19,6 +19,13 @@ git status                       # should show no differences
 
 After that: `git pull` to get agent changes; `git add results; git commit -m "..."; git push` to share new results.
 
+If the agent has already committed result files that also exist (untracked) in your folder, `git pull` stops with "untracked working tree files would be overwritten". The committed copies are byte-identical to yours, so take them with:
+
+```bash
+git fetch origin
+git reset --hard origin/main      # only safe when you have no uncommitted code edits (check `git status` first)
+```
+
 ## Setup (CPU)
 
 ```bash

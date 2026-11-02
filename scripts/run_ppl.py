@@ -113,13 +113,13 @@ def main() -> None:
 
     out = ROOT / "results" / args.name
     out.mkdir(parents=True, exist_ok=True)
-    (out / "result.json").write_text(json.dumps(res, indent=2))
-    (out / "config.yaml").write_text(yaml.safe_dump(cfg_dict or {"fp": True}))
-    (out / "events.json").write_text(json.dumps(counter.to_dict()["total"], indent=2))
+    (out / "result.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
+    (out / "config.yaml").write_text(yaml.safe_dump(cfg_dict or {"fp": True}), encoding="utf-8")
+    (out / "events.json").write_text(json.dumps(counter.to_dict()["total"], indent=2), encoding="utf-8")
     if calibrated:
         fs = {m.name: m.adc_fs.tolist() for m in model.modules()
               if getattr(m, "adc_fs", None) is not None}
-        (out / "adc_full_scale.json").write_text(json.dumps(fs))
+        (out / "adc_full_scale.json").write_text(json.dumps(fs), encoding="utf-8")
     print(json.dumps(res, indent=2))
 
 

@@ -89,6 +89,23 @@ def accuracy(model, x, y, batch) -> float:
     return 100.0 * correct / len(x)
 
 
+def write_table(res: dict, out: Path) -> None:
+    """results/<name>/table.md (UTF-8, ASCII content so it also prints on a Windows console)."""
+    lines = [f"# A2 / E1 - {res['model']}, {res['n_images']} CIFAR-10 test images", "",
+             f"FP32: {res['fp32_acc']:.2f}%. Git {res['git'][:8]}. Stem conv and classifier in float.", "",
+             "| Config | cimsim acc (%) | ASiM acc (%) | diff (cimsim - ASiM) | cimsim s | ASiM s |",
+             "|---|---|---|---|---|---|"]
+    for cname, r in res["runs"].items():
+        a = r.get("cimsim", {}).get("acc")
+        b = r.get("asim", {}).get("acc")
+        d = f"{a - b:+.2f}" if a is not None and b is not None else ""
+        fa = f"{a:.2f}" if a is not None else ""
+        fb = f"{b:.2f}" if b is not None else ""
+        lines.append(f"| {cname} | {fa} | {fb} | {d} | {r.get('cimsim', {}).get('seconds', '')} | "
+                     f"{r.get('asim', {}).get('seconds', '')} |")
+    (out / "table.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", required=True)
@@ -99,7 +116,14 @@ def main() -> None:
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--synthetic", action="store_true", help="random weights and images (no downloads)")
+    ap.add_argument("--table-only", action="store_true",
+                    help="rebuild results/<name>/table.md from an existing results.json and exit")
     args = ap.parse_args()
+    out = ROOT / "results" / args.name
+    if args.table_only:
+        write_table(json.loads((out / "results.json").read_text(encoding="utf-8")), out)
+        print((out / "table.md").read_text(encoding="utf-8"))
+        return
     if args.threads:
         torch.set_num_threads(args.threads)
 
@@ -108,7 +132,6 @@ def main() -> None:
     model = resnet20().eval() if args.synthetic else load_pretrained_resnet20()
     x, y = load_cifar10_test(args.n_images, args.synthetic)
 
-    out = ROOT / "results" / args.name
     out.mkdir(parents=True, exist_ok=True)
     res = {"model": "resnet20 (chenyaofo, CIFAR-10)", "n_images": len(x), "batch": args.batch,
            "git": git_hash(), "threads": torch.get_num_threads(), "synthetic": args.synthetic,
@@ -127,22 +150,10 @@ def main() -> None:
             dt = time.time() - t0
             res["runs"][cname][sim] = {"acc": acc, "seconds": round(dt, 1)}
             print(f"{cname:20s} {sim:7s} acc {acc:6.2f}%  ({dt:.0f} s)", flush=True)
-            (out / "results.json").write_text(json.dumps(res, indent=2))
+            (out / "results.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
 
-    lines = [f"# A2 / E1 — {res['model']}, {len(x)} CIFAR-10 test images", "",
-             f"FP32: {res['fp32_acc']:.2f}%. Git {res['git'][:8]}. Stem conv and classifier in float.", "",
-             "| Config | cimsim acc (%) | ASiM acc (%) | Δ (cimsim − ASiM) | cimsim s | ASiM s |",
-             "|---|---|---|---|---|---|"]
-    for cname, r in res["runs"].items():
-        a = r.get("cimsim", {}).get("acc")
-        b = r.get("asim", {}).get("acc")
-        d = f"{a - b:+.2f}" if a is not None and b is not None else ""
-        fa = f"{a:.2f}" if a is not None else ""
-        fb = f"{b:.2f}" if b is not None else ""
-        lines.append(f"| {cname} | {fa} | {fb} | {d} | {r.get('cimsim', {}).get('seconds', '')} | "
-                     f"{r.get('asim', {}).get('seconds', '')} |")
-    (out / "table.md").write_text("\n".join(lines) + "\n")
-    print("\n".join(lines))
+    write_table(res, out)
+    print((out / "table.md").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

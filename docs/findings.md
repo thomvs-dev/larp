@@ -9,11 +9,12 @@ Observations from runs that affect the design or the paper. Each entry: what was
 - Cause: a few large-magnitude activation channels set the scale; most values get very few levels.
 - Consequence: ASiM's per-tensor setup cannot be used unchanged for LLMs. Outlier handling is central to A5/A6.
 
-## F2 — W4A8 worse than published 4-bit RTN (to confirm)
+## F2 — W4A8 gap to published 4-bit RTN is the symmetric weight format (resolved)
 
-- Seen: OPT-125M W4A8 51.09 (+23.4) vs roughly +10 for published 4-bit RTN.
-- Likely cause: symmetric weights with levels −7…+7 (15 levels, matches two's-complement planes) vs asymmetric 16-level min-max in published RTN.
-- Status: open — needs an asymmetric weight option (A1 sub-task, low priority).
+- Seen: symmetric W4A8 (levels −7…+7): OPT-125M 51.09, GPT-2 47.46.
+- Asymmetric per-channel weights (16 levels + zero point, `w_quant: asymmetric`): **OPT-125M 37.39, GPT-2 38.90** (full test set). Published 4-bit RTN for OPT-125M (weights only, GPTQ paper) is 37.28; the remaining +0.1 is the 8-bit activations.
+- Evidence: `results/e0_opt125m_w4a8_asym/`, `results/e0_gpt2_w4a8_asym/`, `results/e0_*_w4a8/`.
+- Consequence: at 4 bits, the symmetric two's-complement weight format (ASiM's) costs ~14 PPL on OPT-125M and ~8.6 on GPT-2. Any 4-bit CIM result must state the weight format; asymmetric weights need unsigned planes plus a digital zero-point term, which is cheap (one Σx per row). At 8 bits the difference is negligible.
 
 ## F3 — 6-bit ADC with signed two's-complement inputs destroys the model
 
@@ -56,7 +57,18 @@ Observations from runs that affect the design or the paper. Each entry: what was
 
 - Percentile calibration (99.9 / 99.99 %) is worse than full range at 7–8 b: the few clipped conversions land on high-significance planes (shift-add weights up to 2^14). MSE is the default for that reason; percentile is kept as an option.
 - A single full scale per layer works as well as per (cycle, plane) here, which is the simplest hardware (one ADC reference per macro).
-- Consequence: F3's collapse at 6 b is mostly an artefact of ASiM's full-range ADC mapping. Whether 6 b holds for real OPT-125M layers is the next experiment (`config/experiments/f5_adc6_calibrated*.yaml`). If it does, "ADC range = integer MAC step" is a headline design rule for SRAM ACiM on LLMs.
+- **Real model (OPT-125M, first 8,192 test tokens, bit-serial W8A8, nrow 128, ADC 6 b, fc2 ADC 8 b, no noise):**
+
+  | ADC range | PPL |
+  |---|---|
+  | full (ASiM), F3 run | 12,962 |
+  | MSE-calibrated, one full scale per layer | **30.81** |
+  | MSE-calibrated, per (cycle, plane) | 30.81 (bit-identical) |
+  | fake-quant W8A8 reference (same tokens) | 30.45 |
+
+  Calibration chose FS = 63 (ADC step = 1 MAC unit) for every 6-bit layer, and FS = 85 (step 1/3) for fc2 at 8 b; the per-(cycle, plane) run differs only in planes whose MACs were always 0. Remaining +0.36 PPL: MAC values above 63 on test data saturate. Calibration (2,048 train tokens, 72 layers) took 327 s on the i7-12700H.
+- Evidence: `results/f5_opt125m_adc6_cal_layer/`, `results/f5_opt125m_adc6_cal_cp/` (incl. `adc_full_scale.json`), `results/sub8k_opt125m_ba_example/`.
+- Consequence: F3's collapse was ASiM's full-range ADC mapping, not a 6-bit limit. "Set the ADC LSB to one MAC unit (full scale 2^b − 1)" turns a 6-bit ADC from unusable to within ~1% of ideal on OPT-125M. This is a headline design rule for SRAM ACiM on LLMs. Open points for A5: ADC 4–5 b (where clipping becomes unavoidable), larger nrow, GPT-2, noise on top, and a headroom margin against saturation.
 
 ## F6 — At low ADC precision, whole-network results are chaotic
 

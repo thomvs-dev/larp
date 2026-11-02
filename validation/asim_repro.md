@@ -1,6 +1,6 @@
 # A2 — Reproduction of ASiM on ResNet-20 / CIFAR-10
 
-Status: script ready (`validation/a2_asim_compare.py`), runs pending on Thomas's machine.
+Status: smoke run done (200 images, 3 configs, all within 1%); full sweep (1,000 images, 13 configs) pending.
 
 ## Setup
 
@@ -23,5 +23,17 @@ Status: script ready (`validation/a2_asim_compare.py`), runs pending on Thomas's
 - `bs_n64_adc8` difference explained by F4.
 
 ## Results
+
+### Smoke run (200 images) — `results/a2_smoke/`
+
+| Config | cimsim acc (%) | ASiM acc (%) | diff | cimsim s | ASiM s |
+|---|---|---|---|---|---|
+| ideal_w8a8 (fake-quant) | 92.00 | 92.00 | +0.00 | 0.5 | 0.4 |
+| bs_n128_adc8 | 92.00 | 92.00 | +0.00 | 11.2 | 102.3 |
+| bs_n128_adc6 | 59.00 | 60.00 | -1.00 | 12.4 | 103.3 |
+
+FP32 92.50% on these 200 images. cimsim is ~9× faster than ASiM. The ADC 6 b drop (92 → 59–60%) appears in both simulators.
+
+### Full sweep (1,000 images)
 
 (fill from `results/a2_resnet20/table.md`)
