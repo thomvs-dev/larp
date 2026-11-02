@@ -1,0 +1,13 @@
+# Example: bit-accurate analog CIM with per-layer overrides (use with --max-tokens 8192).
+# ADC 8 b: at 6 b, signed two's-complement inputs make the model collapse (docs/findings.md F3).
+default:
+  mode: bit_accurate
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 8
+  rand_noise_sigma: 0.0
+  token_block: 128
+layers:
+  "*.fc2": {adc_bits: 10}            # OPT FFN down projection (largest inputs)
+  "*.mlp.down_proj": {adc_bits: 10}  # Llama/Qwen FFN down projection

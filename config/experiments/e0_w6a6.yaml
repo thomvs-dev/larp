@@ -1,0 +1,7 @@
+# E0: W6A6 ideal digital reference
+default:
+  mode: fake_quant
+  w_bits: 6
+  x_bits: 6
+  w_gran: per_channel
+  x_gran: per_token

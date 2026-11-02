@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A1 core done (GATE A1 passed); A0 baselines waiting on runs on Thomas's machine**
+Status: **Part A — A0 baselines done (E0), A1 core done (GATE A1 passed). Next: A1 leftovers, then A2**
 Last updated: 2026-11-02
 
 ---
@@ -11,7 +11,7 @@ Last updated: 2026-11-02
 
 Read this before doing anything else in a new session.
 
-1. Read this whole file. Section 6 (Status) and Section 7 (Progress log) say where work stopped. For Part A design details (maths, config fields, tests, experiment IDs E0–E7) read `docs/part_a_plan.md`. Run `pytest -q` before and after changing core code.
+1. Read this whole file. Section 6 (Status) and Section 7 (Progress log) say where work stopped. For Part A design details (maths, config fields, tests, experiment IDs E0–E7) read `docs/part_a_plan.md`. Findings that affect design are in `docs/findings.md`. Run `pytest -q` before and after changing core code.
 2. Work on the **next unchecked task in the current milestone**. Do not skip ahead, and do not start Part B before Part A's exit criteria are met, unless Thomas says otherwise.
 3. Validation gates (marked **GATE**) must pass before the next milestone starts. If one fails, fix it or report why; do not work around it.
 4. When you finish a task:
@@ -22,6 +22,7 @@ Read this before doing anything else in a new session.
 6. Do not reorder milestones, drop tasks, or change end goals without asking Thomas. Adding sub-tasks is fine.
 7. Every experiment saves its config, git commit hash, seed and raw outputs under `results/<experiment_name>/`. No numbers in the log without a results path.
 8. Use plain, functional language in code comments, docs and reports.
+9. **There is no GPU.** All runs are on CPU. Follow `docs/cpu_guide.md` (speeds, 8k-token subset protocol for bit-accurate runs). Keep one codebase: CPU optimisations go behind `backend: fast` and must be tested against `backend: reference`; never change `executor.py` semantics for speed.
 
 ---
 
@@ -101,9 +102,10 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 ### A0 — Setup and baselines
 
 - [x] Create repo skeleton (layout above), `pyproject.toml`, pytest. (formatter/pre-commit: optional, not set up)
-- [ ] Record available hardware (GPU model, VRAM) in Section 9.  ← needs Thomas
-- [ ] Perplexity eval on WikiText-2 for OPT-125M and GPT-2 in FP16 — baseline numbers. Script ready: `scripts/run_ppl.py` (commands in README). Must run on Thomas's machine: HuggingFace is blocked from the cloud sandbox.
-- [ ] Same for W8A8 integer fake-quant (per-tensor and per-channel), plus W6A6 and W4A8 — configs in `config/experiments/e0_*.yaml`.
+- [x] Record hardware in Section 9: i7-12700H, 16 GB, no GPU.
+- [x] Perplexity eval on WikiText-2 for OPT-125M and GPT-2 in FP32 (CPU): OPT-125M 27.655 (published 27.65), GPT-2 29.951. Pipeline validated. (`results/E0_summary.md`)
+- [x] Same for W8A8 integer fake-quant (per-tensor and per-channel), plus W6A6 and W4A8. W8A8 per-channel/per-token: +0.29 / +0.20. Per-tensor: +2.8 / +27.5 (outliers). (`results/E0_summary.md`)
+- [x] Code on GitHub: https://github.com/thomvs-dev/larp (branch `main`). `D:\japan` must be linked to it so runs record the commit hash ← Thomas (commands in README "Git").
 - [x] Clone ASiM into `third_party/` (read-only reference), check its licence and note it in Section 8. (Apache 2.0; `third_party/` is git-ignored, clone command in README)
 
 ### A1 — Core bit-accurate CIM executor
@@ -111,11 +113,13 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] `CIMLinear`: weight bit-slicing, input bit-serial and bit-parallel encoding, row grouping by `nrow`.
 - [x] ADC model: configurable bits, fixed full-scale range, clipping (ASiM semantics).
 - [ ] ADC range option: per-layer calibrated full scale (needed for A5/A6; not in ASiM).
+- [ ] Asymmetric (zero-point) weight quantization option, to confirm the W4A8 gap vs published 4-bit RTN (E0 finding 2). Low priority.
 - [x] Noise injection: Gaussian random noise and nonlinearity (ASiM-style `rand_noise_sigma`, `non_linear_sigma`), seeded per layer.
 - [x] Signed weight handling documented: two's complement planes (`docs/assumptions.md` #1). Differential / offset schemes: optional, later.
 - [x] Event counter: ADC conversions (total / analog), array cycles, MACs, weight bits written.
-- [x] Vectorized across bit-planes (one matmul per row chunk); CPU benchmark done. GPU benchmark pending (`scripts/bench_layer.py`).
-- [x] **GATE A1:** ideal-config test matches integer matmul exactly; tests pass for random shapes. (95 tests pass)
+- [x] Vectorized across bit-planes (one matmul per row chunk); CPU benchmark done (`scripts/bench_layer.py`).
+- [x] CPU-optimised executor `backend: fast` (`cimsim/core/executor_fast.py`), tested against reference and ASiM. 2.4–3.4× faster noise-free, ~1.5× with noise.
+- [x] **GATE A1:** ideal-config test matches integer matmul exactly; tests pass for random shapes. (122 tests pass)
 
 ### A2 — Reproduce ASiM (correctness check)
 
@@ -138,7 +142,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [ ] Per-layer mapping policy in config: which of Q/K/V/O, FFN up/gate/down run on analog CIM, DCIM, or digital.
 - [ ] `CIMMatMul` for dynamic operands (QKᵀ, S·V) with write events counted (KV written into arrays).
 - [ ] Eval: WikiText-2 perplexity + small zero-shot set (e.g. ARC-e, PIQA, HellaSwag via lm-eval-harness).
-- [ ] Run on TinyLlama-1.1B and Qwen-0.5B in fast mode; record runtime.
+- [ ] Run on TinyLlama-1.1B and Qwen-0.5B in statistical mode (CPU); record runtime.
 
 ### A5 — Sensitivity study
 
@@ -146,6 +150,8 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [ ] Per-layer noise sensitivity (inject noise one layer at a time).
 - [ ] Activation outlier statistics per layer (max/std, channel outliers) and correlation with sensitivity.
 - [ ] Bit-serial vs bit-parallel on LLMs, compared with ASiM's CNN/ViT findings.
+- [ ] Input encoding study (F3): two's complement vs sign-magnitude vs offset-binary inputs, and skipping sign-extension planes — perplexity vs ADC bits at equal ADC conversions. Needs new encoding options in both executors (reference first, then fast, tested against each other).
+- [ ] ADC level alignment (F3): report error vs ADC bits for nrow aligned (2^b − 1 multiple of nrow) and not aligned, separately from ADC precision.
 
 ### A6 — Outlier mitigation at equal cost
 
@@ -222,21 +228,20 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 | Published macros don't report all parameters | Document assumptions; report sensitivity to them |
 | Scope creep (DCIM, attention, circuit noise all at once) | Follow milestone order; A7 and DCIM are optional until A exit |
 | Results don't match ASiM | GATE A2 blocks progress until explained |
-| GPU limits | Development on OPT-125M/GPT-2; larger models only in fast mode |
+| No GPU (CPU only) | `backend: fast`; bit-accurate only on OPT-125M/GPT-2, first 8,192 tokens; result models only in statistical mode; see `docs/cpu_guide.md` |
 
 ---
 
 ## 6. Status
 
 - Current part: **A**
-- Current milestone: **A0 (baselines) → then A1 leftovers → A2**
+- Current milestone: **A1 leftovers → A2**
 - Next tasks, in order:
-  1. Thomas: set up env (README "Setup"), run `pytest -q`, run E0 baseline commands (README "A0 baselines") for OPT-125M and GPT-2, record GPU in Section 9.
-  2. Agent: put E0 numbers in a table in `results/E0_summary.md`; sanity-check FP16 PPL (OPT-125M ≈ 27–28, GPT-2 ≈ 29–30 at seq 1024; investigate if far off).
-  3. Agent: GPU benchmark with `scripts/bench_layer.py`; if bit-accurate is too slow, optimise the readout path (float32 where exact).
-  4. Agent: per-layer calibrated ADC range option (A1 leftover).
-  5. Agent: `CIMConv2d` (needed for A2 ResNet-20), then A2.
-- Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine.
+  1. Thomas: link `D:\japan` to the GitHub repo (README "Git").
+  2. Agent: per-layer calibrated ADC range option (A1 leftover).
+  3. Agent: `CIMConv2d` (needed for A2 ResNet-20), then A2 on a fixed 1,000-image CIFAR-10 subset.
+  4. Agent (low priority): asymmetric weight option to check E0 finding 2.
+- Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
 ---
 
@@ -249,6 +254,15 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — A0 skeleton: package `cimsim`, configs, perplexity eval, run script, README, assumptions doc. — `cimsim/`, `eval/`, `scripts/run_ppl.py`, `config/experiments/`
 - 2026-11-02 — A1 core: bit-planes, bit-accurate executor (ASiM semantics), CIMLinear (fp / fake_quant / bit_accurate), event counter, HF layer swap (OPT, GPT-2, Llama). 95 tests pass incl. exact ideal match and ASiM layer equivalence (≤1e-6). — `cimsim/core/`, `cimsim/models/swap.py`, `tests/`
 - 2026-11-02 — CPU benchmark (2 cores), one 768×3072 layer, 128 tokens, nrow 128: fp 0.004 s, fake_quant 0.004 s, bit_accurate 3.6 s (bit-serial), 1.6 s (enc=3). — `scripts/bench_layer.py`
+- 2026-11-02 — CPU-optimised executor (`backend: fast`, default): LUT-free ADC via verified float32 scale, [T,C,K] layout so shift-add is one batched matmul, lossless-readout shortcut. Full OPT-125M-sized model on 2 cores: fake_quant 1.6 ms/token; bit-accurate serial ADC6 94 ms/token (reference 186); enc3 43 ms/token; 1% noise 148 ms/token. 122 tests pass (fast vs reference ≤1e-5 noise-free, noise std within 5%, ASiM equivalence on both backends). — `cimsim/core/executor_fast.py`, `tests/test_fast_executor.py`, `docs/cpu_guide.md`
+- 2026-11-02 — Fix for Thomas's env (huggingface_hub 2.4, transformers 5.22, Python 3.13, Windows): WikiText loaded as `Salesforce/wikitext` (bare `wikitext` rejected by hub 2.x), `dtype=` instead of deprecated `torch_dtype=`. pytest passes on Thomas's machine. — `eval/perplexity.py`, `scripts/run_ppl.py`
+- 2026-11-02 — Run script: progress/ETA per window, per-window NLL saved, `--threads`, CPU float32 default. Tests find ASiM at `third_party/ASiM` or `ASiM/` (Thomas cloned it at repo root). — `scripts/run_ppl.py`, `eval/perplexity.py`
+- 2026-11-02 — E0 first baseline on Thomas's machine (CPU, 14 threads): OPT-125M FP32, WikiText-2 test, seq 1024 non-overlapping, 280 windows: PPL 31.76, 270 s. Higher than the commonly cited 27.65 because that number uses seq 2048; check run at 2048 pending. — `results/e0_opt125m_fp32/`
+- 2026-11-02 — OPT-125M FP32 at seq 2048: PPL 27.655 (published 27.65) — evaluation pipeline validated. 319 s on 14 threads. — `results/e0_opt125m_fp32_s2048/`
+- 2026-11-02 — E0 complete (11 runs, full test set, fake_quant): OPT-125M FP32 27.655 / W8A8 27.942 / W8A8 per-tensor 30.451 / W6A6 31.952 / W4A8 51.094; GPT-2 FP32 29.951 / W8A8 30.151 / per-tensor 57.452 / W6A6 36.391 / W4A8 47.457. Per-tensor scaling breaks GPT-2 (outliers). W4A8 worse than published RTN — likely symmetric ±7 vs asymmetric 16-level, to confirm. — `results/E0_summary.md`, `results/e0_*/`
+- 2026-11-02 — First whole-model bit-accurate run (Thomas's i7-12700H): OPT-125M W8A8 bit-serial nrow 128 ADC 6 b, 8,192 tokens: PPL 12,962 vs 30.45 fake-quant on the same tokens; 608 s (74 ms/token). Diagnosed as genuine (finding F3): two's-complement sign-extension planes + coarse ADC; ADC 8 b brings layer error to 0.4%. Example config moved to ADC 8 b; F3 config kept for reproduction. — `results/sub8k_*`, `docs/findings.md`, `config/experiments/f3_adc6_collapse.yaml`
+- 2026-11-02 — Repo pushed to GitHub (thomvs-dev/larp), results now tracked in git. Reference `executor.py` in the agent's working copy had an undocumented float32 change; reverted to the validated float64 version (identical to the one on Thomas's machine) before pushing. — `cimsim/core/executor.py`
+- 2026-11-02 — `run_ppl.py`: window length defaults to model context (cap 2048); `--max-tokens` for the CPU subset; git stderr silenced. — `scripts/run_ppl.py`
 
 ---
 
@@ -263,16 +277,21 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-02 — bit_accurate mode copies ASiM semantics exactly (incl. full scale = nrow on short chunks, nonlinearity form) — so GATE A2 is like-for-like. Deviations become separate config options, never silent changes.
 - 2026-11-02 — Default quantization for LLMs: per-channel weights, per-token activations; ASiM's per-tensor kept as an option — per-tensor is known to hurt LLMs badly (E0 will show by how much).
 - 2026-11-02 — LM head excluded from swapping by default (kept digital).
+- 2026-11-02 — Results (`results/*/`) are tracked in git (small JSON/YAML) so every number in the log is reproducible from the repo. Large artefacts, if any later, go elsewhere.
+- 2026-11-02 — Evaluation window = model context length, capped at 2048 (OPT/Qwen/TinyLlama 2048, GPT-2 1024) — matches quantization literature so baselines compare directly with published tables (OPT-125M reproduces 27.65). CPU bit-accurate subset defined by tokens (first 8,192) rather than windows.
+- 2026-11-02 — No GPU: project is CPU-only. One codebase, two executors (`fast` default, `reference` kept for ASiM-exact checks) rather than a separate CPU codebase — a fork would drift from the validated semantics. Whole-model bit-accurate runs limited to OPT-125M/GPT-2 on the first 8,192 tokens; full-set and result-model numbers come from statistical mode (A3).
 
 ---
 
 ## 9. Open questions / environment
 
-- GPU available (model, VRAM): _TBD_
+- Machine: Intel Core i7-12700H (6P + 8E cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads by default. Bit-accurate OPT-125M ≈ 74 ms/token.
 - Process node to assume for PPA: _TBD_
 - Target venue / deadline: _TBD_
 - ASiM licence terms: Apache 2.0 (checked 2026-11-02)
-- Cloud sandbox: CPU only, 2 cores, no HuggingFace access. Model downloads and GPU runs happen on Thomas's machine.
+- Cloud sandbox: CPU only, 2 cores, no HuggingFace access. Model downloads and runs happen on Thomas's machine (CPU).
+- Git: https://github.com/thomvs-dev/larp, branch `main`. Agents push from the cloud sandbox; Thomas pulls into `D:\japan`. Results produced on Thomas's machine are committed by him (or staged into the sandbox and committed by the agent).
+- Agent file sync (cloud sandbox → `D:\japan`): `device_commit_files` silently keeps old content when a staging path is reused. Stage every file under a fresh folder (e.g. `/mnt/user-data/outputs/sync_<n>/`), then verify with `md5sum` on the device. Or patch in place with `device_bash`.
 
 ## 10. References
 

@@ -1,0 +1,23 @@
+{
+  "ppl": 12962.492244196917,
+  "nll": 9.469815254211426,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    9.540590286254883,
+    9.312691688537598,
+    9.54456615447998,
+    9.481412887573242
+  ],
+  "model": "facebook/opt-125m",
+  "config": "config/experiments/example_bit_accurate.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 607.9,
+  "git": "unknown"
+}

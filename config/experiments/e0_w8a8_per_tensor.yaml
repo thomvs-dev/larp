@@ -1,0 +1,7 @@
+# E0: W8A8 with ASiM-style per-tensor scaling (shows the cost of coarse scaling on LLMs)
+default:
+  mode: fake_quant
+  w_bits: 8
+  x_bits: 8
+  w_gran: per_tensor
+  x_gran: per_tensor

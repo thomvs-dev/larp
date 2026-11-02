@@ -22,4 +22,5 @@ dev = ["pytest>=7"]
 include = ["cimsim*"]
 
 [tool.pytest.ini_options]
+norecursedirs = ["ASiM", "third_party", ".venv"]
 testpaths = ["tests"]

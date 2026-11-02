@@ -1,0 +1,7 @@
+# E0: W4A8 ideal digital reference
+default:
+  mode: fake_quant
+  w_bits: 4
+  x_bits: 8
+  w_gran: per_channel
+  x_gran: per_token

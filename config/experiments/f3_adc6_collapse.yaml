@@ -1,0 +1,13 @@
+# F3 reproduction: bit-serial W8A8, nrow 128, ADC 6 b (fc2 8 b). Collapses OPT-125M (PPL ~13k on 8k tokens).
+# See docs/findings.md F3. Use with --max-tokens 8192.
+default:
+  mode: bit_accurate
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  rand_noise_sigma: 0.0
+  token_block: 128
+layers:
+  "*.fc2": {adc_bits: 8}
+  "*.mlp.down_proj": {adc_bits: 8}
