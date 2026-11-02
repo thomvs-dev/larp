@@ -129,7 +129,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] Smoke run (200 images, 3 configs): fake-quant 92.0/92.0, ADC 8 b 92.0/92.0, ADC 6 b 59.0/60.0 (cimsim/ASiM); cimsim ~9× faster. (`results/a2_smoke/`)
 - [ ] Full sweep on Thomas's machine (1,000 test images) ← Thomas: `python validation/a2_asim_compare.py --name a2_resnet20 --n-images 1000`.
 - [ ] Comparison table + discussion in `validation/asim_repro.md`.
-- [ ] **GATE A2:** accuracy trends match ASiM; per-point difference within ~1% absolute (or explained). Proposed refinement (needs Thomas's OK, see Section 8): ≤1% at ADC ≥ 8 b and fake-quant; at ADC ≤ 6 b within run-to-run spread (findings F6).
+- [ ] **GATE A2:** accuracy trends match ASiM (vs ADC bits, nrow, noise, encoding); per-config difference ≤ 1% absolute at ADC ≥ 8 b and for fake-quant; at ADC ≤ 6 b within the run-to-run spread of either simulator (findings F6); `bs_n64_adc8` difference explained by F4. (Criterion approved by Thomas 2026-11-02.)
 
 ### A3 — Statistical fast mode
 
@@ -168,6 +168,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [ ] Model capacitor mismatch (Pelgrom), kT/C, charge injection, comparator offset, ADC INL/DNL.
 - [ ] Map circuit parameters (cap size, node, ADC type) → error sigma / distribution.
 - [ ] Replace user-supplied sigma with derived values; compare against reported silicon numbers where available.
+- [ ] ADC architecture error models: SAR (comparator offset, capacitor-DAC mismatch → DNL), flash (per-comparator offsets), pipelined (inter-stage gain / offset errors → large errors at stage-transition codes), single-slope (ramp nonlinearity). Applied after the MAC, configurable per layer; compare perplexity sensitivity to error *type* at equal error magnitude (errors on high-significance planes are amplified up to 2^14, F3/F5).
 
 ---
 
@@ -191,6 +192,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - [ ] Per-action energy / latency and area for: bitcell read/write, compute bit-line charge/share, SAR and flash ADC (scaling with bits), DAC / wordline driver, shift-add, DCIM adder tree, buffers.
 - [ ] Digital peripheral units: softmax, LayerNorm/RMSNorm, SiLU/GELU, RoPE.
 - [ ] Technology node scaling; every number cited in `docs/assumptions.md`.
+- [ ] Per-architecture ADC cost: energy / area / latency per conversion for SAR, flash, pipelined, single-slope at 4–8 b, plus ADC sharing ratio (columns per ADC) as a config field.
 
 ### B1 — Macro model and calibration
 
@@ -209,6 +211,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - [ ] DRAM bandwidth/energy model for weight reload.
 - [ ] KV cache placement options: in CIM arrays (count writes) vs separate buffer; attention dataflow options.
 - [ ] Sequence length sweep (128 → 2K+) to show where attention / KV traffic dominates.
+- [ ] Conversion scheduling: ADC sharing (serialised conversions), pipelined ADC latency, and overlap of array compute with conversion (macro-level pipelining) in the latency model.
 
 ### B4 — Coupled runs and DSE
 
@@ -240,10 +243,9 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A2** (runs pending on Thomas's machine)
 - Next tasks, in order:
-  1. Thomas: `git pull` (see README "Git" if it complains about untracked results), then the full A2 sweep (1–2 h).
-  2. Thomas: decide on the proposed GATE A2 criterion (Section 8).
-  3. Agent: fill `validation/asim_repro.md` from `results/a2_resnet20/`; decide GATE A2.
-  4. Agent: then A3 (statistical mode).
+  1. Thomas: `git fetch origin; git reset --hard origin/main` (README "Git"), then the full A2 sweep (1–2 h).
+  2. Agent: fill `validation/asim_repro.md` from `results/a2_resnet20/`; decide GATE A2.
+  3. Agent: then A3 (statistical mode).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
 ---
@@ -272,6 +274,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — F2 resolved: W4A8 with asymmetric weights OPT-125M 37.39 / GPT-2 38.90 (symmetric 51.09 / 47.46; published 4-bit RTN OPT-125M 37.28). — `results/e0_*_w4a8_asym/`
 - 2026-11-02 — F5 confirmed on OPT-125M (8,192 tokens, bit-serial W8A8, nrow 128, ADC 6 b): MSE-calibrated ADC range PPL 30.81 (per layer and per (cycle, plane) identical) vs 12,962 with ASiM's full-range ADC and 30.45 fake-quant. Calibration picks FS = 63 (1 MAC unit per ADC step) for every 6-bit layer. Calibration 327 s. — `results/f5_opt125m_adc6_cal_*/`
 - 2026-11-02 — A2 smoke (200 images): cimsim vs ASiM within 1% on 3 configs; ~9× faster. Fixed a Windows crash in the A2 script (table written in cp1252, now UTF-8 + ASCII; `--table-only` rebuilds a table from results.json); all result files now written as UTF-8. — `results/a2_smoke/`, `validation/a2_asim_compare.py`, `scripts/run_ppl.py`
+- 2026-11-02 — GATE A2 criterion approved by Thomas; ADC-architecture sub-tasks added to A7 (error models), B0 (cost, sharing ratio), B3 (conversion scheduling). — `CLAUDE.md`
 - 2026-11-02 — `run_ppl.py`: window length defaults to model context (cap 2048); `--max-tokens` for the CPU subset; git stderr silenced. — `scripts/run_ppl.py`
 
 ---
@@ -289,7 +292,8 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-02 — LM head excluded from swapping by default (kept digital).
 - 2026-11-02 — ADC range calibration defaults to MSE (squared readout error on calibration data, ties → largest full scale) — percentile clipping hurts at ≥7 b because clipped conversions land on planes with shift-add weight up to 2^14 (F5). Calibration statistics are taken with all CIM layers in ideal mode, on data separate from evaluation (LLM: WikiText-2 train).
 - 2026-11-02 — A2 uses a pretrained CIFAR-10 ResNet-20 (chenyaofo) instead of ASiM's ResNet-18 example — ASiM ships no trained weights and QAT-training ResNet-18 on a CPU is impractical; the comparison only needs both simulators on the same weights. Stem conv and classifier stay in float in both.
-- 2026-11-02 — PROPOSED, needs Thomas's OK: GATE A2 tolerance ≤1% at ADC ≥ 8 b and fake-quant; at ADC ≤ 6 b within run-to-run spread, because whole-network results are chaotic there even with identical per-layer semantics (F6).
+- 2026-11-02 — GATE A2 criterion refined (approved by Thomas): ≤1% at ADC ≥ 8 b and fake-quant; at ADC ≤ 6 b within run-to-run spread — whole-network results are chaotic there even with identical per-layer semantics (F6).
+- 2026-11-02 — Pipelined ADC considered (Thomas's question): not the default for the macro — at the 6 b that F5 shows is sufficient, SAR/flash are cheaper; pipelined needs residue amplifiers (area, static power), heavy column sharing (serialised conversions), adds latency, and its error pattern (large errors at stage-transition codes) is the worst case under 2^14 shift-add amplification. Kept as a simulated option: error model in A7, cost and sharing in B0/B3, so the comparison is made with numbers.
 - 2026-11-02 — Results (`results/*/`) are tracked in git (small JSON/YAML) so every number in the log is reproducible from the repo. Large artefacts, if any later, go elsewhere.
 - 2026-11-02 — Evaluation window = model context length, capped at 2048 (OPT/Qwen/TinyLlama 2048, GPT-2 1024) — matches quantization literature so baselines compare directly with published tables (OPT-125M reproduces 27.65). CPU bit-accurate subset defined by tokens (first 8,192) rather than windows.
 - 2026-11-02 — No GPU: project is CPU-only. One codebase, two executors (`fast` default, `reference` kept for ASiM-exact checks) rather than a separate CPU codebase — a fork would drift from the validated semantics. Whole-model bit-accurate runs limited to OPT-125M/GPT-2 on the first 8,192 tokens; full-set and result-model numbers come from statistical mode (A3).
