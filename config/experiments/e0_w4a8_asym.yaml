@@ -1,0 +1,8 @@
+# F2 check: W4A8 with asymmetric (zero-point) per-channel weights, ideal digital. Compare with e0_w4a8.yaml.
+default:
+  mode: fake_quant
+  w_bits: 4
+  x_bits: 8
+  w_quant: asymmetric
+  w_gran: per_channel
+  x_gran: per_token

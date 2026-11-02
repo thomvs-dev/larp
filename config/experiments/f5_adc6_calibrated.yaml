@@ -1,0 +1,17 @@
+# F5: same as f3_adc6_collapse.yaml (bit-serial W8A8, nrow 128, ADC 6 b, fc2 8 b) but with the ADC full scale
+# calibrated by squared-error minimisation (one full scale per layer). Compare with f3 on the same 8,192 tokens.
+# Use with --max-tokens 8192 (calibration uses 2,048 WikiText-2 train tokens by default).
+default:
+  mode: bit_accurate
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: layer
+  rand_noise_sigma: 0.0
+  token_block: 128
+layers:
+  "*.fc2": {adc_bits: 8}
+  "*.mlp.down_proj": {adc_bits: 8}

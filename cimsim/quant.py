@@ -36,6 +36,25 @@ def quantize_weight(w: torch.Tensor, bits: int, gran: str) -> tuple[torch.Tensor
     return q, s
 
 
+def quantize_weight_asym(w: torch.Tensor, bits: int, gran: str) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Asymmetric min-max weight quantization with zero point.
+    w: [N, K]. Returns (q_u in [0, 2^bits - 1], step [N,1] or [1,1], zero [N,1] or [1,1]).
+    Real weight = (q_u - zero) * step."""
+    if gran == "per_tensor":
+        lo, hi = w.min().reshape(1, 1), w.max().reshape(1, 1)
+    elif gran == "per_channel":
+        lo, hi = w.amin(dim=1, keepdim=True), w.amax(dim=1, keepdim=True)
+    else:
+        raise ValueError(gran)
+    lo = torch.minimum(lo, torch.zeros_like(lo))   # range always contains 0
+    hi = torch.maximum(hi, torch.zeros_like(hi))
+    qm = 2 ** bits - 1
+    step = (hi - lo).clamp_min(EPS) / qm
+    zero = torch.clamp(torch.round(-lo / step), 0, qm)
+    q = torch.clamp(torch.round(w / step) + zero, 0, qm)
+    return q, step, zero
+
+
 def quantize_act(x: torch.Tensor, bits: int, gran: str, signed: bool) -> tuple[torch.Tensor, torch.Tensor]:
     """x: [T, K]. Returns (q_int as float tensor, scale [T,1] or [1,1])."""
     if gran == "per_tensor":

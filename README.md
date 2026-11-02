@@ -72,6 +72,24 @@ python scripts/bench_layer.py --K 768 --N 3072 --T 128      # time one layer
 
 Set `backend: reference` in a config to use the slower executor that mirrors ASiM's loop structure (results agree with `fast` to ~1e-6).
 
+## ADC range calibration (finding F5)
+
+```bash
+# same 8,192 tokens as the F3 collapse run, ADC full scale calibrated on 2,048 WikiText-2 *train* tokens
+python scripts/run_ppl.py --model facebook/opt-125m --config config/experiments/f5_adc6_calibrated.yaml --name f5_opt125m_adc6_cal_layer --max-tokens 8192
+python scripts/run_ppl.py --model facebook/opt-125m --config config/experiments/f5_adc6_calibrated_cycle_plane.yaml --name f5_opt125m_adc6_cal_cp --max-tokens 8192
+```
+
+## A2: ResNet-20 vs ASiM (CIFAR-10)
+
+```bash
+pip install pillow                     # needed by `datasets` to decode CIFAR-10 images
+python validation/a2_asim_compare.py --name a2_smoke --configs quick --n-images 200      # ~5 min
+python validation/a2_asim_compare.py --name a2_resnet20 --n-images 1000                 # 13 configs, 1-2 h (ASiM is ~10x slower)
+```
+
+Results: `results/<name>/results.json` and `results/<name>/table.md`.
+
 ## Use in code
 
 ```python
@@ -80,7 +98,10 @@ from cimsim.models.swap import swap_linears
 
 counter = EventCounter()
 cfg = LayerConfigMap.from_yaml("config/experiments/example_bit_accurate.yaml")
-swap_linears(model, cfg, counter)        # LM head stays digital by default
+swap_linears(model, cfg, counter)        # Linear, GPT-2 Conv1D and Conv2d; LM head stays digital
+# if any layer has adc_range: calibrated
+from cimsim import calibrate_adc_range
+calibrate_adc_range(model, lambda: model(calib_ids))
 out = model(input_ids)
 print(counter.total())
 ```

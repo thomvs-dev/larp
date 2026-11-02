@@ -138,6 +138,11 @@ tests/
 | `token_block` | 128 | tokens per inner block (memory control) |
 | `seed` | 0 | noise RNG seed |
 | `backend` | `fast` | `fast` (CPU-optimised) or `reference` (ASiM-mirroring loop) |
+| `w_quant` | `symmetric` | `symmetric` (two's-complement planes, ASiM) or `asymmetric` (unsigned planes + digital zero-point correction) |
+| `adc_range` | `full` | `full` (FS = nrow·L_c, ASiM) or `calibrated` (set by `cimsim.calibrate_adc_range`) |
+| `adc_range_gran` | `cycle_plane` | calibrated FS shared per `layer`, per `cycle`, or per (cycle, plane) |
+| `adc_range_method` | `mse` | `mse` (min squared readout error, ties → largest FS) or `percentile` |
+| `adc_range_pct` | 99.99 | percentile for method `percentile` |
 
 Per-layer overrides in YAML:
 

@@ -82,3 +82,17 @@ def test_perplexity_runs_on_tiny_model():
     res = perplexity(model, ids, seq_len=32, max_windows=3, progress=False)
     assert res["windows"] == 3 and res["tokens"] == 3 * 31
     assert res["ppl"] > 1 and len(res["nll_per_window"]) == 3
+
+
+def test_calibrated_bit_accurate_on_tiny_model():
+    from cimsim import calibrate_adc_range
+    model = tiny("llama").eval()
+    ids = torch.randint(0, 100, (1, 16))
+    m = LayerConfigMap.from_dict({"default": {"mode": "bit_accurate", "nrow": 32, "adc_bits": 6,
+                                              "adc_range": "calibrated", "adc_range_gran": "layer"}})
+    swap_linears(model, m)
+    names = calibrate_adc_range(model, lambda: model(ids))
+    assert len(names) == 14
+    with torch.no_grad():
+        out = model(ids).logits
+    assert torch.isfinite(out).all()

@@ -1,0 +1,15 @@
+# F5 variant: ADC full scale calibrated per (input cycle, weight plane). Otherwise as f5_adc6_calibrated.yaml.
+default:
+  mode: bit_accurate
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: cycle_plane
+  rand_noise_sigma: 0.0
+  token_block: 128
+layers:
+  "*.fc2": {adc_bits: 8}
+  "*.mlp.down_proj": {adc_bits: 8}

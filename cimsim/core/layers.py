@@ -1,4 +1,8 @@
-"""CIM layer modules."""
+"""CIM layer modules: CIMLinear and CIMConv2d.
+
+Both share _CIMBase: quantize -> integer CIM matmul (fake_quant or
+bit_accurate) -> dequantize, plus ADC range calibration and event counting.
+"""
 
 from __future__ import annotations
 
@@ -10,36 +14,136 @@ import torch.nn.functional as F
 
 from cimsim.config import CIMConfig
 from cimsim.events import EventCounter
-from cimsim.quant import quantize_weight, quantize_act, dequant_factor
+from cimsim.quant import (quantize_weight, quantize_weight_asym, quantize_act, dequant_factor,
+                          qmax_signed, qmax_unsigned)
 from cimsim.core.executor import cim_matmul_int, analytic_counts
 from cimsim.core.executor_fast import cim_matmul_int_fast
+from cimsim.core.calib import mac_histogram, full_scale_from_histogram
 
 
-class CIMLinear(nn.Module):
+class _CIMBase(nn.Module):
+    """Shared integer-matmul path. Subclasses provide the [T, K] input rows
+    and the [N, K] weight matrix, and optionally row chunks."""
+
+    def __init__(self, cfg: CIMConfig, name: str, counter: EventCounter | None) -> None:
+        super().__init__()
+        self.cfg = cfg
+        self.name = name
+        self.counter = counter
+        self._qw: torch.Tensor | None = None
+        self._wscale: torch.Tensor | None = None
+        self._wzero: torch.Tensor | None = None
+        self._gen: torch.Generator | None = None
+        self._weights_counted = False
+        self._calibrating = False
+        self._ideal_override = False                 # set by calibrate_adc_range
+        self._hist: torch.Tensor | None = None
+        self.register_buffer("adc_fs", None)        # [C, P] calibrated ADC full scale, or None
+
+    # --- to be provided by subclasses ---
+    def _weight_matrix(self) -> torch.Tensor:  # [N, K]
+        raise NotImplementedError
+
+    def _chunks(self) -> list[tuple[int, int]] | None:
+        return None
+
+    # --- shared ---
+    def requantize(self) -> None:
+        self._qw = None
+
+    def _weights(self):
+        if self._qw is None or self._qw.device != self._weight_matrix().device:
+            w = self._weight_matrix().float()
+            if self.cfg.w_signed:
+                self._qw, self._wscale = quantize_weight(w, self.cfg.w_bits, self.cfg.w_gran)
+                self._wzero = None
+            else:
+                self._qw, self._wscale, self._wzero = quantize_weight_asym(w, self.cfg.w_bits, self.cfg.w_gran)
+        return self._qw, self._wscale, self._wzero
+
+    def _generator(self, device: torch.device) -> torch.Generator:
+        if self._gen is None or self._gen.device != device:
+            self._gen = torch.Generator(device=device)
+            # distinct but reproducible stream per layer
+            self._gen.manual_seed(self.cfg.seed * 1_000_003 + zlib.crc32(self.name.encode()) % 1_000_003)
+        return self._gen
+
+    def _count(self, T: int, K: int, N: int) -> None:
+        if self.counter is None:
+            return
+        chunks = self._chunks()
+        self.counter.add(self.name, **analytic_counts(T, K, N, self.cfg, None if chunks is None else len(chunks)))
+        if not self._weights_counted:
+            self.counter.add(self.name, weight_bits_written=K * N * self.cfg.w_bits)
+            self._weights_counted = True
+
+    # calibration
+    def start_calibration(self) -> None:
+        self._calibrating = True
+        self._hist = None
+
+    def finish_calibration(self) -> None:
+        self._calibrating = False
+        if self._hist is None:
+            raise RuntimeError(f"{self.name}: no calibration data seen")
+        self.adc_fs = full_scale_from_histogram(self._hist, self.cfg)
+        self._hist = None
+
+    def _int_matmul(self, qx: torch.Tensor, qw: torch.Tensor) -> torch.Tensor:
+        """qx [T, K], qw [N, K] -> y_int [T, N] (float32), before zero-point correction."""
+        cfg = self.cfg
+        if self._calibrating:
+            h = mac_histogram(qx.cpu(), qw.cpu(), cfg, self._chunks())
+            self._hist = h if self._hist is None else self._pad_add(self._hist, h)
+            return qx @ qw.t()                                   # ideal output while calibrating
+        if cfg.mode == "fake_quant" or self._ideal_override:
+            return qx @ qw.t()
+        if cfg.mode == "bit_accurate":
+            fs = None
+            if cfg.adc_range == "calibrated":
+                if self.adc_fs is None:
+                    raise RuntimeError(f"{self.name}: adc_range is 'calibrated' but the layer has not "
+                                       "been calibrated (use cimsim.calibrate_adc_range)")
+                fs = self.adc_fs
+            fn = cim_matmul_int_fast if cfg.backend == "fast" else cim_matmul_int
+            return fn(qx, qw, cfg, self._generator(qx.device), full_scale=fs, chunks=self._chunks()).float()
+        if cfg.mode == "statistical":
+            raise NotImplementedError("statistical mode is milestone A3")
+        raise ValueError(cfg.mode)
+
+    @staticmethod
+    def _pad_add(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+        if a.shape[-1] < b.shape[-1]:
+            a = F.pad(a, (0, b.shape[-1] - a.shape[-1]))
+        elif b.shape[-1] < a.shape[-1]:
+            b = F.pad(b, (0, a.shape[-1] - b.shape[-1]))
+        return a + b
+
+    def _compute(self, qx: torch.Tensor, sx: torch.Tensor) -> torch.Tensor:
+        """Integer rows qx [T, K] with per-row (or per-tensor) scale sx -> dequantized [T, N]."""
+        cfg = self.cfg
+        qw, wscale, wzero = self._weights()
+        y_int = self._int_matmul(qx, qw)
+        if cfg.w_signed:
+            return y_int * sx * wscale.t() * dequant_factor(cfg.w_bits, cfg.x_bits, cfg.signed_act)
+        # asymmetric weights: subtract zero-point term digitally (exact), then scale
+        y_int = y_int - qx.sum(dim=1, keepdim=True) * wzero.t()
+        qmx = qmax_signed(cfg.x_bits) if cfg.signed_act else qmax_unsigned(cfg.x_bits)
+        return y_int * (sx / qmx) * wscale.t()
+
+
+class CIMLinear(_CIMBase):
     """Drop-in replacement for nn.Linear executed on a simulated SRAM CIM macro.
 
     weight: [out_features, in_features] (nn.Linear layout).
     """
 
-    def __init__(
-        self,
-        weight: torch.Tensor,
-        bias: torch.Tensor | None,
-        cfg: CIMConfig,
-        name: str = "",
-        counter: EventCounter | None = None,
-    ) -> None:
-        super().__init__()
+    def __init__(self, weight: torch.Tensor, bias: torch.Tensor | None, cfg: CIMConfig,
+                 name: str = "", counter: EventCounter | None = None) -> None:
+        super().__init__(cfg, name, counter)
         self.weight = nn.Parameter(weight.detach().clone(), requires_grad=False)
         self.bias = None if bias is None else nn.Parameter(bias.detach().clone(), requires_grad=False)
-        self.cfg = cfg
-        self.name = name
-        self.counter = counter
         self.out_features, self.in_features = self.weight.shape
-        self._qw: torch.Tensor | None = None
-        self._sw: torch.Tensor | None = None
-        self._gen: torch.Generator | None = None
-        self._weights_counted = False
 
     @classmethod
     def from_linear(cls, lin: nn.Linear, cfg: CIMConfig, name: str = "", counter: EventCounter | None = None) -> "CIMLinear":
@@ -53,57 +157,95 @@ class CIMLinear(nn.Module):
     def extra_repr(self) -> str:
         c = self.cfg
         return (f"in={self.in_features}, out={self.out_features}, mode={c.mode}, "
-                f"W{c.w_bits}A{c.x_bits}, nrow={c.nrow}, adc={c.adc_bits}, enc={c.act_enc}")
+                f"W{c.w_bits}A{c.x_bits}, nrow={c.nrow}, adc={c.adc_bits}, enc={c.act_enc}, "
+                f"adc_range={c.adc_range}, w_quant={c.w_quant}")
 
-    def requantize(self) -> None:
-        self._qw = None
-
-    def _weights(self) -> tuple[torch.Tensor, torch.Tensor]:
-        if self._qw is None or self._qw.device != self.weight.device:
-            w = self.weight.float()
-            self._qw, self._sw = quantize_weight(w, self.cfg.w_bits, self.cfg.w_gran)
-        return self._qw, self._sw
-
-    def _generator(self, device: torch.device) -> torch.Generator:
-        if self._gen is None or self._gen.device != device:
-            self._gen = torch.Generator(device=device)
-            # distinct but reproducible stream per layer
-            self._gen.manual_seed(self.cfg.seed * 1_000_003 + zlib.crc32(self.name.encode()) % 1_000_003)
-        return self._gen
-
-    def _count(self, T: int) -> None:
-        if self.counter is None:
-            return
-        self.counter.add(self.name, **analytic_counts(T, self.in_features, self.out_features, self.cfg))
-        if not self._weights_counted:
-            self.counter.add(self.name, weight_bits_written=self.in_features * self.out_features * self.cfg.w_bits)
-            self._weights_counted = True
+    def _weight_matrix(self) -> torch.Tensor:
+        return self.weight
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         cfg = self.cfg
-        if cfg.mode == "fp":
+        if cfg.mode == "fp" and not self._calibrating:
             return F.linear(x, self.weight.to(x.dtype), None if self.bias is None else self.bias.to(x.dtype))
-
         in_dtype = x.dtype
         lead = x.shape[:-1]
         x2 = x.reshape(-1, self.in_features).float()
-        T = x2.shape[0]
-
-        qw, sw = self._weights()
         qx, sx = quantize_act(x2, cfg.x_bits, cfg.x_gran, cfg.signed_act)
-
-        if cfg.mode == "fake_quant":
-            y_int = qx @ qw.t()
-        elif cfg.mode == "bit_accurate":
-            fn = cim_matmul_int_fast if cfg.backend == "fast" else cim_matmul_int
-            y_int = fn(qx, qw, cfg, self._generator(x2.device)).float()
-        elif cfg.mode == "statistical":
-            raise NotImplementedError("statistical mode is milestone A3")
-        else:
-            raise ValueError(cfg.mode)
-
-        y = y_int * sx * sw.t() * dequant_factor(cfg.w_bits, cfg.x_bits, cfg.signed_act)
+        y = self._compute(qx, sx)
         if self.bias is not None:
             y = y + self.bias.float()
-        self._count(T)
+        self._count(x2.shape[0], self.in_features, self.out_features)
         return y.reshape(*lead, self.out_features).to(in_dtype)
+
+
+class CIMConv2d(_CIMBase):
+    """Drop-in replacement for nn.Conv2d (groups = 1) on a simulated SRAM CIM macro.
+
+    The convolution is computed as an unfolded matmul: each output pixel is a
+    row of K = C_in * kh * kw inputs. Rows are grouped per array activation by
+    whole input channels, as in ASiM: floor(nrow / (kh * kw)) channels per group.
+    (If kh * kw > nrow, one channel per group; the group is then longer than
+    nrow and MAC values above the nominal full scale saturate.)
+
+    Activation quantization granularity: "per_tensor" = whole input batch
+    (ASiM); "per_token" = per image.
+    """
+
+    def __init__(self, conv: nn.Conv2d, cfg: CIMConfig, name: str = "", counter: EventCounter | None = None) -> None:
+        super().__init__(cfg, name, counter)
+        if conv.groups != 1:
+            raise ValueError("CIMConv2d supports groups=1 only")
+        if conv.padding_mode != "zeros":
+            raise ValueError("CIMConv2d supports padding_mode='zeros' only")
+        if isinstance(conv.padding, str):
+            raise ValueError("CIMConv2d needs numeric padding")
+        self.weight = nn.Parameter(conv.weight.detach().clone(), requires_grad=False)
+        self.bias = None if conv.bias is None else nn.Parameter(conv.bias.detach().clone(), requires_grad=False)
+        self.out_channels, self.in_channels, self.kh, self.kw = self.weight.shape
+        self.stride, self.padding, self.dilation = conv.stride, conv.padding, conv.dilation
+
+    @classmethod
+    def from_conv2d(cls, conv: nn.Conv2d, cfg: CIMConfig, name: str = "", counter: EventCounter | None = None) -> "CIMConv2d":
+        return cls(conv, cfg, name, counter)
+
+    def extra_repr(self) -> str:
+        c = self.cfg
+        return (f"{self.in_channels}->{self.out_channels}, k={self.kh}x{self.kw}, stride={self.stride}, "
+                f"pad={self.padding}, mode={c.mode}, W{c.w_bits}A{c.x_bits}, nrow={c.nrow}, adc={c.adc_bits}")
+
+    def _weight_matrix(self) -> torch.Tensor:
+        return self.weight.reshape(self.out_channels, -1)
+
+    def _chunks(self) -> list[tuple[int, int]]:
+        kk = self.kh * self.kw
+        cpm = max(1, self.cfg.nrow // kk)
+        return [(c0 * kk, min(self.in_channels, c0 + cpm) * kk) for c0 in range(0, self.in_channels, cpm)]
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        cfg = self.cfg
+        if cfg.mode == "fp" and not self._calibrating:
+            return F.conv2d(x, self.weight.to(x.dtype), None if self.bias is None else self.bias.to(x.dtype),
+                            self.stride, self.padding, self.dilation)
+        in_dtype = x.dtype
+        B = x.shape[0]
+        xf = x.float()
+        # quantize on the image tensor, then unfold (zero padding stays 0)
+        if cfg.x_gran == "per_tensor":
+            qx4, sx = quantize_act(xf.reshape(1, -1), cfg.x_bits, "per_tensor", cfg.signed_act)
+            qx4 = qx4.reshape_as(xf)
+            sx_img = sx.reshape(1, 1).expand(B, 1)
+        else:
+            qx4, sx_img = quantize_act(xf.reshape(B, -1), cfg.x_bits, "per_token", cfg.signed_act)
+            qx4 = qx4.reshape_as(xf)
+        cols = F.unfold(qx4, (self.kh, self.kw), dilation=self.dilation, padding=self.padding, stride=self.stride)
+        L = cols.shape[-1]
+        qx = cols.transpose(1, 2).reshape(B * L, -1)                       # [B*L, K]
+        sx = sx_img.repeat_interleave(L, dim=0)                              # [B*L, 1]
+        y = self._compute(qx, sx)                                            # [B*L, O]
+        Ho = (x.shape[2] + 2 * self.padding[0] - self.dilation[0] * (self.kh - 1) - 1) // self.stride[0] + 1
+        Wo = (x.shape[3] + 2 * self.padding[1] - self.dilation[1] * (self.kw - 1) - 1) // self.stride[1] + 1
+        y = y.reshape(B, Ho, Wo, self.out_channels).permute(0, 3, 1, 2)
+        if self.bias is not None:
+            y = y + self.bias.float().view(1, -1, 1, 1)
+        self._count(B * L, self.in_channels * self.kh * self.kw, self.out_channels)
+        return y.contiguous().to(in_dtype)

@@ -41,11 +41,16 @@ def to_unsigned_bits(q: torch.Tensor, bits: int) -> torch.Tensor:
     return ((u.unsqueeze(0) >> shifts) & 1).to(torch.float32)
 
 
-def weight_planes(q_w: torch.Tensor, w_bits: int) -> tuple[torch.Tensor, list[tuple[int, int]]]:
+def weight_planes(q_w: torch.Tensor, w_bits: int, signed: bool = True) -> tuple[torch.Tensor, list[tuple[int, int]]]:
     """q_w: [N, K]. Returns planes [w_bits, N, K] and per-plane (shift, sign).
-    Plane index i is the bit index (0 = LSB); the MSB plane has sign -1."""
-    planes = to_twos_complement_bits(q_w, w_bits)
-    meta = [(i, -1 if i == w_bits - 1 else 1) for i in range(w_bits)]
+    Plane index i is the bit index (0 = LSB). Signed (two's complement): the
+    MSB plane has sign -1. Unsigned (asymmetric weights with zero point): all +1."""
+    if signed:
+        planes = to_twos_complement_bits(q_w, w_bits)
+        meta = [(i, -1 if i == w_bits - 1 else 1) for i in range(w_bits)]
+    else:
+        planes = to_unsigned_bits(q_w, w_bits)
+        meta = [(i, 1) for i in range(w_bits)]
     return planes, meta
 
 

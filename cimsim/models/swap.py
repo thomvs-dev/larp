@@ -10,7 +10,7 @@ import fnmatch
 import torch.nn as nn
 
 from cimsim.config import LayerConfigMap
-from cimsim.core.layers import CIMLinear
+from cimsim.core.layers import CIMLinear, CIMConv2d, _CIMBase
 from cimsim.events import EventCounter
 
 DEFAULT_EXCLUDE = ("lm_head", "*.lm_head", "score")
@@ -31,6 +31,7 @@ def swap_linears(
     cfg_map: LayerConfigMap,
     counter: EventCounter | None = None,
     exclude: tuple[str, ...] = DEFAULT_EXCLUDE,
+    conv2d: bool = True,
 ) -> list[str]:
     """Replace layers in place. Returns the names of replaced layers.
     Layers whose name matches an `exclude` pattern are left untouched
@@ -41,12 +42,16 @@ def swap_linears(
             continue
         if isinstance(m, nn.Linear) or _is_hf_conv1d(m):
             targets.append((name, m))
+        elif conv2d and isinstance(m, nn.Conv2d) and m.groups == 1:
+            targets.append((name, m))
 
     replaced = []
     for name, m in targets:
         cfg = cfg_map.for_layer(name)
         if isinstance(m, nn.Linear):
             new = CIMLinear.from_linear(m, cfg, name, counter)
+        elif isinstance(m, nn.Conv2d):
+            new = CIMConv2d.from_conv2d(m, cfg, name, counter)
         else:
             new = CIMLinear.from_conv1d(m, cfg, name, counter)
         new.to(m.weight.device)
@@ -56,8 +61,8 @@ def swap_linears(
 
 
 def set_mode(model: nn.Module, **changes) -> None:
-    """Change config fields on every CIMLinear (e.g. set_mode(model, mode='fp'))."""
+    """Change config fields on every CIM layer (e.g. set_mode(model, mode='fp'))."""
     for m in model.modules():
-        if isinstance(m, CIMLinear):
+        if isinstance(m, _CIMBase):
             m.cfg = m.cfg.replace(**changes)
             m.requantize()

@@ -18,6 +18,9 @@ import yaml
 MODES = ("fp", "fake_quant", "bit_accurate", "statistical")
 GRANULARITIES_W = ("per_tensor", "per_channel")
 GRANULARITIES_X = ("per_tensor", "per_token")
+W_QUANT = ("symmetric", "asymmetric")
+ADC_RANGES = ("full", "calibrated")
+ADC_RANGE_GRANS = ("layer", "cycle", "cycle_plane")
 
 
 @dataclass
@@ -37,6 +40,20 @@ class CIMConfig:
     token_block: int = 128               # tokens per inner block (memory control)
     seed: int = 0
     backend: str = "fast"                # "fast" (CPU-optimised) or "reference" (ASiM-exact loop structure)
+    w_quant: str = "symmetric"           # "symmetric" (two's complement planes, ASiM) or
+                                         # "asymmetric" (unsigned planes + zero point, corrected digitally)
+    adc_range: str = "full"              # "full": ADC full scale = nrow * L_c (ASiM);
+                                         # "calibrated": full scale set from calibration data
+    adc_range_gran: str = "cycle_plane"  # calibrated range shared per "layer", per input "cycle",
+                                         # or per (cycle, weight plane) = "cycle_plane"
+    adc_range_method: str = "mse"        # "mse": full scale minimising squared readout error on the
+                                         #   calibration data (significance-weighted when shared);
+                                         # "percentile": adc_range_pct of calibration MAC values
+    adc_range_pct: float = 99.99         # used by method "percentile"
+
+    @property
+    def w_signed(self) -> bool:
+        return self.w_quant == "symmetric"
 
     def __post_init__(self) -> None:
         self.validate()
@@ -65,6 +82,16 @@ class CIMConfig:
             raise ValueError("hybrid_levels must be >= 0")
         if self.backend not in ("fast", "reference"):
             raise ValueError("backend must be 'fast' or 'reference'")
+        if self.w_quant not in W_QUANT:
+            raise ValueError(f"w_quant must be one of {W_QUANT}")
+        if self.adc_range not in ADC_RANGES:
+            raise ValueError(f"adc_range must be one of {ADC_RANGES}")
+        if self.adc_range_gran not in ADC_RANGE_GRANS:
+            raise ValueError(f"adc_range_gran must be one of {ADC_RANGE_GRANS}")
+        if self.adc_range_method not in ("mse", "percentile"):
+            raise ValueError("adc_range_method must be 'mse' or 'percentile'")
+        if not 0.0 < self.adc_range_pct <= 100.0:
+            raise ValueError("adc_range_pct must be in (0, 100]")
 
     def replace(self, **changes: Any) -> "CIMConfig":
         return dataclasses.replace(self, **changes)

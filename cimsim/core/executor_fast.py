@@ -41,7 +41,7 @@ def _codes(q: torch.Tensor, bits: int, signed: bool) -> torch.Tensor:
     return qi
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=8192)
 def _ref_codes(full_scale: int, adc_bits: int) -> torch.Tensor:
     """Reference ADC code k(m) for m = 0..FS (float64 formula from executor.py)."""
     m = torch.arange(full_scale + 1, dtype=torch.float64)
@@ -49,7 +49,7 @@ def _ref_codes(full_scale: int, adc_bits: int) -> torch.Tensor:
     return torch.round(torch.clamp(m / full_scale, 0.0, 1.0) * L)
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=8192)
 def _adc_scale(full_scale: int, adc_bits: int) -> float | None:
     """float32 a such that round(float32(m) * a) == reference code for all m,
     or None if no candidate near L/FS works."""
@@ -87,8 +87,11 @@ def cim_matmul_int_fast(
     q_w: torch.Tensor,
     cfg: CIMConfig,
     generator: torch.Generator | None = None,
+    full_scale: torch.Tensor | None = None,
+    chunks: list[tuple[int, int]] | None = None,
 ) -> torch.Tensor:
-    """Same contract as executor.cim_matmul_int. Returns float64 [T, N]."""
+    """Same contract as executor.cim_matmul_int (including full_scale and
+    chunks). full_scale values must be integers. Returns float64 [T, N]."""
     T, K = q_x.shape
     N = q_w.shape[0]
     dev = q_x.device
@@ -97,7 +100,16 @@ def cim_matmul_int_fast(
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
     C = len(cycles)
 
-    if readout_is_lossless(cfg, cycles):
+    fs_nom = torch.tensor([nrow * c.levels for c in cycles], dtype=torch.float64)
+    if full_scale is None:
+        fs_cp = fs_nom.view(C, 1).expand(C, P).clone()
+    else:
+        fs_cp = full_scale.detach().to("cpu", torch.float64).reshape(C, P).clone()
+        if not torch.equal(fs_cp, torch.round(fs_cp)) or bool((fs_cp < 1).any()):
+            raise ValueError("fast executor needs integer full_scale >= 1")
+    calibrated = not torch.equal(fs_cp, fs_nom.view(C, 1).expand(C, P))
+
+    if not calibrated and readout_is_lossless(cfg, cycles):
         return q_x.double() @ q_w.double().t()
 
     noisy = cfg.rand_noise_sigma > 0 or cfg.non_linear_sigma > 0
@@ -105,34 +117,35 @@ def cim_matmul_int_fast(
     s_nl = cfg.non_linear_sigma / 100.0
     adc = cfg.adc_bits
     adc_L = None if adc is None else float(2 ** adc - 1)
-    fs_list = [nrow * c.levels for c in cycles]
 
     # shift-add coefficients [C, P] (powers of two)
     coef = torch.empty(C, P, dtype=torch.float64)
     for ci, c in enumerate(cycles):
         for p in range(P):
-            coef[ci, p] = c.sign * (-1 if p == P - 1 else 1) * 2.0 ** (c.shift + p)
+            wsign = -1 if (cfg.w_signed and p == P - 1) else 1
+            coef[ci, p] = c.sign * wsign * 2.0 ** (c.shift + p)
 
-    # noise-free readout plan per cycle: scale a_c (or LUT) and output factor b_c
-    pre_scale = torch.ones(C, dtype=torch.float32)
-    post = torch.ones(C, dtype=torch.float64)
-    lut_cycles: dict[int, torch.Tensor] = {}
-    if not noisy:
-        for ci, fs in enumerate(fs_list):
-            if adc is None:
-                continue
-            a = _adc_scale(fs, adc)
-            if a is None:
-                lut_cycles[ci] = _ref_codes(fs, adc).float().to(dev)
-            else:
-                pre_scale[ci] = a
-            post[ci] = fs / adc_L
-    coef_eff = (coef * post.view(C, 1)).to(torch.float32).reshape(1, 1, C * P).to(dev)
-    pre_v = pre_scale.to(dev).view(1, C, 1, 1)
-    any_scale = adc is not None and not noisy
+    # noise-free readout plan per (cycle, plane): code = round(m * a), value = code * FS / L
+    pre_scale = torch.ones(C, P, dtype=torch.float32)
+    post = torch.ones(C, P, dtype=torch.float64)
+    lut_cp: dict[tuple[int, int], torch.Tensor] = {}
+    if not noisy and adc is not None:
+        for ci in range(C):
+            for p in range(P):
+                fs = int(fs_cp[ci, p])
+                a = _adc_scale(fs, adc)
+                if a is None:
+                    lut_cp[(ci, p)] = _ref_codes(fs, adc).float().to(dev)
+                else:
+                    pre_scale[ci, p] = a
+                post[ci, p] = fs / adc_L
+    coef_eff = (coef * post).to(torch.float32).reshape(1, 1, C * P).to(dev)
+    pre_v = pre_scale.to(dev).view(1, C, P, 1)
+    fs_cp_v = fs_cp.to(torch.float32).to(dev).view(1, C, P, 1)
 
     if noisy:
-        fs_v = torch.tensor(fs_list, dtype=torch.float32, device=dev).view(1, C, 1, 1)
+        fsn_v = fs_nom.to(torch.float32).to(dev).view(1, C, 1, 1)
+        ratio_v = (fs_nom.view(C, 1) / fs_cp).to(torch.float32).to(dev).view(1, C, P, 1)
         amask = analog_mask(P, C, cfg.hybrid_levels).to(dev).view(1, C, P, 1)
         all_analog = bool(amask.all())
         coef_noisy = coef.to(torch.float32).reshape(1, 1, C * P).to(dev)
@@ -140,14 +153,14 @@ def cim_matmul_int_fast(
     # input digits [T, C, K] uint8
     ux = _codes(q_x, cfg.x_bits, cfg.signed_act)
     digits = torch.stack([((ux >> c.bit_lo) & ((1 << c.n_bits) - 1)).to(torch.uint8) for c in cycles], dim=1)
-    uw = _codes(q_w, P, True).to(torch.int16)
+    uw = _codes(q_w, P, cfg.w_signed).to(torch.int16)
     shifts = torch.arange(P, dtype=torch.int16, device=dev).view(P, 1, 1)
 
     y = torch.zeros(T, N, dtype=torch.float64, device=dev)
     tb = max(1, cfg.token_block)
+    chunk_list = [(k0, min(K, k0 + nrow)) for k0 in range(0, K, nrow)] if chunks is None else chunks
 
-    for k0 in range(0, K, nrow):
-        k1 = min(K, k0 + nrow)
+    for k0, k1 in chunk_list:
         r = k1 - k0
         wk = ((uw[:, k0:k1].unsqueeze(0) >> shifts) & 1).to(torch.float32)       # [P, N, r]
         wk = wk.reshape(P * N, r).t().contiguous()                                # [r, P*N]
@@ -158,13 +171,21 @@ def cim_matmul_int_fast(
             m = (xk @ wk).view(Tb, C, P, N)                                      # exact integers
 
             if not noisy:
-                if any_scale:
+                if adc is not None:
+                    if lut_cp:
+                        m_raw = m.clone()
                     m.mul_(pre_v).round_()
-                    for ci, lut in lut_cycles.items():
-                        m[:, ci] = lut[m[:, ci].to(torch.int64)]
+                    if calibrated:
+                        m.clamp_(max=adc_L)                                       # saturation above FS
+                    for (ci, p), lut in lut_cp.items():
+                        idx = torch.clamp(m_raw[:, ci, p], max=lut.numel() - 1).to(torch.int64)
+                        m[:, ci, p] = lut[idx]
+                elif calibrated:
+                    m = torch.minimum(m, fs_cp_v)                                 # no ADC: clip only
                 part = torch.matmul(coef_eff, m.view(Tb, C * P, N))              # [Tb, 1, N]
             else:
-                v = m.div_(fs_v).clamp_(0.0, 1.0)
+                # noise relative to the nominal full scale (same as the reference)
+                v = m.div_(fsn_v).clamp_(0.0, 1.0)
                 noise = torch.empty_like(v)
                 if s_rand > 0:
                     noise.normal_(0.0, s_rand, generator=generator)
@@ -178,9 +199,11 @@ def cim_matmul_int_fast(
                     v.add_(noise).clamp_(0.0, 1.0)
                 else:
                     v = torch.where(amask, (v + noise).clamp_(0.0, 1.0), v)
+                if calibrated:
+                    v.mul_(ratio_v).clamp_(0.0, 1.0)
                 if adc_L is not None:
                     v.mul_(adc_L).round_().div_(adc_L)
-                v.mul_(fs_v)
+                v = v * fs_cp_v
                 part = torch.matmul(coef_noisy, v.reshape(Tb, C * P, N))
             y[t0:t1] += part.view(Tb, N).double()
     return y

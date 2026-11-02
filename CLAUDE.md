@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0 baselines done (E0), A1 core done (GATE A1 passed). Next: A1 leftovers, then A2**
+Status: **Part A — A0 done, A1 done (incl. calibrated ADC range, asymmetric weights). A2: conv layer + sweep script ready, runs pending on Thomas's machine**
 Last updated: 2026-11-02
 
 ---
@@ -112,8 +112,8 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 - [x] `CIMLinear`: weight bit-slicing, input bit-serial and bit-parallel encoding, row grouping by `nrow`.
 - [x] ADC model: configurable bits, fixed full-scale range, clipping (ASiM semantics).
-- [ ] ADC range option: per-layer calibrated full scale (needed for A5/A6; not in ASiM).
-- [ ] Asymmetric (zero-point) weight quantization option, to confirm the W4A8 gap vs published 4-bit RTN (E0 finding 2). Low priority.
+- [x] ADC range option: calibrated full scale per layer / cycle / (cycle, plane), MSE (default) or percentile; `cimsim.calibrate_adc_range`; `run_ppl.py` calibrates on WikiText-2 train tokens. (`cimsim/core/calib.py`, findings F5)
+- [x] Asymmetric (zero-point) weight quantization option (`w_quant: asymmetric`): unsigned planes + exact digital zero-point correction, both executors. Confirmation run for F2 pending (`config/experiments/e0_w4a8_asym.yaml`).
 - [x] Noise injection: Gaussian random noise and nonlinearity (ASiM-style `rand_noise_sigma`, `non_linear_sigma`), seeded per layer.
 - [x] Signed weight handling documented: two's complement planes (`docs/assumptions.md` #1). Differential / offset schemes: optional, later.
 - [x] Event counter: ADC conversions (total / analog), array cycles, MACs, weight bits written.
@@ -124,10 +124,11 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 ### A2 — Reproduce ASiM (correctness check)
 
 - [x] Layer-level equivalence with ASiM `ASiMLinear` (zero noise, 7 configs incl. bit-parallel, unsigned): max rel. error ≤ 1e-6 (`tests/test_asim_equivalence.py`). Noise std matches within ~1% (manual check).
-- [ ] ResNet-20 / CIFAR-10 with your executor; sweep ADC bits, `nrow`, noise sigma, bit-serial vs bit-parallel. (needs a CIMConv2d — add before this task)
-- [ ] Run the same sweeps in ASiM.
-- [ ] Comparison table in `validation/asim_repro.md`.
-- [ ] **GATE A2:** accuracy trends match ASiM; per-point difference within ~1% absolute (or explained).
+- [x] `CIMConv2d` (ASiM channel-group row mapping), matches `ASiMConv2d` ≤1e-6 (14 cases, both backends); ASiM conv group-skipping issue found (F4).
+- [x] Pretrained CIFAR-10 ResNet-20 (`cimsim/models/cifar_resnet.py`, hash-checked weights) + side-by-side sweep script (`validation/a2_asim_compare.py`, 13 configs, both simulators).
+- [ ] Run the sweep on Thomas's machine (1,000 test images) ← Thomas: `python validation/a2_asim_compare.py --name a2_resnet20 --n-images 1000`.
+- [ ] Comparison table + discussion in `validation/asim_repro.md`.
+- [ ] **GATE A2:** accuracy trends match ASiM; per-point difference within ~1% absolute (or explained). Proposed refinement (needs Thomas's OK, see Section 8): ≤1% at ADC ≥ 8 b and fake-quant; at ADC ≤ 6 b within run-to-run spread (findings F6).
 
 ### A3 — Statistical fast mode
 
@@ -152,6 +153,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [ ] Bit-serial vs bit-parallel on LLMs, compared with ASiM's CNN/ViT findings.
 - [ ] Input encoding study (F3): two's complement vs sign-magnitude vs offset-binary inputs, and skipping sign-extension planes — perplexity vs ADC bits at equal ADC conversions. Needs new encoding options in both executors (reference first, then fast, tested against each other).
 - [ ] ADC level alignment (F3): report error vs ADC bits for nrow aligned (2^b − 1 multiple of nrow) and not aligned, separately from ADC precision.
+- [ ] ADC range calibration study (F5): full vs MSE-calibrated (layer / cycle_plane) at ADC 4–8 b, nrow 64–256, on OPT-125M and GPT-2 (bit-accurate, 8k tokens), then result models via A3.
 
 ### A6 — Outlier mitigation at equal cost
 
@@ -237,10 +239,10 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A1 leftovers → A2**
 - Next tasks, in order:
-  1. Thomas: link `D:\japan` to the GitHub repo (README "Git").
-  2. Agent: per-layer calibrated ADC range option (A1 leftover).
-  3. Agent: `CIMConv2d` (needed for A2 ResNet-20), then A2 on a fixed 1,000-image CIFAR-10 subset.
-  4. Agent (low priority): asymmetric weight option to check E0 finding 2.
+  1. Thomas: `git pull`; `pip install pillow`; `pytest -q`.
+  2. Thomas: runs (commands in README): F5 OPT-125M ADC 6 b calibrated (2 runs, ~10 min each); F2 check `e0_w4a8_asym` (OPT-125M + GPT-2, ~6 min each); A2 smoke (`--configs quick --n-images 200`), then full A2 sweep (1–2 h). Commit `results/` and push.
+  3. Agent: fill `validation/asim_repro.md` from A2 results; decide GATE A2 (with Thomas's OK on the refined criterion); update findings F2/F5 with real-model numbers.
+  4. Agent: then A3 (statistical mode).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
 ---
@@ -262,6 +264,10 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — E0 complete (11 runs, full test set, fake_quant): OPT-125M FP32 27.655 / W8A8 27.942 / W8A8 per-tensor 30.451 / W6A6 31.952 / W4A8 51.094; GPT-2 FP32 29.951 / W8A8 30.151 / per-tensor 57.452 / W6A6 36.391 / W4A8 47.457. Per-tensor scaling breaks GPT-2 (outliers). W4A8 worse than published RTN — likely symmetric ±7 vs asymmetric 16-level, to confirm. — `results/E0_summary.md`, `results/e0_*/`
 - 2026-11-02 — First whole-model bit-accurate run (Thomas's i7-12700H): OPT-125M W8A8 bit-serial nrow 128 ADC 6 b, 8,192 tokens: PPL 12,962 vs 30.45 fake-quant on the same tokens; 608 s (74 ms/token). Diagnosed as genuine (finding F3): two's-complement sign-extension planes + coarse ADC; ADC 8 b brings layer error to 0.4%. Example config moved to ADC 8 b; F3 config kept for reproduction. — `results/sub8k_*`, `docs/findings.md`, `config/experiments/f3_adc6_collapse.yaml`
 - 2026-11-02 — Repo pushed to GitHub (thomvs-dev/larp), results now tracked in git. Reference `executor.py` in the agent's working copy had an undocumented float32 change; reverted to the validated float64 version (identical to the one on Thomas's machine) before pushing. — `cimsim/core/executor.py`
+- 2026-11-02 — Calibrated ADC range: executors take `full_scale [C,P]` and custom row `chunks`; `mac_histogram` + MSE / percentile calibration; `calibrate_adc_range`; `run_ppl.py --calib-tokens` (train split). On a synthetic LLM-like layer, MSE calibration makes a 6-bit ADC lossless (rel. error 2.65 → 0.0000, held-out): it picks an ADC step of exactly 1 MAC unit (F5). Percentile calibration hurts at ≥7 b (clipping on high-significance planes). — `cimsim/core/calib.py`, `cimsim/calibrate.py`, `docs/findings.md`
+- 2026-11-02 — Asymmetric weights (`w_quant: asymmetric`), unsigned planes in both executors, exact zero-point correction. — `cimsim/quant.py`, `cimsim/core/*`
+- 2026-11-02 — Layers refactored onto `_CIMBase`; `CIMConv2d` added (ASiM channel-group mapping); `swap_linears` also replaces Conv2d. Matches `ASiMConv2d` ≤1e-6 in 14 layer cases; found ASiM conv skips channel groups when ceil(C/floor(nrow/k²)) > ceil(C·k²/nrow) (F4). 173 tests pass. — `cimsim/core/layers.py`, `tests/test_calib_asym_conv.py`
+- 2026-11-02 — A2 prep: pretrained ResNet-20 (chenyaofo, hash 4118986f, strict load OK), ASiM bridge, sweep script (smoke-tested on synthetic data). All 20 conv layers match ASiM to 1.3e-6 inside the network, but at ADC 6 b whole-network predictions differ on 30% of images (float-noise amplification, F6). cimsim ~8× faster than ASiM on ResNet-20. — `cimsim/models/cifar_resnet.py`, `validation/`
 - 2026-11-02 — `run_ppl.py`: window length defaults to model context (cap 2048); `--max-tokens` for the CPU subset; git stderr silenced. — `scripts/run_ppl.py`
 
 ---
@@ -277,6 +283,9 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-02 — bit_accurate mode copies ASiM semantics exactly (incl. full scale = nrow on short chunks, nonlinearity form) — so GATE A2 is like-for-like. Deviations become separate config options, never silent changes.
 - 2026-11-02 — Default quantization for LLMs: per-channel weights, per-token activations; ASiM's per-tensor kept as an option — per-tensor is known to hurt LLMs badly (E0 will show by how much).
 - 2026-11-02 — LM head excluded from swapping by default (kept digital).
+- 2026-11-02 — ADC range calibration defaults to MSE (squared readout error on calibration data, ties → largest full scale) — percentile clipping hurts at ≥7 b because clipped conversions land on planes with shift-add weight up to 2^14 (F5). Calibration statistics are taken with all CIM layers in ideal mode, on data separate from evaluation (LLM: WikiText-2 train).
+- 2026-11-02 — A2 uses a pretrained CIFAR-10 ResNet-20 (chenyaofo) instead of ASiM's ResNet-18 example — ASiM ships no trained weights and QAT-training ResNet-18 on a CPU is impractical; the comparison only needs both simulators on the same weights. Stem conv and classifier stay in float in both.
+- 2026-11-02 — PROPOSED, needs Thomas's OK: GATE A2 tolerance ≤1% at ADC ≥ 8 b and fake-quant; at ADC ≤ 6 b within run-to-run spread, because whole-network results are chaotic there even with identical per-layer semantics (F6).
 - 2026-11-02 — Results (`results/*/`) are tracked in git (small JSON/YAML) so every number in the log is reproducible from the repo. Large artefacts, if any later, go elsewhere.
 - 2026-11-02 — Evaluation window = model context length, capped at 2048 (OPT/Qwen/TinyLlama 2048, GPT-2 1024) — matches quantization literature so baselines compare directly with published tables (OPT-125M reproduces 27.65). CPU bit-accurate subset defined by tokens (first 8,192) rather than windows.
 - 2026-11-02 — No GPU: project is CPU-only. One codebase, two executors (`fast` default, `reference` kept for ASiM-exact checks) rather than a separate CPU codebase — a fork would drift from the validated semantics. Whole-model bit-accurate runs limited to OPT-125M/GPT-2 on the first 8,192 tokens; full-set and result-model numbers come from statistical mode (A3).

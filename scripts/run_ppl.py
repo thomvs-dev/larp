@@ -23,6 +23,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from cimsim.calibrate import calibrate_adc_range  # noqa: E402
 from cimsim.config import LayerConfigMap  # noqa: E402
 from cimsim.events import EventCounter  # noqa: E402
 from cimsim.models.swap import swap_linears  # noqa: E402
@@ -51,6 +52,9 @@ def main() -> None:
     ap.add_argument("--dtype", default="float32", choices=["float16", "bfloat16", "float32"],
                     help="model dtype; float16 is switched to float32 on CPU")
     ap.add_argument("--threads", type=int, default=None, help="CPU threads (default: torch default)")
+    ap.add_argument("--calib-tokens", type=int, default=2048,
+                    help="tokens from the WikiText-2 *train* split used for ADC range calibration "
+                         "(only if a layer has adc_range: calibrated)")
     args = ap.parse_args()
 
     if args.threads:
@@ -82,12 +86,28 @@ def main() -> None:
     max_windows = args.max_windows
     if args.max_tokens is not None:
         max_windows = max(1, args.max_tokens // seq_len)
+
+    calibrated, calib_s = [], 0.0
+    if any(getattr(m, "cfg", None) is not None and m.cfg.mode == "bit_accurate"
+           and m.cfg.adc_range == "calibrated" for m in model.modules()):
+        tc = time.time()
+        train_ids = load_wikitext2_ids(tok, split="train")[: args.calib_tokens]
+        cal_len = min(seq_len, args.calib_tokens)
+        def run_calib():
+            for i in range(0, train_ids.numel() - cal_len + 1, cal_len):
+                model(train_ids[i:i + cal_len].unsqueeze(0).to(args.device))
+        print(f"calibrating ADC range on {args.calib_tokens} train tokens ...", flush=True)
+        calibrated = calibrate_adc_range(model, run_calib)
+        calib_s = round(time.time() - tc, 1)
+        print(f"calibrated {len(calibrated)} layers in {calib_s} s", flush=True)
     t0 = time.time()
     res = perplexity(model, ids, seq_len, max_windows, args.device)
     res.update({
         "model": args.model, "config": args.config, "seq_len": seq_len, "dtype": str(dtype),
         "device": args.device, "threads": torch.get_num_threads(), "max_windows": max_windows, "max_tokens": args.max_tokens,
         "replaced_layers": len(replaced), "seconds": round(time.time() - t0, 1),
+        "calibrated_layers": len(calibrated), "calib_tokens": args.calib_tokens if calibrated else 0,
+        "calib_seconds": calib_s,
         "git": git_hash(),
     })
 
@@ -96,6 +116,10 @@ def main() -> None:
     (out / "result.json").write_text(json.dumps(res, indent=2))
     (out / "config.yaml").write_text(yaml.safe_dump(cfg_dict or {"fp": True}))
     (out / "events.json").write_text(json.dumps(counter.to_dict()["total"], indent=2))
+    if calibrated:
+        fs = {m.name: m.adc_fs.tolist() for m in model.modules()
+              if getattr(m, "adc_fs", None) is not None}
+        (out / "adc_full_scale.json").write_text(json.dumps(fs))
     print(json.dumps(res, indent=2))
 
 

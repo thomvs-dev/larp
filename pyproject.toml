@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-llm = ["transformers>=4.40", "datasets>=2.18", "accelerate"]
+llm = ["transformers>=4.40", "datasets>=2.18", "accelerate", "pillow"]
 eval = ["lm-eval>=0.4"]
 dev = ["pytest>=7"]
 
