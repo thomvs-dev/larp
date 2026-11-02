@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0 done, A1 done (incl. calibrated ADC range, asymmetric weights). A2: conv layer + sweep script ready, runs pending on Thomas's machine**
+Status: **Part A — A0, A1 done. A2: full sweep done, gate conditions 1–3 pass; spread run for condition 4 pending on Thomas's machine**
 Last updated: 2026-11-02
 
 ---
@@ -127,8 +127,9 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] `CIMConv2d` (ASiM channel-group row mapping), matches `ASiMConv2d` ≤1e-6 (14 cases, both backends); ASiM conv group-skipping issue found (F4).
 - [x] Pretrained CIFAR-10 ResNet-20 (`cimsim/models/cifar_resnet.py`, hash-checked weights) + side-by-side sweep script (`validation/a2_asim_compare.py`, 13 configs, both simulators).
 - [x] Smoke run (200 images, 3 configs): fake-quant 92.0/92.0, ADC 8 b 92.0/92.0, ADC 6 b 59.0/60.0 (cimsim/ASiM); cimsim ~9× faster. (`results/a2_smoke/`)
-- [ ] Full sweep on Thomas's machine (1,000 test images) ← Thomas: `python validation/a2_asim_compare.py --name a2_resnet20 --n-images 1000`.
-- [ ] Comparison table + discussion in `validation/asim_repro.md`.
+- [x] Full sweep on Thomas's machine (1,000 test images, 13 configs). (`results/a2_resnet20/`)
+- [ ] Comparison table + discussion in `validation/asim_repro.md`. (sweep table, gate evaluation and discussion written; spread results to add)
+- [ ] Spread run for gate condition 4: low-ADC configs with `--backend reference` vs `fast`, compared image by image (`validation/a2_spread.py`) ← Thomas, commands in `validation/asim_repro.md` "Spread run".
 - [ ] **GATE A2:** accuracy trends match ASiM (vs ADC bits, nrow, noise, encoding); per-config difference ≤ 1% absolute at ADC ≥ 8 b and for fake-quant; at ADC ≤ 6 b within the run-to-run spread of either simulator (findings F6); `bs_n64_adc8` difference explained by F4. (Criterion approved by Thomas 2026-11-02.)
 
 ### A3 — Statistical fast mode
@@ -241,10 +242,10 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 ## 6. Status
 
 - Current part: **A**
-- Current milestone: **A2** (runs pending on Thomas's machine)
+- Current milestone: **A2** (spread run pending on Thomas's machine)
 - Next tasks, in order:
-  1. Thomas: `git fetch origin; git reset --hard origin/main` (README "Git"), then the full A2 sweep (1–2 h).
-  2. Agent: fill `validation/asim_repro.md` from `results/a2_resnet20/`; decide GATE A2.
+  1. Thomas: `git fetch origin; git reset --hard origin/main`, then the spread run (3 commands in `validation/asim_repro.md` "Spread run", ~1 h, most of it ASiM).
+  2. Agent: add spread results to `validation/asim_repro.md`; decide GATE A2 condition 4.
   3. Agent: then A3 (statistical mode).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
@@ -276,6 +277,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — A2 smoke (200 images): cimsim vs ASiM within 1% on 3 configs; ~9× faster. Fixed a Windows crash in the A2 script (table written in cp1252, now UTF-8 + ASCII; `--table-only` rebuilds a table from results.json); all result files now written as UTF-8. — `results/a2_smoke/`, `validation/a2_asim_compare.py`, `scripts/run_ppl.py`
 - 2026-11-02 — GATE A2 criterion approved by Thomas; ADC-architecture sub-tasks added to A7 (error models), B0 (cost, sharing ratio), B3 (conversion scheduling). — `CLAUDE.md`
 - 2026-11-02 — `run_ppl.py`: window length defaults to model context (cap 2048); `--max-tokens` for the CPU subset; git stderr silenced. — `scripts/run_ppl.py`
+- 2026-11-02 — A2 full sweep (1,000 images, 13 configs, git bcde8c5b): fake-quant and all ADC ≥ 8 b configs within 0.8% of ASiM; bs_n64_adc8 cimsim 92.4 / ASiM 90.3, explained by F4; ADC ≤ 6 b diffs −0.4 … +1.2%. Trends match for ADC bits, nrow, noise, encoding. cimsim 1.6–66× faster on bit-accurate configs. Gate conditions 1–3 pass; condition 4 needs measured spread. Added `--backend` and per-image predictions to the A2 script, and `validation/a2_spread.py`. — `results/a2_resnet20/`, `validation/asim_repro.md`
 
 ---
 

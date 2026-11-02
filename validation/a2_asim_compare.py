@@ -82,11 +82,12 @@ def load_cifar10_test(n: int, synthetic: bool) -> tuple[torch.Tensor, torch.Tens
 
 
 @torch.no_grad()
+def predict(model, x, batch) -> torch.Tensor:
+    return torch.cat([model(x[i:i + batch]).argmax(1) for i in range(0, len(x), batch)])
+
+
 def accuracy(model, x, y, batch) -> float:
-    correct = 0
-    for i in range(0, len(x), batch):
-        correct += (model(x[i:i + batch]).argmax(1) == y[i:i + batch]).sum().item()
-    return 100.0 * correct / len(x)
+    return 100.0 * (predict(model, x, batch) == y).float().mean().item()
 
 
 def write_table(res: dict, out: Path) -> None:
@@ -116,6 +117,9 @@ def main() -> None:
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--synthetic", action="store_true", help="random weights and images (no downloads)")
+    ap.add_argument("--backend", choices=["fast", "reference"], default="fast",
+                    help="cimsim executor; 'reference' differs only in float rounding, so re-running a config "
+                         "with it measures run-to-run spread (findings F6)")
     ap.add_argument("--table-only", action="store_true",
                     help="rebuild results/<name>/table.md from an existing results.json and exit")
     args = ap.parse_args()
@@ -129,26 +133,31 @@ def main() -> None:
 
     names = list(CONFIGS) if args.configs == "default" else QUICK if args.configs == "quick" \
         else [c.strip() for c in args.configs.split(",")]
+    torch.manual_seed(0)                                       # synthetic weights identical across runs
     model = resnet20().eval() if args.synthetic else load_pretrained_resnet20()
     x, y = load_cifar10_test(args.n_images, args.synthetic)
 
     out.mkdir(parents=True, exist_ok=True)
     res = {"model": "resnet20 (chenyaofo, CIFAR-10)", "n_images": len(x), "batch": args.batch,
            "git": git_hash(), "threads": torch.get_num_threads(), "synthetic": args.synthetic,
+           "backend": args.backend,
            "base": BASE, "fp32_acc": accuracy(model, x, y, args.batch), "runs": {}}
     print(f"FP32 accuracy on {len(x)} images: {res['fp32_acc']:.2f}%", flush=True)
 
     sims = ["cimsim", "asim"] if args.sim == "both" else [args.sim]
     for cname in names:
-        cfg = CIMConfig(**{**BASE, **CONFIGS[cname], "seed": args.seed})
+        cfg = CIMConfig(**{**BASE, **CONFIGS[cname], "seed": args.seed, "backend": args.backend})
         res["runs"][cname] = {"config": CONFIGS[cname]}
         for sim in sims:
             torch.manual_seed(args.seed)                       # ASiM draws noise from the global RNG
             m = build_cimsim(model, cfg) if sim == "cimsim" else build_asim(model, cfg)
             t0 = time.time()
-            acc = accuracy(m, x, y, args.batch)
+            pred = predict(m, x, args.batch)
             dt = time.time() - t0
-            res["runs"][cname][sim] = {"acc": acc, "seconds": round(dt, 1)}
+            acc = 100.0 * (pred == y).float().mean().item()
+            # predicted class per image as one digit string, so two runs can be compared image by image
+            res["runs"][cname][sim] = {"acc": acc, "seconds": round(dt, 1),
+                                       "pred": "".join(str(int(p)) for p in pred)}
             print(f"{cname:20s} {sim:7s} acc {acc:6.2f}%  ({dt:.0f} s)", flush=True)
             (out / "results.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
 

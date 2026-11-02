@@ -1,0 +1,216 @@
+{
+  "model": "resnet20 (chenyaofo, CIFAR-10)",
+  "n_images": 1000,
+  "batch": 100,
+  "git": "bcde8c5b477a501d859cc787350780e2e9c37585",
+  "threads": 14,
+  "synthetic": false,
+  "base": {
+    "w_bits": 8,
+    "x_bits": 8,
+    "signed_act": false,
+    "w_gran": "per_tensor",
+    "x_gran": "per_tensor"
+  },
+  "fp32_acc": 92.5,
+  "runs": {
+    "ideal_w8a8": {
+      "config": {
+        "mode": "fake_quant"
+      },
+      "cimsim": {
+        "acc": 92.6,
+        "seconds": 5.0
+      },
+      "asim": {
+        "acc": 92.6,
+        "seconds": 3.7
+      }
+    },
+    "bs_n128_adc8": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 8
+      },
+      "cimsim": {
+        "acc": 92.4,
+        "seconds": 132.4
+      },
+      "asim": {
+        "acc": 92.4,
+        "seconds": 892.4
+      }
+    },
+    "bs_n128_adc6": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 6
+      },
+      "cimsim": {
+        "acc": 60.2,
+        "seconds": 133.7
+      },
+      "asim": {
+        "acc": 59.0,
+        "seconds": 697.4
+      }
+    },
+    "bs_n128_adc5": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 5
+      },
+      "cimsim": {
+        "acc": 12.8,
+        "seconds": 58.7
+      },
+      "asim": {
+        "acc": 13.1,
+        "seconds": 505.4
+      }
+    },
+    "bs_n128_adc4": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 4
+      },
+      "cimsim": {
+        "acc": 9.9,
+        "seconds": 58.0
+      },
+      "asim": {
+        "acc": 10.3,
+        "seconds": 687.6
+      }
+    },
+    "bs_n255_adc6": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 255,
+        "adc_bits": 6
+      },
+      "cimsim": {
+        "acc": 13.0,
+        "seconds": 95.9
+      },
+      "asim": {
+        "acc": 13.0,
+        "seconds": 542.9
+      }
+    },
+    "bs_n255_adc8": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 255,
+        "adc_bits": 8
+      },
+      "cimsim": {
+        "acc": 92.6,
+        "seconds": 6.9
+      },
+      "asim": {
+        "acc": 92.6,
+        "seconds": 457.0
+      }
+    },
+    "bs_n128_adc8_rn1": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 8,
+        "rand_noise_sigma": 1.0
+      },
+      "cimsim": {
+        "acc": 10.4,
+        "seconds": 350.2
+      },
+      "asim": {
+        "acc": 9.6,
+        "seconds": 609.3
+      }
+    },
+    "bs_n128_adc8_rn2": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 8,
+        "rand_noise_sigma": 2.0
+      },
+      "cimsim": {
+        "acc": 9.2,
+        "seconds": 345.7
+      },
+      "asim": {
+        "acc": 10.0,
+        "seconds": 612.0
+      }
+    },
+    "bs_n128_adc8_nl2": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 8,
+        "non_linear_sigma": 2.0
+      },
+      "cimsim": {
+        "acc": 9.3,
+        "seconds": 381.2
+      },
+      "asim": {
+        "acc": 10.0,
+        "seconds": 617.6
+      }
+    },
+    "bp2_n128_adc6": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 6,
+        "act_enc": 2
+      },
+      "cimsim": {
+        "acc": 12.9,
+        "seconds": 97.6
+      },
+      "asim": {
+        "acc": 13.1,
+        "seconds": 482.6
+      }
+    },
+    "bp2_n128_adc8": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 128,
+        "adc_bits": 8,
+        "act_enc": 2
+      },
+      "cimsim": {
+        "acc": 85.7,
+        "seconds": 108.2
+      },
+      "asim": {
+        "acc": 85.4,
+        "seconds": 505.6
+      }
+    },
+    "bs_n64_adc8": {
+      "config": {
+        "mode": "bit_accurate",
+        "nrow": 64,
+        "adc_bits": 8
+      },
+      "cimsim": {
+        "acc": 92.4,
+        "seconds": 183.1
+      },
+      "asim": {
+        "acc": 90.3,
+        "seconds": 1406.6
+      }
+    }
+  }
+}
