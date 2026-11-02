@@ -1,0 +1,13 @@
+{
+  "model": "facebook/opt-125m",
+  "config": "config/experiments/a3_adc7.yaml",
+  "tokens": 2048,
+  "seq_len": 2048,
+  "train_token_offset": 2048,
+  "calibrated_layers": 0,
+  "calib_seconds": 0.0,
+  "seconds": 186.6,
+  "threads": 14,
+  "layers": 72,
+  "git": "bfc73265ac8007e8868ac0622e096e7722df1dc9"
+}

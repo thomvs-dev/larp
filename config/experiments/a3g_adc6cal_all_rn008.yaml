@@ -1,0 +1,15 @@
+# GATE A3 noise config: calibrated ADC 6 b on every layer (incl. fc2 / down_proj, so every ADC step is
+# 1 MAC unit and small noise is absorbed by rounding, findings F7), Gaussian noise 0.08 % of nominal
+# full scale.
+default:
+  mode: bit_accurate
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: layer
+  rand_noise_sigma: 0.08
+  hybrid_levels: 0
+  token_block: 128

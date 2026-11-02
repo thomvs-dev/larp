@@ -6,6 +6,8 @@ bit_accurate) -> dequantize, plus ADC range calibration and event counting.
 
 from __future__ import annotations
 
+import math
+
 import zlib
 
 import torch
@@ -19,6 +21,7 @@ from cimsim.quant import (quantize_weight, quantize_weight_asym, quantize_act, d
 from cimsim.core.executor import cim_matmul_int, analytic_counts
 from cimsim.core.executor_fast import cim_matmul_int_fast
 from cimsim.core.calib import mac_histogram, full_scale_from_histogram
+from cimsim.stat.analytic import layer_stat_params
 
 
 class _CIMBase(nn.Module):
@@ -40,6 +43,8 @@ class _CIMBase(nn.Module):
         self._probe = None                           # optional callable(layer, qx, qw, y_int); A3 error measurement
         self._hist: torch.Tensor | None = None
         self.register_buffer("adc_fs", None)        # [C, P] calibrated ADC full scale, or None
+        self.register_buffer("stat_params", None)   # [gain, mean, std] for mode 'statistical' (A3)
+        self.stat_info: dict | None = None          # diagnostics from layer_stat_params
 
     # --- to be provided by subclasses ---
     def _weight_matrix(self) -> torch.Tensor:  # [N, K]
@@ -83,11 +88,22 @@ class _CIMBase(nn.Module):
         self._calibrating = True
         self._hist = None
 
+    def _n_chunks(self) -> int:
+        chunks = self._chunks()
+        return len(chunks) if chunks is not None else math.ceil(self._weight_matrix().shape[1] / self.cfg.nrow)
+
     def finish_calibration(self) -> None:
+        """Sets the ADC full scale (adc_range: calibrated) and, for mode 'statistical',
+        the analytic error model, both from the MAC histogram recorded since start_calibration."""
         self._calibrating = False
         if self._hist is None:
             raise RuntimeError(f"{self.name}: no calibration data seen")
-        self.adc_fs = full_scale_from_histogram(self._hist, self.cfg)
+        if self.cfg.adc_range == "calibrated":
+            self.adc_fs = full_scale_from_histogram(self._hist, self.cfg)
+        if self.cfg.mode == "statistical":
+            info = layer_stat_params(self._hist, self.cfg, self._n_chunks(), self.adc_fs)
+            self.stat_params = torch.tensor([info["gain"], info["mean"], info["std"]], dtype=torch.float64)
+            self.stat_info = {k: v for k, v in info.items() if k != "per_cp"}
         self._hist = None
 
     def _int_matmul(self, qx: torch.Tensor, qw: torch.Tensor) -> torch.Tensor:
@@ -112,7 +128,15 @@ class _CIMBase(nn.Module):
                 self._probe(self, qx, qw, y)
             return y
         if cfg.mode == "statistical":
-            raise NotImplementedError("statistical mode is milestone A3")
+            if self.stat_params is None:
+                raise RuntimeError(f"{self.name}: mode 'statistical' needs the error model; run "
+                                   "cimsim.calibrate_adc_range (it also prepares statistical layers)")
+            g, mu, sd = (float(v) for v in self.stat_params)
+            y = (qx.double() @ qw.double().t()) * (1.0 + g) + mu
+            if sd > 0:
+                y = y + sd * torch.randn(y.shape, generator=self._generator(qx.device), dtype=torch.float64,
+                                         device=qx.device)
+            return y.float()
         raise ValueError(cfg.mode)
 
     @staticmethod

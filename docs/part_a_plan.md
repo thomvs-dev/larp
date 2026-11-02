@@ -110,28 +110,37 @@ An `ErrorProbe` attached to every bit-accurate layer computes e on real activati
 
 Measurement configs (OPT-125M, 2,048 tokens each): `f5_adc6_calibrated`, `a3_adc6cal_rn025`, `a3_adc6cal_rn05`, `a3_adc6cal_rn1` (calibrated ADC 6 b, noise 0 / 0.25 / 0.5 / 1 % of full scale), `example_bit_accurate` (full-range ADC 8 b), `a3_adc7` (full-range ADC 7 b). F3's collapsed config is excluded: a statistical model of a model that outputs noise is not useful.
 
-### 3.3 Step 2 — error models (candidates, chosen by the measurements and the gate)
+### 3.3 Step 2 — error model (decided from the measurements, findings F7)
 
-| Model | ε | Parameters per layer | Captures | Misses |
-|---|---|---|---|---|
-| M0 | N(0, σ²) | 1 | size of error | bias, channel and token structure |
-| M1 | N(μ_n, σ_n²) per output channel | 2N | saturation bias, channel differences | token dependence |
-| M2 | M1 × per-token factor g(token) | 2N + few | tokens with large / outlier activations | — |
-| M3 | analytic: per-conversion error variance from ADC step, noise σ and the calibration MAC histograms, propagated through the shift-add weights per (cycle, plane) using each token's input bit-plane densities | none fitted | everything above, and extrapolates to configs that were not measured (needed for A5 sweeps) | error correlations between conversions |
+Candidates considered: M0 (one Gaussian per layer), M1 (Gaussian per output channel, fitted), M2 (M1 × per-token factor), M3 (analytic from the MAC histogram). The measurements (`results/a3m_summary.md`) show the error is a deterministic gain (full-range ADC) plus Gaussian noise that is the same for every token and channel, with a variance that follows from the ADC and noise parameters. M3 is therefore used directly; M1/M2 are not needed.
 
-Plan: implement M1 first (simplest model that can carry the saturation bias), then add M2 if the measurement shows a token RMS q90/median ratio well above 1 or a strong correlation with token signal, and M3 as the goal for sweeps. Each model is a `stat_model` config field; `mode: statistical` reads fitted parameters from a file produced by step 1 (`results/<measurement>/stat_params.pt`) or, for M3, from the ADC calibration histograms.
+**M3 as implemented** (`cimsim/stat/analytic.py`): for each (cycle c, weight plane p), with the calibration histogram h_cp(m) of ideal MAC values,
+- E[out | m] and Var[out | m] of one conversion are computed exactly: Gaussian noise s(m) (random + nonlinear term, analog conversions only), clamp to [0, min(FS_nom, FS)], rounding to the ADC grid (Gaussian CDF over the bins);
+- d(m) = E[out | m] − m is fitted as g_cp·m + b_cp (weighted least squares over h_cp);
+- layer model: e = g·y_ideal + N(μ, σ²) with g = Σ w_cp g_cp / Σ w_cp (w_cp = coef_cp²·E[m²]), μ = n_chunks Σ coef_cp (b_cp + (g_cp − g) E[m]), σ² = n_chunks Σ coef_cp² (E_h[Var(out|m)] + fit residual + (g_cp − g)² Var_h(m)).
+
+`mode: statistical` computes y_int = (1 + g)·(q_x·q_wᵀ) + μ + σ·ξ (ξ ~ N(0,1), per-layer seeded generator). The histogram pass is the existing ADC calibration pass (`calibrate_adc_range` now also prepares statistical layers), so the ADC range and the error model come from the same data. Parameters are saved per run (`stat_params.json`).
+
+Validated at layer level against bit-accurate (`tests/test_stat_analytic.py`). Known limitation: large nonlinear rounding error (full-range ADC 6 b, F3) is overestimated (2.3×) because conversions are treated as independent.
 
 ### 3.4 Event counts
 
-`_CIMBase._count` already uses `analytic_counts` in every mode, so statistical mode produces the same counts as bit-accurate by construction. A test will assert equality on a tiny model.
+`_CIMBase._count` uses `analytic_counts` in every mode, so statistical mode produces the same counts as bit-accurate (asserted in `tests/test_stat_analytic.py`).
 
-### 3.5 GATE A3 protocol (CPU budget)
+### 3.5 GATE A3 protocol (CPU budget) — `scripts/a3_gate.py`
 
-- OPT-125M, WikiText-2 test, first 8,192 tokens (the bit-accurate subset), the six measurement configs above.
-- For each config: bit-accurate PPL with `fast` and with `reference` backend (gives the float-rounding spread, F6), and statistical PPL with 3 seeds.
-- Pass: for each config, |PPL_stat − PPL_bit| / PPL_bit ≤ 2%, or within the bit-accurate fast-vs-reference spread if that is larger. Report seed spread of the statistical mode as well.
-- Record speed-up (ms/token, same machine, same threads).
-- Cost: bit-accurate 6 configs × 2 backends × ~10 min (reference ~2× slower) ≈ 3 h on Thomas's machine; statistical runs are minutes.
+One command per config. One calibration pass (2,048 train tokens) sets ADC ranges and the statistical model for both modes; then on the first test tokens: fake-quant, statistical (seeds 0, 1, 2) and bit-accurate runs.
+
+| Config | What it tests | Tokens | Bit-accurate runs (spread) |
+|---|---|---|---|
+| `f5_adc6_calibrated` | saturation only (sparse, channel-concentrated) | 8,192 | fast + reference |
+| `example_bit_accurate` | gain error 0.39 % | 8,192 | fast + reference |
+| `a3_adc7` | gain error 0.79 % | 8,192 | fast + reference |
+| `a3g_adc6cal_all_rn008` | noise, predicted layer error ~0.3 % | 4,096 | fast seeds 0, 1 |
+| `a3g_adc6cal_all_rn010` | noise, predicted layer error ~3 % | 4,096 | fast seeds 0, 1 |
+| `a3g_adc6cal_all_rn02_hyb6` | noise with hybrid levels (analog mask) | 4,096 | fast seeds 0, 1 |
+
+The original noise levels (0.25 / 0.5 / 1 %) were dropped: they make every layer's error larger than its signal (F7), so perplexity is meaningless in both modes. Noise configs use 4,096 tokens because noisy bit-accurate runs cost ~0.42 s/token (noise sampling). Pass: |median statistical PPL − bit-accurate PPL| / bit-accurate PPL ≤ max(2 %, spread of the bit-accurate runs). Speed-up recorded per config. Summary: `python scripts/a3_gate.py --table` → `results/a3_gate_summary.md`.
 
 ## 4. Package layout and interfaces
 

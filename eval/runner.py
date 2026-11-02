@@ -10,7 +10,7 @@ from pathlib import Path
 import torch
 import yaml
 
-from cimsim.calibrate import calibrate_adc_range
+from cimsim.calibrate import calibrate_adc_range, needs_calibration
 from cimsim.config import LayerConfigMap
 from cimsim.events import EventCounter
 from cimsim.models.swap import swap_linears
@@ -57,8 +57,7 @@ def context_len(model) -> int:
 def calibrate_if_needed(model, tok, seq_len: int, calib_tokens: int, device: str) -> tuple[list[str], float]:
     """Calibrate the ADC range on the first `calib_tokens` WikiText-2 train tokens if any layer uses
     adc_range: calibrated. Returns (calibrated layer names, seconds)."""
-    if not any(getattr(m, "cfg", None) is not None and m.cfg.mode == "bit_accurate"
-               and m.cfg.adc_range == "calibrated" for m in model.modules()):
+    if not any(getattr(m, "cfg", None) is not None and needs_calibration(m.cfg) for m in model.modules()):
         return [], 0.0
     tc = time.time()
     train_ids = load_wikitext2_ids(tok, split="train")[:calib_tokens]
@@ -69,7 +68,7 @@ def calibrate_if_needed(model, tok, seq_len: int, calib_tokens: int, device: str
             for i in range(0, train_ids.numel() - cal_len + 1, cal_len):
                 model(train_ids[i:i + cal_len].unsqueeze(0).to(device))
 
-    print(f"calibrating ADC range on {calib_tokens} train tokens ...", flush=True)
+    print(f"calibrating (ADC range / statistical error model) on {calib_tokens} train tokens ...", flush=True)
     calibrated = calibrate_adc_range(model, run_calib)
     secs = round(time.time() - tc, 1)
     print(f"calibrated {len(calibrated)} layers in {secs} s", flush=True)

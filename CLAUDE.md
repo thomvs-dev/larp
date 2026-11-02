@@ -2,8 +2,8 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: design + error-measurement tool done; measurement runs pending on Thomas's machine**
-Last updated: 2026-11-02
+Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: error measured, analytic statistical mode implemented and validated per layer; GATE A3 runs pending on Thomas's machine**
+Last updated: 2026-11-03
 
 ---
 
@@ -135,10 +135,11 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 ### A3 — Statistical fast mode
 
 - [x] A3 design: error model candidates M0–M3, measurement configs, GATE A3 protocol (`docs/part_a_plan.md` §3).
-- [ ] Error measurement tool: `ErrorProbe` + `scripts/measure_error.py` (done, 6 tests), and runs on OPT-125M for the 6 measurement configs ← Thomas (commands in Section 6).
-- [ ] Measure output-error distribution per (layer type, ADC bits, nrow, noise) in bit-accurate mode; analyse which error model is needed.
-- [ ] Implement fast mode that injects that error into a standard matmul.
-- [ ] Event counts still produced in fast mode (computed analytically).
+- [x] Error measurement tool: `ErrorProbe` + `scripts/measure_error.py`, runs on OPT-125M for 6 configs. (`results/a3m_opt125m_*/`)
+- [x] Measure output-error distribution per (layer type, ADC bits, nrow, noise) in bit-accurate mode; analyse which error model is needed. Result: deterministic gain + input-independent Gaussian noise, both analytic (findings F7, `results/a3m_summary.md`).
+- [x] Implement fast mode that injects that error into a standard matmul: `mode: statistical`, analytic model M3 from the calibration MAC histogram (`cimsim/stat/analytic.py`); layer-level agreement with bit-accurate within 5 % in std, gain exact (`tests/test_stat_analytic.py`).
+- [x] Event counts still produced in fast mode (computed analytically) — same counts as bit-accurate, tested.
+- [ ] GATE A3 runs: 6 configs with `scripts/a3_gate.py` ← Thomas (commands in Section 6).
 - [ ] **GATE A3:** on OPT-125M, fast-mode perplexity within agreed tolerance (start with ±2% relative) of bit-accurate on a subset of WikiText-2; speed-up recorded.
 
 ### A4 — LLM integration
@@ -246,11 +247,17 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A3** (statistical fast mode)
 - Next tasks, in order:
-  1. Thomas: `git fetch origin; git reset --hard origin/main`, then the six A3 measurement runs (~40 min total):
+  1. Thomas: `git fetch origin; git reset --hard origin/main`, then the GATE A3 runs (~5 h total, can run overnight; noise configs ~1 h each):
      ```
-     foreach ($c in "f5_adc6_calibrated","a3_adc6cal_rn025","a3_adc6cal_rn05","a3_adc6cal_rn1","example_bit_accurate","a3_adc7") { python scripts/measure_error.py --model facebook/opt-125m --config config/experiments/$c.yaml --name a3m_opt125m_$c }
+     python scripts/a3_gate.py --config config/experiments/f5_adc6_calibrated.yaml --name a3g_opt125m_f5 --tokens 8192 --ba-backends fast,reference
+     python scripts/a3_gate.py --config config/experiments/example_bit_accurate.yaml --name a3g_opt125m_adc8 --tokens 8192 --ba-backends fast,reference
+     python scripts/a3_gate.py --config config/experiments/a3_adc7.yaml --name a3g_opt125m_adc7 --tokens 8192 --ba-backends fast,reference
+     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn008.yaml --name a3g_opt125m_rn008 --tokens 4096 --ba-seeds 0,1
+     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn010.yaml --name a3g_opt125m_rn010 --tokens 4096 --ba-seeds 0,1
+     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn02_hyb6.yaml --name a3g_opt125m_rn02_hyb6 --tokens 4096 --ba-seeds 0,1
+     python scripts/a3_gate.py --table
      ```
-  2. Agent: stage `results/a3m_*/` (incl. `samples.pt`), analyse error structure, choose M1/M2/M3, implement `mode: statistical`.
+  2. Agent: evaluate `results/a3_gate_summary.md`; if a config fails, locate the cause (layer-level stats in `stat_params.json` vs `results/a3m_*`), fix or report; then A4.
   3. Note for A3/A5: bit-accurate numbers at coarse ADC carry float-rounding spread (F6); GATE A3's ±2% tolerance must be compared against the bit-accurate run's own fast-vs-reference spread on the same tokens.
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
@@ -285,6 +292,8 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — A2 full sweep (1,000 images, 13 configs, git bcde8c5b): fake-quant and all ADC ≥ 8 b configs within 0.8% of ASiM; bs_n64_adc8 cimsim 92.4 / ASiM 90.3, explained by F4; ADC ≤ 6 b diffs −0.4 … +1.2%. Trends match for ADC bits, nrow, noise, encoding. cimsim 1.6–66× faster on bit-accurate configs. Gate conditions 1–3 pass; condition 4 needs measured spread. Added `--backend` and per-image predictions to the A2 script, and `validation/a2_spread.py`. — `results/a2_resnet20/`, `validation/asim_repro.md`
 - 2026-11-02 — A2 spread run (5 low-ADC configs, 1,000 images): cimsim fast vs reference differ by up to 1.4% accuracy, 29% of predictions at n128/ADC 6 b; cimsim vs ASiM ≤ 1.2%, 33%. Reruns reproduce the sweep exactly. **GATE A2 passed.** F6 updated with measured spread. — `results/a2_spread_fast/`, `results/a2_spread_ref/`, `validation/asim_repro.md`, `docs/findings.md`
 - 2026-11-02 — A3 design (M0–M3 error models, GATE A3 protocol with F6 spread) and error-measurement tool: `_probe` hook in `_CIMBase` (no effect on outputs, tested), `ErrorProbe`, `scripts/measure_error.py`; shared run setup moved to `eval/runner.py`; 4 measurement configs. 179 tests pass. — `docs/part_a_plan.md` §3, `cimsim/stat/`, `scripts/measure_error.py`, `config/experiments/a3_*.yaml`
+- 2026-11-03 — A3 measurements (OPT-125M, 2,048 train tokens, 6 configs): full-range ADC 7–8 b error is a pure gain (g = round(1/Δ)·Δ − 1 = 0.39 % / 0.79 %, residual ≤ 0.1 %); calibrated ADC 6 b noise-free error is sparse channel-concentrated saturation; analog noise error is Gaussian, token- and channel-independent, and matches an analytic formula to ≤ 0.2 %. Noise 0.25–1 % destroys every layer (error 1.4–8× signal); cliff at ~0.1 % (F7). — `results/a3m_summary.md`, `results/a3m_opt125m_*/`, `docs/findings.md` F7
+- 2026-11-03 — `mode: statistical` with analytic error model M3 (exact per-conversion moments from the calibration MAC histogram → layer gain + Gaussian). Calibration pass also prepares statistical layers. Layer-level check vs bit-accurate: noise std within 5 % (0.2–2.5 %) over 7 configs incl. nonlinearity, hybrid, bit-parallel, no ADC, post-ReLU; gain exact; event counts identical. GATE script (one calibration for both modes, PPL fast/reference/seeds, verdict, speed-up) and 3 revised noise configs. 192 tests pass. — `cimsim/stat/analytic.py`, `cimsim/core/layers.py`, `scripts/a3_gate.py`, `tests/test_stat_analytic.py`, `config/experiments/a3g_*.yaml`
 
 ---
 
@@ -306,6 +315,9 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-02 — Results (`results/*/`) are tracked in git (small JSON/YAML) so every number in the log is reproducible from the repo. Large artefacts, if any later, go elsewhere.
 - 2026-11-02 — Evaluation window = model context length, capped at 2048 (OPT/Qwen/TinyLlama 2048, GPT-2 1024) — matches quantization literature so baselines compare directly with published tables (OPT-125M reproduces 27.65). CPU bit-accurate subset defined by tokens (first 8,192) rather than windows.
 - 2026-11-02 — No GPU: project is CPU-only. One codebase, two executors (`fast` default, `reference` kept for ASiM-exact checks) rather than a separate CPU codebase — a fork would drift from the validated semantics. Whole-model bit-accurate runs limited to OPT-125M/GPT-2 on the first 8,192 tokens; full-set and result-model numbers come from statistical mode (A3).
+- 2026-11-03 — Statistical mode uses the analytic model M3 (no fitting to bit-accurate runs) instead of the planned fitted M1 — measurements show the error is a deterministic gain plus input-independent Gaussian noise, both computable from the MAC histogram (≤ 0.2 % on 180 layer-configs); it also extrapolates to unmeasured configs, which A5 needs. Known limit: nonlinear rounding error at full-range ADC 6 b (F3 regime) overestimated 2.3×.
+- 2026-11-03 — GATE A3 configs revised: noise 0.25 / 0.5 / 1 % replaced by 0.08 %, 0.10 % and 0.2 % with hybrid_levels 6, with calibrated ADC 6 b on every layer incl. fc2 — the old levels make every layer's error larger than its signal (F7), and an 8-bit fc2 passes noise that 6-bit layers round away.
+- 2026-11-03 — GATE A3 noise configs evaluated on 4,096 tokens with bit-accurate seed spread (seeds 0, 1); noise-free configs on 8,192 tokens with fast-vs-reference spread — noisy bit-accurate runs cost ~0.42 s/token on the i7-12700H (noise sampling dominates).
 
 ---
 
