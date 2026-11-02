@@ -237,7 +237,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 ## 6. Status
 
 - Current part: **A**
-- Current milestone: **A1 leftovers → A2**
+- Current milestone: **A2** (runs pending on Thomas's machine)
 - Next tasks, in order:
   1. Thomas: `git pull`; `pip install pillow`; `pytest -q`.
   2. Thomas: runs (commands in README): F5 OPT-125M ADC 6 b calibrated (2 runs, ~10 min each); F2 check `e0_w4a8_asym` (OPT-125M + GPT-2, ~6 min each); A2 smoke (`--configs quick --n-images 200`), then full A2 sweep (1–2 h). Commit `results/` and push.
