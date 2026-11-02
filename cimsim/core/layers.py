@@ -37,6 +37,7 @@ class _CIMBase(nn.Module):
         self._weights_counted = False
         self._calibrating = False
         self._ideal_override = False                 # set by calibrate_adc_range
+        self._probe = None                           # optional callable(layer, qx, qw, y_int); A3 error measurement
         self._hist: torch.Tensor | None = None
         self.register_buffer("adc_fs", None)        # [C, P] calibrated ADC full scale, or None
 
@@ -106,7 +107,10 @@ class _CIMBase(nn.Module):
                                        "been calibrated (use cimsim.calibrate_adc_range)")
                 fs = self.adc_fs
             fn = cim_matmul_int_fast if cfg.backend == "fast" else cim_matmul_int
-            return fn(qx, qw, cfg, self._generator(qx.device), full_scale=fs, chunks=self._chunks()).float()
+            y = fn(qx, qw, cfg, self._generator(qx.device), full_scale=fs, chunks=self._chunks()).float()
+            if self._probe is not None:
+                self._probe(self, qx, qw, y)
+            return y
         if cfg.mode == "statistical":
             raise NotImplementedError("statistical mode is milestone A3")
         raise ValueError(cfg.mode)

@@ -89,12 +89,49 @@ Counters are also produced in `fake_quant` and `statistical` modes (computed ana
 
 ## 3. Statistical mode (A3)
 
-1. For each configuration (layer type, B_w, B_x, nrow, ADC bits, encoding, noise), run `bit_accurate` on real activations captured from the model (calibration set: 32 sequences × 512 tokens from WikiText-2 train).
-2. Record `e = y_bit_accurate - y_fake_quant` in integer units. Fit: mean, std, and dependence on `|y_ideal|` (binned). Store as a small table in `results/calib/<config_hash>.pt`.
-3. In `statistical` mode: `y = y_fake_quant + ε`, with ε sampled from the fitted model (Gaussian with output-dependent std as the first model; add a heavier-tailed option if residuals are not Gaussian).
-4. GATE A3: perplexity on a WikiText-2 subset within ±2% relative of `bit_accurate`, across at least 6 configurations spanning low and high noise.
+Goal: full-test-set and result-model (1.1B) perplexities without bit-accurate cost. Bit-accurate OPT-125M runs at ~74 ms/token on the i7-12700H; fake-quant at ~1.3 ms/token. A statistical layer costs one exact integer matmul plus sampling, so a ~30–50× speed-up is the target.
 
----
+### 3.1 What is modelled
+
+The macro error of one layer in integer MAC units, before any scaling:
+
+    e[t, n] = y_bit_accurate[t, n] − (q_x · q_wᵀ)[t, n]
+
+Statistical mode computes `y = q_x · q_wᵀ + ε`, with ε drawn from a fitted model of e, then applies the usual scales and zero-point correction. Working in integer units keeps the model a property of the macro and the activation statistics, not of the float scales.
+
+Why e is not simply Gaussian (from F3/F5):
+- With a calibrated ADC (step = 1 MAC unit) most conversions are exact; the remaining error is saturation of large MACs, which is one-sided (negative bias) and concentrated in tokens with dense high bit planes.
+- With ASiM's full-range ADC, e is the sum of many rounding errors on planes weighted up to 2^14 — close to Gaussian, but its size depends on the token (sign-extension planes, F3).
+- Analog noise is added before the ADC, so at small σ it is partly removed by rounding and at large σ it adds to the rounding error.
+
+### 3.2 Step 1 — measurement (`cimsim/stat/measure.py`, `scripts/measure_error.py`)
+
+An `ErrorProbe` attached to every bit-accurate layer computes e on real activations during a normal bit-accurate forward pass (errors propagate as in a real run). Tokens: WikiText-2 *train*, after the ADC calibration tokens (disjoint from calibration and from the test set). Per layer it records: mean, std, skew, excess kurtosis, fraction of exact outputs, max |e|, relative error, per-output-channel mean and std, per-token RMS error and its correlation with token signal size and input statistics, and std of e vs |ideal output|. Samples are saved for fitting (`samples.pt`, not in git).
+
+Measurement configs (OPT-125M, 2,048 tokens each): `f5_adc6_calibrated`, `a3_adc6cal_rn025`, `a3_adc6cal_rn05`, `a3_adc6cal_rn1` (calibrated ADC 6 b, noise 0 / 0.25 / 0.5 / 1 % of full scale), `example_bit_accurate` (full-range ADC 8 b), `a3_adc7` (full-range ADC 7 b). F3's collapsed config is excluded: a statistical model of a model that outputs noise is not useful.
+
+### 3.3 Step 2 — error models (candidates, chosen by the measurements and the gate)
+
+| Model | ε | Parameters per layer | Captures | Misses |
+|---|---|---|---|---|
+| M0 | N(0, σ²) | 1 | size of error | bias, channel and token structure |
+| M1 | N(μ_n, σ_n²) per output channel | 2N | saturation bias, channel differences | token dependence |
+| M2 | M1 × per-token factor g(token) | 2N + few | tokens with large / outlier activations | — |
+| M3 | analytic: per-conversion error variance from ADC step, noise σ and the calibration MAC histograms, propagated through the shift-add weights per (cycle, plane) using each token's input bit-plane densities | none fitted | everything above, and extrapolates to configs that were not measured (needed for A5 sweeps) | error correlations between conversions |
+
+Plan: implement M1 first (simplest model that can carry the saturation bias), then add M2 if the measurement shows a token RMS q90/median ratio well above 1 or a strong correlation with token signal, and M3 as the goal for sweeps. Each model is a `stat_model` config field; `mode: statistical` reads fitted parameters from a file produced by step 1 (`results/<measurement>/stat_params.pt`) or, for M3, from the ADC calibration histograms.
+
+### 3.4 Event counts
+
+`_CIMBase._count` already uses `analytic_counts` in every mode, so statistical mode produces the same counts as bit-accurate by construction. A test will assert equality on a tiny model.
+
+### 3.5 GATE A3 protocol (CPU budget)
+
+- OPT-125M, WikiText-2 test, first 8,192 tokens (the bit-accurate subset), the six measurement configs above.
+- For each config: bit-accurate PPL with `fast` and with `reference` backend (gives the float-rounding spread, F6), and statistical PPL with 3 seeds.
+- Pass: for each config, |PPL_stat − PPL_bit| / PPL_bit ≤ 2%, or within the bit-accurate fast-vs-reference spread if that is larger. Report seed spread of the statistical mode as well.
+- Record speed-up (ms/token, same machine, same threads).
+- Cost: bit-accurate 6 configs × 2 backends × ~10 min (reference ~2× slower) ≈ 3 h on Thomas's machine; statistical runs are minutes.
 
 ## 4. Package layout and interfaces
 

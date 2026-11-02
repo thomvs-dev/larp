@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -23,19 +22,9 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from cimsim.calibrate import calibrate_adc_range  # noqa: E402
-from cimsim.config import LayerConfigMap  # noqa: E402
 from cimsim.events import EventCounter  # noqa: E402
-from cimsim.models.swap import swap_linears  # noqa: E402
 from eval.perplexity import load_wikitext2_ids, perplexity  # noqa: E402
-
-
-def git_hash() -> str:
-    try:
-        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
-                                       stderr=subprocess.DEVNULL).strip()
-    except Exception:
-        return "unknown"
+from eval.runner import calibrate_if_needed, context_len, git_hash, load_model, swap_from_config  # noqa: E402
 
 
 def main() -> None:
@@ -60,46 +49,18 @@ def main() -> None:
     if args.threads:
         torch.set_num_threads(args.threads)
 
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    dtype = getattr(torch, args.dtype)
-    if args.device == "cpu" and dtype == torch.float16:
-        dtype = torch.float32
-    tok = AutoTokenizer.from_pretrained(args.model)
-    try:  # transformers >= 4.56 uses `dtype`; older versions use `torch_dtype`
-        model = AutoModelForCausalLM.from_pretrained(args.model, dtype=dtype)
-    except TypeError:
-        model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=dtype)
-    model = model.to(args.device)
-
+    model, tok, dtype = load_model(args.model, args.device, args.dtype)
     counter = EventCounter()
-    cfg_dict = None
-    replaced: list[str] = []
-    if args.config.lower() != "none":
-        with open(args.config, "r", encoding="utf-8") as f:
-            cfg_dict = yaml.safe_load(f)
-        replaced = swap_linears(model, LayerConfigMap.from_dict(cfg_dict), counter)
+    cfg_dict, replaced = swap_from_config(model, args.config, counter)
 
     ids = load_wikitext2_ids(tok)
-    ctx = getattr(model.config, "max_position_embeddings", None) or getattr(model.config, "n_positions", 2048)
+    ctx = context_len(model)
     seq_len = min(ctx, 2048) if args.seq_len is None else min(args.seq_len, ctx)
     max_windows = args.max_windows
     if args.max_tokens is not None:
         max_windows = max(1, args.max_tokens // seq_len)
 
-    calibrated, calib_s = [], 0.0
-    if any(getattr(m, "cfg", None) is not None and m.cfg.mode == "bit_accurate"
-           and m.cfg.adc_range == "calibrated" for m in model.modules()):
-        tc = time.time()
-        train_ids = load_wikitext2_ids(tok, split="train")[: args.calib_tokens]
-        cal_len = min(seq_len, args.calib_tokens)
-        def run_calib():
-            for i in range(0, train_ids.numel() - cal_len + 1, cal_len):
-                model(train_ids[i:i + cal_len].unsqueeze(0).to(args.device))
-        print(f"calibrating ADC range on {args.calib_tokens} train tokens ...", flush=True)
-        calibrated = calibrate_adc_range(model, run_calib)
-        calib_s = round(time.time() - tc, 1)
-        print(f"calibrated {len(calibrated)} layers in {calib_s} s", flush=True)
+    calibrated, calib_s = calibrate_if_needed(model, tok, seq_len, args.calib_tokens, args.device)
     t0 = time.time()
     res = perplexity(model, ids, seq_len, max_windows, args.device)
     res.update({

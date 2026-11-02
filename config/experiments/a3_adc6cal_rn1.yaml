@@ -1,0 +1,15 @@
+# A3 measurement: F5 calibrated ADC 6 b plus Gaussian analog noise (percent of nominal full scale, ASiM convention).
+default:
+  mode: bit_accurate
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: layer
+  rand_noise_sigma: 1.0
+  token_block: 128
+layers:
+  "*.fc2": {adc_bits: 8}
+  "*.mlp.down_proj": {adc_bits: 8}

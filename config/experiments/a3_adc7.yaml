@@ -1,0 +1,12 @@
+# A3 measurement: ASiM full-range ADC at 7 b (fc2 / down_proj 9 b), between the collapsed 6 b (F3) and the near-exact 8 b.
+default:
+  mode: bit_accurate
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 7
+  rand_noise_sigma: 0.0
+  token_block: 128
+layers:
+  "*.fc2": {adc_bits: 9}
+  "*.mlp.down_proj": {adc_bits: 9}

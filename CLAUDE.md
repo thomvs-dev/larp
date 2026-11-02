@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0, A1, A2 done (GATE A2 passed). Next: A3 statistical fast mode**
+Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: design + error-measurement tool done; measurement runs pending on Thomas's machine**
 Last updated: 2026-11-02
 
 ---
@@ -134,7 +134,9 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 ### A3 — Statistical fast mode
 
-- [ ] Measure output-error distribution per (layer type, ADC bits, nrow, noise) in bit-accurate mode.
+- [x] A3 design: error model candidates M0–M3, measurement configs, GATE A3 protocol (`docs/part_a_plan.md` §3).
+- [ ] Error measurement tool: `ErrorProbe` + `scripts/measure_error.py` (done, 6 tests), and runs on OPT-125M for the 6 measurement configs ← Thomas (commands in Section 6).
+- [ ] Measure output-error distribution per (layer type, ADC bits, nrow, noise) in bit-accurate mode; analyse which error model is needed.
 - [ ] Implement fast mode that injects that error into a standard matmul.
 - [ ] Event counts still produced in fast mode (computed analytically).
 - [ ] **GATE A3:** on OPT-125M, fast-mode perplexity within agreed tolerance (start with ±2% relative) of bit-accurate on a subset of WikiText-2; speed-up recorded.
@@ -244,8 +246,11 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A3** (statistical fast mode)
 - Next tasks, in order:
-  1. Thomas: `git fetch origin; git reset --hard origin/main` (the spread results are now committed).
-  2. Agent: A3 design (error model, what is measured per layer, how it is injected, how GATE A3 is run on the CPU budget) in `docs/part_a_plan.md`, then the first A3 task: error-distribution measurement in bit-accurate mode.
+  1. Thomas: `git fetch origin; git reset --hard origin/main`, then the six A3 measurement runs (~40 min total):
+     ```
+     foreach ($c in "f5_adc6_calibrated","a3_adc6cal_rn025","a3_adc6cal_rn05","a3_adc6cal_rn1","example_bit_accurate","a3_adc7") { python scripts/measure_error.py --model facebook/opt-125m --config config/experiments/$c.yaml --name a3m_opt125m_$c }
+     ```
+  2. Agent: stage `results/a3m_*/` (incl. `samples.pt`), analyse error structure, choose M1/M2/M3, implement `mode: statistical`.
   3. Note for A3/A5: bit-accurate numbers at coarse ADC carry float-rounding spread (F6); GATE A3's ±2% tolerance must be compared against the bit-accurate run's own fast-vs-reference spread on the same tokens.
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
@@ -279,6 +284,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-02 — `run_ppl.py`: window length defaults to model context (cap 2048); `--max-tokens` for the CPU subset; git stderr silenced. — `scripts/run_ppl.py`
 - 2026-11-02 — A2 full sweep (1,000 images, 13 configs, git bcde8c5b): fake-quant and all ADC ≥ 8 b configs within 0.8% of ASiM; bs_n64_adc8 cimsim 92.4 / ASiM 90.3, explained by F4; ADC ≤ 6 b diffs −0.4 … +1.2%. Trends match for ADC bits, nrow, noise, encoding. cimsim 1.6–66× faster on bit-accurate configs. Gate conditions 1–3 pass; condition 4 needs measured spread. Added `--backend` and per-image predictions to the A2 script, and `validation/a2_spread.py`. — `results/a2_resnet20/`, `validation/asim_repro.md`
 - 2026-11-02 — A2 spread run (5 low-ADC configs, 1,000 images): cimsim fast vs reference differ by up to 1.4% accuracy, 29% of predictions at n128/ADC 6 b; cimsim vs ASiM ≤ 1.2%, 33%. Reruns reproduce the sweep exactly. **GATE A2 passed.** F6 updated with measured spread. — `results/a2_spread_fast/`, `results/a2_spread_ref/`, `validation/asim_repro.md`, `docs/findings.md`
+- 2026-11-02 — A3 design (M0–M3 error models, GATE A3 protocol with F6 spread) and error-measurement tool: `_probe` hook in `_CIMBase` (no effect on outputs, tested), `ErrorProbe`, `scripts/measure_error.py`; shared run setup moved to `eval/runner.py`; 4 measurement configs. 179 tests pass. — `docs/part_a_plan.md` §3, `cimsim/stat/`, `scripts/measure_error.py`, `config/experiments/a3_*.yaml`
 
 ---
 
