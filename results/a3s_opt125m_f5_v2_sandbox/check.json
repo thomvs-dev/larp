@@ -1,0 +1,1466 @@
+{
+ "calib_seconds": 419.6,
+ "stat_params": {
+  "model.decoder.layers.0.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.021484375
+  },
+  "model.decoder.layers.0.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.02447509765625
+  },
+  "model.decoder.layers.0.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.028849283854166668
+  },
+  "model.decoder.layers.0.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.012288411458333334
+  },
+  "model.decoder.layers.0.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.042256673177083336
+  },
+  "model.decoder.layers.0.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.1.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.034810384114583336
+  },
+  "model.decoder.layers.1.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.022867838541666668
+  },
+  "model.decoder.layers.1.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.04779052734375
+  },
+  "model.decoder.layers.1.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.011128743489583334
+  },
+  "model.decoder.layers.1.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.027943929036458332
+  },
+  "model.decoder.layers.1.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.2.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.02593994140625
+  },
+  "model.decoder.layers.2.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.012898763020833334
+  },
+  "model.decoder.layers.2.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.042073567708333336
+  },
+  "model.decoder.layers.2.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.010233561197916666
+  },
+  "model.decoder.layers.2.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0228118896484375
+  },
+  "model.decoder.layers.2.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.3.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.025736490885416668
+  },
+  "model.decoder.layers.3.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0120849609375
+  },
+  "model.decoder.layers.3.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.054524739583333336
+  },
+  "model.decoder.layers.3.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.01409912109375
+  },
+  "model.decoder.layers.3.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0157318115234375
+  },
+  "model.decoder.layers.3.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.4.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.012674967447916666
+  },
+  "model.decoder.layers.4.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.014567057291666666
+  },
+  "model.decoder.layers.4.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.034647623697916664
+  },
+  "model.decoder.layers.4.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.013651529947916666
+  },
+  "model.decoder.layers.4.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0325927734375
+  },
+  "model.decoder.layers.4.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.5.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.013916015625
+  },
+  "model.decoder.layers.5.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.01434326171875
+  },
+  "model.decoder.layers.5.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.02813720703125
+  },
+  "model.decoder.layers.5.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.010498046875
+  },
+  "model.decoder.layers.5.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0298614501953125
+  },
+  "model.decoder.layers.5.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.6.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.014180501302083334
+  },
+  "model.decoder.layers.6.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.01544189453125
+  },
+  "model.decoder.layers.6.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.034342447916666664
+  },
+  "model.decoder.layers.6.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.012674967447916666
+  },
+  "model.decoder.layers.6.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.043950398763020836
+  },
+  "model.decoder.layers.6.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.7.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.017069498697916668
+  },
+  "model.decoder.layers.7.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.021464029947916668
+  },
+  "model.decoder.layers.7.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0423583984375
+  },
+  "model.decoder.layers.7.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.012552897135416666
+  },
+  "model.decoder.layers.7.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.048756917317708336
+  },
+  "model.decoder.layers.7.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.8.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.014119466145833334
+  },
+  "model.decoder.layers.8.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.01654052734375
+  },
+  "model.decoder.layers.8.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.04248046875
+  },
+  "model.decoder.layers.8.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.01129150390625
+  },
+  "model.decoder.layers.8.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0547943115234375
+  },
+  "model.decoder.layers.8.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.9.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.01983642578125
+  },
+  "model.decoder.layers.9.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.023193359375
+  },
+  "model.decoder.layers.9.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.044820149739583336
+  },
+  "model.decoder.layers.9.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.016927083333333332
+  },
+  "model.decoder.layers.9.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.07229105631510417
+  },
+  "model.decoder.layers.9.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.10.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0240478515625
+  },
+  "model.decoder.layers.10.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.022847493489583332
+  },
+  "model.decoder.layers.10.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.06473795572916667
+  },
+  "model.decoder.layers.10.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.011942545572916666
+  },
+  "model.decoder.layers.10.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.06702168782552083
+  },
+  "model.decoder.layers.10.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.11.self_attn.k_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.022318522135416668
+  },
+  "model.decoder.layers.11.self_attn.v_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.024637858072916668
+  },
+  "model.decoder.layers.11.self_attn.q_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.07147216796875
+  },
+  "model.decoder.layers.11.self_attn.out_proj": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.014017740885416666
+  },
+  "model.decoder.layers.11.fc1": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 6,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.057469685872395836
+  },
+  "model.decoder.layers.11.fc2": {
+   "gain": 0.0,
+   "mean": 0.0,
+   "std": 0.0,
+   "std_noise_only": 0.0,
+   "n_chunks": 24,
+   "stat_saturation": "exact",
+   "sat_cols_frac": 0.0
+  }
+ },
+ "per_layer_seconds": 327.6,
+ "per_layer": {
+  "model.decoder.layers.0.self_attn.q_proj": {
+   "ba_err_rms": 8.848993586843648,
+   "ideal_rms": 33328.930309276366,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 10,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.028849283854166668
+  },
+  "model.decoder.layers.0.self_attn.k_proj": {
+   "ba_err_rms": 24.237915803550436,
+   "ideal_rms": 33758.311457476346,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 212,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.021484375
+  },
+  "model.decoder.layers.0.self_attn.v_proj": {
+   "ba_err_rms": 0.8838834764831844,
+   "ideal_rms": 20954.017148321658,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 4,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.02447509765625
+  },
+  "model.decoder.layers.0.self_attn.out_proj": {
+   "ba_err_rms": 0.10206207261596575,
+   "ideal_rms": 17398.75866622563,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.012288411458333334
+  },
+  "model.decoder.layers.0.fc1": {
+   "ba_err_rms": 4.279614955421418,
+   "ideal_rms": 47080.03326614257,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 69,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.042256673177083336
+  },
+  "model.decoder.layers.0.fc2": {
+   "ba_err_rms": 0.0021392005681642665,
+   "ideal_rms": 10914.812484795382,
+   "stat_vs_ba_rms": 0.0021392005681642665,
+   "strict_vs_ba_rms": 0.0021392005681642665,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1158063,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.1.self_attn.q_proj": {
+   "ba_err_rms": 33.450960467300426,
+   "ideal_rms": 27508.387744122832,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 44,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.04779052734375
+  },
+  "model.decoder.layers.1.self_attn.k_proj": {
+   "ba_err_rms": 5.197154670265901,
+   "ideal_rms": 35541.00264826278,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 7,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.034810384114583336
+  },
+  "model.decoder.layers.1.self_attn.v_proj": {
+   "ba_err_rms": 1.632993161855452,
+   "ideal_rms": 20681.76159651855,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.022867838541666668
+  },
+  "model.decoder.layers.1.self_attn.out_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 17136.70851336834,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.011128743489583334
+  },
+  "model.decoder.layers.1.fc1": {
+   "ba_err_rms": 41.0736878210059,
+   "ideal_rms": 15027.643908175813,
+   "stat_vs_ba_rms": 0.05103103630798288,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 1,
+   "missed_rms": 0.05103103630798288,
+   "ba_outputs_with_error": 7538,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.027943929036458332
+  },
+  "model.decoder.layers.1.fc2": {
+   "ba_err_rms": 0.0002038167075881778,
+   "ideal_rms": 5328.442291082094,
+   "stat_vs_ba_rms": 0.0002038167075881778,
+   "strict_vs_ba_rms": 0.0002038167075881778,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 409965,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.2.self_attn.q_proj": {
+   "ba_err_rms": 276.5760904183458,
+   "ideal_rms": 12289.755085204319,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 8919,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.042073567708333336
+  },
+  "model.decoder.layers.2.self_attn.k_proj": {
+   "ba_err_rms": 24.70345525422296,
+   "ideal_rms": 12281.328025303123,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 304,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.02593994140625
+  },
+  "model.decoder.layers.2.self_attn.v_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 6675.503011784052,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.012898763020833334
+  },
+  "model.decoder.layers.2.self_attn.out_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 11321.678890052212,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.010233561197916666
+  },
+  "model.decoder.layers.2.fc1": {
+   "ba_err_rms": 71.17821619207984,
+   "ideal_rms": 18842.60914504008,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 6467,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.0228118896484375
+  },
+  "model.decoder.layers.2.fc2": {
+   "ba_err_rms": 0.00019992886804165826,
+   "ideal_rms": 5561.29434331591,
+   "stat_vs_ba_rms": 0.00019992886804165826,
+   "strict_vs_ba_rms": 0.00019992886804165826,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 428528,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.3.self_attn.q_proj": {
+   "ba_err_rms": 279.6520191065399,
+   "ideal_rms": 12675.746498806346,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 15668,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.054524739583333336
+  },
+  "model.decoder.layers.3.self_attn.k_proj": {
+   "ba_err_rms": 53.757853278789696,
+   "ideal_rms": 13631.669544160077,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 778,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.025736490885416668
+  },
+  "model.decoder.layers.3.self_attn.v_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 5566.206686116738,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0120849609375
+  },
+  "model.decoder.layers.3.self_attn.out_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 15216.898980826818,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.01409912109375
+  },
+  "model.decoder.layers.3.fc1": {
+   "ba_err_rms": 3.438352167099816,
+   "ideal_rms": 40911.48271797363,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 217,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.0157318115234375
+  },
+  "model.decoder.layers.3.fc2": {
+   "ba_err_rms": 0.00012240165470268712,
+   "ideal_rms": 4756.649660038547,
+   "stat_vs_ba_rms": 0.00012240165470268712,
+   "strict_vs_ba_rms": 0.00012240165470268712,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 182657,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.4.self_attn.q_proj": {
+   "ba_err_rms": 7.346032446724785,
+   "ideal_rms": 12770.271629423638,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 10,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.034647623697916664
+  },
+  "model.decoder.layers.4.self_attn.k_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 13066.186080804227,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.012674967447916666
+  },
+  "model.decoder.layers.4.self_attn.v_proj": {
+   "ba_err_rms": 32.55741123065018,
+   "ideal_rms": 6730.887723654168,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 53,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.014567057291666666
+  },
+  "model.decoder.layers.4.self_attn.out_proj": {
+   "ba_err_rms": 13.063945294843617,
+   "ideal_rms": 16638.899988354882,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.013651529947916666
+  },
+  "model.decoder.layers.4.fc1": {
+   "ba_err_rms": 1.5200483133769136,
+   "ideal_rms": 24311.321709646374,
+   "stat_vs_ba_rms": 0.816496580927726,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 1,
+   "missed_rms": 0.816496580927726,
+   "ba_outputs_with_error": 13,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.0325927734375
+  },
+  "model.decoder.layers.4.fc2": {
+   "ba_err_rms": 0.00024117285798155104,
+   "ideal_rms": 5223.218176152415,
+   "stat_vs_ba_rms": 0.00024117285798155104,
+   "strict_vs_ba_rms": 0.00024117285798155104,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 508154,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.5.self_attn.q_proj": {
+   "ba_err_rms": 4.898979485566356,
+   "ideal_rms": 13903.564693925771,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.02813720703125
+  },
+  "model.decoder.layers.5.self_attn.k_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 14175.556229023301,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.013916015625
+  },
+  "model.decoder.layers.5.self_attn.v_proj": {
+   "ba_err_rms": 0.8720187306856813,
+   "ideal_rms": 7220.889083723014,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 4,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.01434326171875
+  },
+  "model.decoder.layers.5.self_attn.out_proj": {
+   "ba_err_rms": 0.0007973599423122325,
+   "ideal_rms": 12777.438688124157,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.010498046875
+  },
+  "model.decoder.layers.5.fc1": {
+   "ba_err_rms": 0.5519965721429365,
+   "ideal_rms": 18467.47127561441,
+   "stat_vs_ba_rms": 0.0035659020670909254,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 2,
+   "missed_rms": 0.0035659020670909254,
+   "ba_outputs_with_error": 8,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.0298614501953125
+  },
+  "model.decoder.layers.5.fc2": {
+   "ba_err_rms": 0.00042697001089985674,
+   "ideal_rms": 5666.461854062296,
+   "stat_vs_ba_rms": 0.00042697001089985674,
+   "strict_vs_ba_rms": 0.00042697001089985674,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 811760,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.6.self_attn.q_proj": {
+   "ba_err_rms": 0.8573365976480105,
+   "ideal_rms": 14914.48713225735,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 4,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.034342447916666664
+  },
+  "model.decoder.layers.6.self_attn.k_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 15241.71608849577,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.014180501302083334
+  },
+  "model.decoder.layers.6.self_attn.v_proj": {
+   "ba_err_rms": 30.34622265071333,
+   "ideal_rms": 7987.28040672444,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 210,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.01544189453125
+  },
+  "model.decoder.layers.6.self_attn.out_proj": {
+   "ba_err_rms": 0.10597390598633231,
+   "ideal_rms": 14598.514151940633,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 3,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.012674967447916666
+  },
+  "model.decoder.layers.6.fc1": {
+   "ba_err_rms": 1.4205902219767816,
+   "ideal_rms": 17258.98061846917,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 23,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.043950398763020836
+  },
+  "model.decoder.layers.6.fc2": {
+   "ba_err_rms": 0.0005058092886205356,
+   "ideal_rms": 5551.830232212301,
+   "stat_vs_ba_rms": 0.0005058092886205356,
+   "strict_vs_ba_rms": 0.0005058092886205356,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 951799,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.7.self_attn.q_proj": {
+   "ba_err_rms": 52.16802281251098,
+   "ideal_rms": 16768.865213946658,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 664,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0423583984375
+  },
+  "model.decoder.layers.7.self_attn.k_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 17373.8141556306,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.017069498697916668
+  },
+  "model.decoder.layers.7.self_attn.v_proj": {
+   "ba_err_rms": 110.94250868974885,
+   "ideal_rms": 10178.930123865079,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1220,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.021464029947916668
+  },
+  "model.decoder.layers.7.self_attn.out_proj": {
+   "ba_err_rms": 0.05103103630798288,
+   "ideal_rms": 13216.792200679352,
+   "stat_vs_ba_rms": 0.05103103630798288,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 1,
+   "missed_rms": 0.05103103630798288,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.012552897135416666
+  },
+  "model.decoder.layers.7.fc1": {
+   "ba_err_rms": 3.9550822241491104,
+   "ideal_rms": 20781.400793769015,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 423,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.048756917317708336
+  },
+  "model.decoder.layers.7.fc2": {
+   "ba_err_rms": 0.0005583285938318332,
+   "ideal_rms": 6307.025228089529,
+   "stat_vs_ba_rms": 0.0005583285938318332,
+   "strict_vs_ba_rms": 0.0005583285938318332,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 988921,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.8.self_attn.q_proj": {
+   "ba_err_rms": 5.1562184342468145,
+   "ideal_rms": 18492.86892213718,
+   "stat_vs_ba_rms": 4.898979485566356,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 1,
+   "missed_rms": 4.898979485566356,
+   "ba_outputs_with_error": 12,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.04248046875
+  },
+  "model.decoder.layers.8.self_attn.k_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 18918.08010742303,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.014119466145833334
+  },
+  "model.decoder.layers.8.self_attn.v_proj": {
+   "ba_err_rms": 67.33631774532968,
+   "ideal_rms": 11450.639938575754,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 219,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.01654052734375
+  },
+  "model.decoder.layers.8.self_attn.out_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 15553.534268557138,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.01129150390625
+  },
+  "model.decoder.layers.8.fc1": {
+   "ba_err_rms": 5.806224210563466,
+   "ideal_rms": 29906.599359430125,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 152,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.0547943115234375
+  },
+  "model.decoder.layers.8.fc2": {
+   "ba_err_rms": 0.0005684113014355456,
+   "ideal_rms": 6331.877772820889,
+   "stat_vs_ba_rms": 0.0005684113014355456,
+   "strict_vs_ba_rms": 0.0005684113014355456,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 985235,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.9.self_attn.q_proj": {
+   "ba_err_rms": 81.53811571761176,
+   "ideal_rms": 22121.28380134489,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1488,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.044820149739583336
+  },
+  "model.decoder.layers.9.self_attn.k_proj": {
+   "ba_err_rms": 0.019136638615493577,
+   "ideal_rms": 23081.64042902405,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.01983642578125
+  },
+  "model.decoder.layers.9.self_attn.v_proj": {
+   "ba_err_rms": 291.57864147887557,
+   "ideal_rms": 14782.580795768143,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 2887,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.023193359375
+  },
+  "model.decoder.layers.9.self_attn.out_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 18282.149186376566,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.016927083333333332
+  },
+  "model.decoder.layers.9.fc1": {
+   "ba_err_rms": 281.5746208379162,
+   "ideal_rms": 45939.8854353993,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 4015,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.07229105631510417
+  },
+  "model.decoder.layers.9.fc2": {
+   "ba_err_rms": 0.0007363885022564459,
+   "ideal_rms": 7623.978085338241,
+   "stat_vs_ba_rms": 0.0007363885022564459,
+   "strict_vs_ba_rms": 0.0007363885022564459,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1147884,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.10.self_attn.q_proj": {
+   "ba_err_rms": 88.95774175252164,
+   "ideal_rms": 25477.892367949848,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 366,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.06473795572916667
+  },
+  "model.decoder.layers.10.self_attn.k_proj": {
+   "ba_err_rms": 0.01275775907699572,
+   "ideal_rms": 24036.41236443403,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0240478515625
+  },
+  "model.decoder.layers.10.self_attn.v_proj": {
+   "ba_err_rms": 535.5279983149029,
+   "ideal_rms": 17225.900831508312,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1915,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.022847493489583332
+  },
+  "model.decoder.layers.10.self_attn.out_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 18515.781130143758,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.011942545572916666
+  },
+  "model.decoder.layers.10.fc1": {
+   "ba_err_rms": 49.26655512080042,
+   "ideal_rms": 57914.86169931815,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 141,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.06702168782552083
+  },
+  "model.decoder.layers.10.fc2": {
+   "ba_err_rms": 0.0009011459790464011,
+   "ideal_rms": 7667.630294972021,
+   "stat_vs_ba_rms": 0.0009011459790464011,
+   "strict_vs_ba_rms": 0.0009011459790464011,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1234049,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  },
+  "model.decoder.layers.11.self_attn.q_proj": {
+   "ba_err_rms": 144.69614355031487,
+   "ideal_rms": 31463.95544215644,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 272,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.07147216796875
+  },
+  "model.decoder.layers.11.self_attn.k_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 28772.146527915087,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.022318522135416668
+  },
+  "model.decoder.layers.11.self_attn.v_proj": {
+   "ba_err_rms": 199.80527630045208,
+   "ideal_rms": 20840.941150160827,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 320,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.024637858072916668
+  },
+  "model.decoder.layers.11.self_attn.out_proj": {
+   "ba_err_rms": 0.0,
+   "ideal_rms": 20337.68639146995,
+   "stat_vs_ba_rms": 0.0,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 0,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.014017740885416666
+  },
+  "model.decoder.layers.11.fc1": {
+   "ba_err_rms": 10.485589689942733,
+   "ideal_rms": 40807.93392018009,
+   "stat_vs_ba_rms": 0.10206207261596575,
+   "strict_vs_ba_rms": 0.0,
+   "missed_outputs": 1,
+   "missed_rms": 0.10206207261596575,
+   "ba_outputs_with_error": 45,
+   "outputs": 6291456,
+   "sat_cols_frac": 0.057469685872395836
+  },
+  "model.decoder.layers.11.fc2": {
+   "ba_err_rms": 0.0008491664705784455,
+   "ideal_rms": 6539.0042016795205,
+   "stat_vs_ba_rms": 0.0008491664705784455,
+   "strict_vs_ba_rms": 0.0008491664705784455,
+   "missed_outputs": 0,
+   "missed_rms": 0.0,
+   "ba_outputs_with_error": 1130347,
+   "outputs": 1572864,
+   "sat_cols_frac": 0.0
+  }
+ },
+ "statistical_v2": {
+  "seed0": {
+   "ppl": 30.798523488487376,
+   "seconds": 68.4,
+   "ms_per_token": 8.35,
+   "sat_work_fraction": 0.009650114472426566
+  }
+ },
+ "fake_quant": {
+  "ppl": 30.483594218144997,
+  "seconds": 12.7
+ },
+ "git": "8ba33c2f6e4a2ce6976ee7bd02afc866707e2054+local loader change (CIMSIM_WIKITEXT_DIR)",
+ "setup": "cloud sandbox, 2 threads, OPT-125M (D:/japan/hf_local copy, md5 6399c228...), config f5_adc6_calibrated, mode statistical v2 (stat_saturation exact, stat_sat_margin 8), calibration 2,048 WikiText-2 train tokens; per-layer check on test tokens 0-2047 (bit-accurate fast backend on the same layer inputs); PPL on first 8,192 test tokens. Script: scripts/a3_real_check.py",
+ "bit_accurate_reference": {
+  "ppl": 30.807600699980142,
+  "source": "results/a3g_opt125m_f5/gate.json (Thomas's machine, git 33e49ce, fast backend seed 0)"
+ }
+}

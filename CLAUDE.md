@@ -299,6 +299,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 
 - 2026-11-03 — GATE A3 v1, first config (Thomas's machine, git 33e49ce): f5 calibrated ADC 6 b, 8,192 tokens: fake-quant 30.449, bit-accurate fast 30.808, statistical 53.97 / 58.84 / 54.58 (seeds 0–2) → fail (+79 %). Statistical 6.0 ms/token vs bit-accurate 93 ms/token. Cause found (F8): saturation errors are correlated across input planes and cancel in the shift-add; M3's independence assumption overestimates them 2–26× per layer (L9 fc1 predicted std 6922 vs measured 263) and spreads them over every output. — `results/a3g_opt125m_f5/`, `docs/findings.md` F8
 - 2026-11-03 — Statistical mode v2: exact sparse saturation term (`stat_saturation: exact`, default) with popcount bounds and a calibration column filter (`stat_sat_margin: 8`); M3 keeps the clamped noise moments minus S(m). Synthetic 768→3072 layer, 2,048 tokens, 2 cores: exact work 0.08 % of bit-accurate MACs, 0.23 s vs 0.06 s fake-quant (bound only: 15.7 %, 4.2 s). Gate script: `--reuse-ba`, ADC full-scale hash, `sat_work_fraction`. 208 tests pass. — `cimsim/stat/saturation.py`, `cimsim/stat/analytic.py`, `cimsim/core/layers.py`, `cimsim/core/calib.py`, `scripts/a3_gate.py`, `tests/test_stat_saturation.py`
+- 2026-11-03 — OPT-125M and WikiText-2 copied into the cloud sandbox from `D:\japan\hf_local` (git-ignored; `CIMSIM_WIKITEXT_DIR` selects local parquet files in `load_wikitext2_ids`). Real-model check of statistical v2 on f5 (2 threads): PPL 30.799 on the first 8,192 test tokens vs bit-accurate 30.808 from the gate run (−0.03 %); strict saturation term exact on every 6-bit layer; margin filter missed 7 of 1.7e8 outputs; exact work 0.97 % of bit-accurate MACs; 8.35 ms/token vs 1.55 fake-quant. — `results/a3s_opt125m_f5_v2_sandbox/check.json`, `scripts/a3_real_check.py`, `eval/perplexity.py`
 
 ---
 
@@ -335,7 +336,7 @@ Format: `YYYY-MM-DD — decision — reason`
 - Process node to assume for PPA: _TBD_
 - Target venue / deadline: _TBD_
 - ASiM licence terms: Apache 2.0 (checked 2026-11-02)
-- Cloud sandbox: CPU only, 2 cores, no HuggingFace access. Model downloads and runs happen on Thomas's machine (CPU).
+- Cloud sandbox: CPU only, 2 cores, no HuggingFace access. Model downloads and long runs happen on Thomas's machine (CPU). Local copies for sandbox checks: Thomas saves models / datasets into `D:\japan\hf_local\` (git-ignored), the agent stages them and sets `CIMSIM_WIKITEXT_DIR` to the parquet folder. Available so far: OPT-125M, WikiText-2 raw (train/test parquet).
 - Git: https://github.com/thomvs-dev/larp, branch `main`. Agents push from the cloud sandbox; Thomas pulls into `D:\japan`. Results produced on Thomas's machine are committed by him (or staged into the sandbox and committed by the agent).
 - Agent file sync (cloud sandbox → `D:\japan`): `device_commit_files` silently keeps old content when a staging path is reused. Stage every file under a fresh folder (e.g. `/mnt/user-data/outputs/sync_<n>/`), then verify with `md5sum` on the device. Or patch in place with `device_bash`.
 

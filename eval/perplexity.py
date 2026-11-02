@@ -6,7 +6,9 @@ Requires: transformers, datasets.
 from __future__ import annotations
 
 import math
+import os
 import time
+from pathlib import Path
 
 import torch
 
@@ -14,6 +16,12 @@ import torch
 def load_wikitext2_ids(tokenizer, split: str = "test") -> torch.Tensor:
     from datasets import load_dataset
 
+    # Offline copy: CIMSIM_WIKITEXT_DIR holds {train,test}.parquet saved from Salesforce/wikitext
+    local = os.environ.get("CIMSIM_WIKITEXT_DIR")
+    if local:
+        ds = load_dataset("parquet", data_files=str(Path(local) / f"{split}.parquet"), split="train")
+        text = "\n\n".join(ds["text"])
+        return tokenizer(text, return_tensors="pt").input_ids[0]
     # huggingface_hub >= 2 requires "owner/name"; older versions also accept the bare name
     try:
         ds = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split=split)
