@@ -20,8 +20,10 @@ from cimsim.quant import (quantize_weight, quantize_weight_asym, quantize_act, d
                           qmax_signed, qmax_unsigned)
 from cimsim.core.executor import cim_matmul_int, analytic_counts
 from cimsim.core.executor_fast import cim_matmul_int_fast
+from cimsim.core.bitplanes import input_cycles
 from cimsim.core.calib import mac_histogram, full_scale_from_histogram
 from cimsim.stat.analytic import layer_stat_params
+from cimsim.stat.saturation import saturation_tables, saturation_correction, thresholds
 
 
 class _CIMBase(nn.Module):
@@ -45,6 +47,11 @@ class _CIMBase(nn.Module):
         self.register_buffer("adc_fs", None)        # [C, P] calibrated ADC full scale, or None
         self.register_buffer("stat_params", None)   # [gain, mean, std] for mode 'statistical' (A3)
         self.stat_info: dict | None = None          # diagnostics from layer_stat_params
+        self._sat_tables: torch.Tensor | None = None  # S(m) tables for stat_saturation 'exact'
+        self._sat_key = None
+        self._cal_colmax: torch.Tensor | None = None  # [C, P, N] largest calibration MAC per column
+        self.register_buffer("sat_cols", None)       # [C, P, N] bool: columns checked for saturation
+        self.sat_stats: dict = {}                    # exact-saturation work: macs_exact / macs_total
 
     # --- to be provided by subclasses ---
     def _weight_matrix(self) -> torch.Tensor:  # [N, K]
@@ -87,6 +94,7 @@ class _CIMBase(nn.Module):
     def start_calibration(self) -> None:
         self._calibrating = True
         self._hist = None
+        self._cal_colmax = None
 
     def _n_chunks(self) -> int:
         chunks = self._chunks()
@@ -101,16 +109,32 @@ class _CIMBase(nn.Module):
         if self.cfg.adc_range == "calibrated":
             self.adc_fs = full_scale_from_histogram(self._hist, self.cfg)
         if self.cfg.mode == "statistical":
-            info = layer_stat_params(self._hist, self.cfg, self._n_chunks(), self.adc_fs)
+            exact_sat = self.cfg.stat_saturation == "exact"
+            info = layer_stat_params(self._hist, self.cfg, self._n_chunks(), self.adc_fs,
+                                     exclude_saturation=exact_sat)
             self.stat_params = torch.tensor([info["gain"], info["mean"], info["std"]], dtype=torch.float64)
             self.stat_info = {k: v for k, v in info.items() if k != "per_cp"}
+            self.stat_info["stat_saturation"] = self.cfg.stat_saturation
+            self._sat_tables = None
+            if exact_sat and self.cfg.stat_sat_margin is not None and self._cal_colmax is not None:
+                thr = thresholds(self._saturation_tables())                         # [C, P]
+                self.sat_cols = self._cal_colmax >= (thr - self.cfg.stat_sat_margin).unsqueeze(-1)
+                self.stat_info["sat_cols_frac"] = float(self.sat_cols.double().mean())
+            else:
+                self.sat_cols = None
+        self._cal_colmax = None
+        self._sat_tables = None
         self._hist = None
 
     def _int_matmul(self, qx: torch.Tensor, qw: torch.Tensor) -> torch.Tensor:
         """qx [T, K], qw [N, K] -> y_int [T, N] (float32), before zero-point correction."""
         cfg = self.cfg
         if self._calibrating:
-            h = mac_histogram(qx.cpu(), qw.cpu(), cfg, self._chunks())
+            want_max = cfg.mode == "statistical" and cfg.stat_saturation == "exact"
+            h = mac_histogram(qx.cpu(), qw.cpu(), cfg, self._chunks(), col_max=want_max)
+            if want_max:
+                h, cm = h
+                self._cal_colmax = cm if self._cal_colmax is None else torch.maximum(self._cal_colmax, cm)
             self._hist = h if self._hist is None else self._pad_add(self._hist, h)
             return qx @ qw.t()                                   # ideal output while calibrating
         if cfg.mode == "fake_quant" or self._ideal_override:
@@ -136,8 +160,28 @@ class _CIMBase(nn.Module):
             if sd > 0:
                 y = y + sd * torch.randn(y.shape, generator=self._generator(qx.device), dtype=torch.float64,
                                          device=qx.device)
+            if cfg.stat_saturation == "exact":
+                s = saturation_correction(qx, qw, cfg, self._saturation_tables(), self._chunks(), self.sat_stats,
+                                          col_mask=self.sat_cols if cfg.stat_sat_margin is not None else None)
+                if s is not None:
+                    y = y + s
             return y.float()
         raise ValueError(cfg.mode)
+
+    def _saturation_tables(self) -> torch.Tensor:
+        """S(m) tables, rebuilt when the ADC range or the relevant config fields change."""
+        c = self.cfg
+        fs = self.adc_fs if c.adc_range == "calibrated" else None
+        key = (None if fs is None else tuple(fs.flatten().tolist()), c.adc_bits, c.nrow, c.x_bits, c.w_bits,
+               c.act_enc, c.signed_act, c.w_quant, self._weight_matrix().shape[1])
+        if self._sat_tables is None or self._sat_key != key:
+            chunks = self._chunks()
+            K = self._weight_matrix().shape[1]
+            max_len = max(k1 - k0 for k0, k1 in chunks) if chunks else min(K, c.nrow)
+            levels = max(cy.levels for cy in input_cycles(None, c.x_bits, c.signed_act, c.act_enc))
+            self._sat_tables = saturation_tables(c, None if fs is None else fs.cpu(), max_len * levels)
+            self._sat_key = key
+        return self._sat_tables
 
     @staticmethod
     def _pad_add(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:

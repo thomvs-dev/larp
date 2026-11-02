@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: error measured, analytic statistical mode implemented and validated per layer; GATE A3 runs pending on Thomas's machine**
+Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: GATE A3 v1 failed on f5 (saturation model, F8); statistical mode v2 with exact sparse saturation implemented; reruns with reused bit-accurate PPLs pending on Thomas's machine**
 Last updated: 2026-11-03
 
 ---
@@ -139,7 +139,9 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] Measure output-error distribution per (layer type, ADC bits, nrow, noise) in bit-accurate mode; analyse which error model is needed. Result: deterministic gain + input-independent Gaussian noise, both analytic (findings F7, `results/a3m_summary.md`).
 - [x] Implement fast mode that injects that error into a standard matmul: `mode: statistical`, analytic model M3 from the calibration MAC histogram (`cimsim/stat/analytic.py`); layer-level agreement with bit-accurate within 5 % in std, gain exact (`tests/test_stat_analytic.py`).
 - [x] Event counts still produced in fast mode (computed analytically) — same counts as bit-accurate, tested.
-- [ ] GATE A3 runs: 6 configs with `scripts/a3_gate.py` ← Thomas (commands in Section 6).
+- [x] GATE A3 runs v1: 6 configs with `scripts/a3_gate.py` (Thomas, git 33e49ce). f5: statistical 54–59 vs bit-accurate 30.81 — **fail** (F8). Other configs: see `results/a3_gate_summary.md` once complete.
+- [x] Fix for F8: exact sparse saturation term in statistical mode (`stat_saturation: exact`, `cimsim/stat/saturation.py`), calibration column filter (`stat_sat_margin`), `--reuse-ba` in the gate script. Tested against both backends (`tests/test_stat_saturation.py`).
+- [ ] GATE A3 reruns v2 for calibrated-ADC configs (f5, rn008, rn010, rn02_hyb6) with `--reuse-ba` ← Thomas (commands in Section 6).
 - [ ] **GATE A3:** on OPT-125M, fast-mode perplexity within agreed tolerance (start with ±2% relative) of bit-accurate on a subset of WikiText-2; speed-up recorded.
 
 ### A4 — LLM integration
@@ -247,18 +249,18 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A3** (statistical fast mode)
 - Next tasks, in order:
-  1. Thomas: `git fetch origin; git reset --hard origin/main`, then the GATE A3 runs (~5 h total, can run overnight; noise configs ~1 h each):
+  1. Thomas: let the v1 gate chain (started 2026-11-03, git 33e49ce) finish, including `--table`. **Do not pull while it runs** — each command loads the code when it starts.
+  2. Thomas: then `git fetch origin; git reset --hard origin/main`, `pytest -q`, and rerun the four calibrated-ADC configs in statistical mode v2. Bit-accurate PPLs are reused from each `gate.json`; only calibration (~8 min each), fake-quant and statistical runs are repeated. Expected ~12–20 min per config, ~1 h total:
      ```
-     python scripts/a3_gate.py --config config/experiments/f5_adc6_calibrated.yaml --name a3g_opt125m_f5 --tokens 8192 --ba-backends fast,reference
-     python scripts/a3_gate.py --config config/experiments/example_bit_accurate.yaml --name a3g_opt125m_adc8 --tokens 8192 --ba-backends fast,reference
-     python scripts/a3_gate.py --config config/experiments/a3_adc7.yaml --name a3g_opt125m_adc7 --tokens 8192 --ba-backends fast,reference
-     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn008.yaml --name a3g_opt125m_rn008 --tokens 4096 --ba-seeds 0,1
-     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn010.yaml --name a3g_opt125m_rn010 --tokens 4096 --ba-seeds 0,1
-     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn02_hyb6.yaml --name a3g_opt125m_rn02_hyb6 --tokens 4096 --ba-seeds 0,1
+     python scripts/a3_gate.py --config config/experiments/f5_adc6_calibrated.yaml --name a3g_opt125m_f5 --tokens 8192 --ba-backends fast,reference --reuse-ba
+     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn008.yaml --name a3g_opt125m_rn008 --tokens 4096 --ba-seeds 0,1 --reuse-ba
+     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn010.yaml --name a3g_opt125m_rn010 --tokens 4096 --ba-seeds 0,1 --reuse-ba
+     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn02_hyb6.yaml --name a3g_opt125m_rn02_hyb6 --tokens 4096 --ba-seeds 0,1 --reuse-ba
      python scripts/a3_gate.py --table
      ```
-  2. Agent: evaluate `results/a3_gate_summary.md`; if a config fails, locate the cause (layer-level stats in `stat_params.json` vs `results/a3m_*`), fix or report; then A4.
-  3. Note for A3/A5: bit-accurate numbers at coarse ADC carry float-rounding spread (F6); GATE A3's ±2% tolerance must be compared against the bit-accurate run's own fast-vs-reference spread on the same tokens.
+     adc8 / adc7 (full-range ADC) do not saturate; v2 gives the same model as v1 there, so they are not rerun unless they failed.
+  3. Agent: evaluate `results/a3_gate_summary.md` and `sat_work_fraction` in each `gate.json`; if a config fails, locate the cause (per-layer `stat_params.json` vs `results/a3m_*`) before changing code. Open risk: noise 0.10 % (error dominated by rare ADC code flips on the MSB×MSB conversion, F7) may need sparse discrete flip sampling instead of a Gaussian. Then A4.
+  4. Note for A3/A5: bit-accurate numbers at coarse ADC carry float-rounding spread (F6); GATE A3's ±2% tolerance must be compared against the bit-accurate run's own fast-vs-reference spread on the same tokens.
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
 ---
@@ -295,6 +297,9 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-03 — A3 measurements (OPT-125M, 2,048 train tokens, 6 configs): full-range ADC 7–8 b error is a pure gain (g = round(1/Δ)·Δ − 1 = 0.39 % / 0.79 %, residual ≤ 0.1 %); calibrated ADC 6 b noise-free error is sparse channel-concentrated saturation; analog noise error is Gaussian, token- and channel-independent, and matches an analytic formula to ≤ 0.2 %. Noise 0.25–1 % destroys every layer (error 1.4–8× signal); cliff at ~0.1 % (F7). — `results/a3m_summary.md`, `results/a3m_opt125m_*/`, `docs/findings.md` F7
 - 2026-11-03 — `mode: statistical` with analytic error model M3 (exact per-conversion moments from the calibration MAC histogram → layer gain + Gaussian). Calibration pass also prepares statistical layers. Layer-level check vs bit-accurate: noise std within 5 % (0.2–2.5 %) over 7 configs incl. nonlinearity, hybrid, bit-parallel, no ADC, post-ReLU; gain exact; event counts identical. GATE script (one calibration for both modes, PPL fast/reference/seeds, verdict, speed-up) and 3 revised noise configs. 192 tests pass. — `cimsim/stat/analytic.py`, `cimsim/core/layers.py`, `scripts/a3_gate.py`, `tests/test_stat_analytic.py`, `config/experiments/a3g_*.yaml`
 
+- 2026-11-03 — GATE A3 v1, first config (Thomas's machine, git 33e49ce): f5 calibrated ADC 6 b, 8,192 tokens: fake-quant 30.449, bit-accurate fast 30.808, statistical 53.97 / 58.84 / 54.58 (seeds 0–2) → fail (+79 %). Statistical 6.0 ms/token vs bit-accurate 93 ms/token. Cause found (F8): saturation errors are correlated across input planes and cancel in the shift-add; M3's independence assumption overestimates them 2–26× per layer (L9 fc1 predicted std 6922 vs measured 263) and spreads them over every output. — `results/a3g_opt125m_f5/`, `docs/findings.md` F8
+- 2026-11-03 — Statistical mode v2: exact sparse saturation term (`stat_saturation: exact`, default) with popcount bounds and a calibration column filter (`stat_sat_margin: 8`); M3 keeps the clamped noise moments minus S(m). Synthetic 768→3072 layer, 2,048 tokens, 2 cores: exact work 0.08 % of bit-accurate MACs, 0.23 s vs 0.06 s fake-quant (bound only: 15.7 %, 4.2 s). Gate script: `--reuse-ba`, ADC full-scale hash, `sat_work_fraction`. 208 tests pass. — `cimsim/stat/saturation.py`, `cimsim/stat/analytic.py`, `cimsim/core/layers.py`, `cimsim/core/calib.py`, `scripts/a3_gate.py`, `tests/test_stat_saturation.py`
+
 ---
 
 ## 8. Decisions log
@@ -318,6 +323,9 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-03 — Statistical mode uses the analytic model M3 (no fitting to bit-accurate runs) instead of the planned fitted M1 — measurements show the error is a deterministic gain plus input-independent Gaussian noise, both computable from the MAC histogram (≤ 0.2 % on 180 layer-configs); it also extrapolates to unmeasured configs, which A5 needs. Known limit: nonlinear rounding error at full-range ADC 6 b (F3 regime) overestimated 2.3×.
 - 2026-11-03 — GATE A3 configs revised: noise 0.25 / 0.5 / 1 % replaced by 0.08 %, 0.10 % and 0.2 % with hybrid_levels 6, with calibrated ADC 6 b on every layer incl. fc2 — the old levels make every layer's error larger than its signal (F7), and an 8-bit fc2 passes noise that 6-bit layers round away.
 - 2026-11-03 — GATE A3 noise configs evaluated on 4,096 tokens with bit-accurate seed spread (seeds 0, 1); noise-free configs on 8,192 tokens with fast-vs-reference spread — noisy bit-accurate runs cost ~0.42 s/token on the i7-12700H (noise sampling dominates).
+
+- 2026-11-03 — Statistical mode computes ADC saturation exactly (sparse) instead of modelling it — saturation is deterministic, sparse and correlated across planes (F8); no Gaussian approximation matched it. Option chosen by Thomas over a covariance-corrected Gaussian (wrong error shape) and per-layer bit-accurate fallback (≤ 4× speed-up).
+- 2026-11-03 — Saturation candidates limited by calibration column maxima (`stat_sat_margin`, default 8 MAC units) — the strict popcount bound flags ~half of all conversions at plane density ≈ 0.5 and costs ~15 % of a bit-accurate pass. Assumption: a column that never came within 8 MAC units of saturating on 2,048 calibration tokens does not saturate at test time. `stat_sat_margin: null` restores the strict bound for checks.
 
 ---
 

@@ -15,12 +15,18 @@ spread = (max - min) / min over the bit-accurate runs.
 
 Writes results/<name>/{gate.json, config.yaml, stat_params.json}. --table prints a summary of all
 results/a3g_*/gate.json files and writes results/a3_gate_summary.md.
+
+--reuse-ba: take the bit-accurate PPLs from an existing results/<name>/gate.json (same model, config,
+tokens and calibration tokens) and only rerun fake-quant and statistical. The earlier statistical
+results are kept under 'statistical_previous'. Valid as long as the bit-accurate executors and the
+calibration (ADC full scale) are unchanged; the ADC full-scale hash is recorded to check this.
 """
 
 from __future__ import annotations
 
 import argparse
 import dataclasses
+import hashlib
 import json
 import statistics
 import sys
@@ -83,6 +89,8 @@ def main() -> None:
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--table", action="store_true", help="summarise results/a3g_*/gate.json and exit")
+    ap.add_argument("--reuse-ba", action="store_true",
+                    help="reuse bit-accurate results from an existing results/<name>/gate.json")
     args = ap.parse_args()
     if args.table:
         table()
@@ -109,10 +117,31 @@ def main() -> None:
     out = ROOT / "results" / args.name
     out.mkdir(parents=True, exist_ok=True)
     stat_params = {m.name: m.stat_info for m in cim if m.stat_info is not None}
+    h = hashlib.md5()
+    for m in cim:
+        if m.adc_fs is not None:
+            h.update(m.name.encode()); h.update(m.adc_fs.double().cpu().numpy().tobytes())
+    fs_hash = h.hexdigest()
+    old = None
+    if args.reuse_ba:
+        old = json.loads((out / "gate.json").read_text(encoding="utf-8"))
+        for k, v in (("model", args.model), ("config", args.config), ("tokens", n_windows * seq_len),
+                     ("calib_tokens", args.calib_tokens)):
+            if old.get(k) != v:
+                raise SystemExit(f"--reuse-ba: {k} differs from the existing gate.json ({old.get(k)!r} vs {v!r})")
+        if old.get("adc_fs_hash") not in (None, fs_hash):
+            raise SystemExit("--reuse-ba: calibrated ADC full scale differs from the existing run")
     (out / "stat_params.json").write_text(json.dumps(stat_params, indent=1), encoding="utf-8")
     res = {"model": args.model, "config": args.config, "tokens": n_windows * seq_len, "seq_len": seq_len,
            "calib_tokens": args.calib_tokens, "calib_seconds": calib_s, "threads": torch.get_num_threads(),
-           "git": git_hash(), "bit_accurate": {}, "statistical": {}}
+           "git": git_hash(), "adc_fs_hash": fs_hash, "bit_accurate": {}, "statistical": {}}
+    if old is not None:
+        res["bit_accurate"] = old["bit_accurate"]
+        res["bit_accurate_git"] = old.get("bit_accurate_git", old.get("git"))
+        prev = old.get("statistical_previous", [])
+        res["statistical_previous"] = prev + [{"git": old.get("git"), "runs": old.get("statistical", {})}]
+    else:
+        res["bit_accurate_git"] = res["git"]
 
     def save():
         (out / "gate.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
@@ -122,14 +151,22 @@ def main() -> None:
     print(f"fake_quant            PPL {res['fake_quant']['ppl']:.3f}", flush=True)
     for s in [int(v) for v in args.stat_seeds.split(",")]:
         set_mode(model, mode="statistical", seed=s)
+        for m in cim:
+            m.sat_stats = {}
         res["statistical"][f"seed{s}"] = r = run(model, ids, seq_len, n_windows, args.device)
+        ex = sum(m.sat_stats.get("macs_exact", 0) for m in cim)
+        tot = sum(m.sat_stats.get("macs_total", 0) for m in cim)
+        r["sat_work_fraction"] = ex / tot if tot else 0.0           # exact-saturation MACs / bit-accurate MACs
         print(f"statistical seed {s}    PPL {r['ppl']:.3f}  ({r['ms_per_token']} ms/token)", flush=True)
         save()
     seeds = [int(v) for v in args.ba_seeds.split(",")]
     plan = [(b, seeds[0]) for b in args.ba_backends.split(",")] + [("fast", s) for s in seeds[1:]]
     for backend, s in plan:
-        set_mode(model, mode="bit_accurate", backend=backend, seed=s)
         key = f"{backend}_seed{s}"
+        if key in res["bit_accurate"]:
+            print(f"bit_accurate {key:12s} PPL {res['bit_accurate'][key]['ppl']:.3f}  (reused)", flush=True)
+            continue
+        set_mode(model, mode="bit_accurate", backend=backend, seed=s)
         print(f"bit_accurate {key} ...", flush=True)
         res["bit_accurate"][key] = r = run(model, ids, seq_len, n_windows, args.device)
         print(f"bit_accurate {key:12s} PPL {r['ppl']:.3f}  ({r['ms_per_token']} ms/token)", flush=True)

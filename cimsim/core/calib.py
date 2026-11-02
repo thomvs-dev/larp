@@ -45,9 +45,12 @@ def mac_histogram(
     cfg: CIMConfig,
     chunks: list[tuple[int, int]] | None = None,
     token_block: int = 64,
-) -> torch.Tensor:
+    col_max: bool = False,
+):
     """Histogram of ideal MAC values per (cycle, plane): int64 [C, P, M + 1],
-    M = nrow * max(L_c). Uses the same bit decomposition as the executors."""
+    M = nrow * max(L_c). Uses the same bit decomposition as the executors.
+    col_max: also return the largest MAC per (cycle, plane, output column), int64 [C, P, N]
+    (used by stat_saturation 'exact' to skip columns that never come near saturation)."""
     T, K = q_x.shape
     N = q_w.shape[0]
     nrow, P = cfg.nrow, cfg.w_bits
@@ -61,6 +64,7 @@ def mac_histogram(
     shifts = torch.arange(P, dtype=torch.int16).view(P, 1, 1)
     base = (torch.arange(C * P, dtype=torch.int64) * (M + 1)).view(1, C, P, 1)
     hist = torch.zeros(C * P * (M + 1), dtype=torch.int64)
+    cmax = torch.zeros(C, P, N, dtype=torch.int64) if col_max else None
     chunk_list = [(k0, min(K, k0 + nrow)) for k0 in range(0, K, nrow)] if chunks is None else chunks
     for k0, k1 in chunk_list:
         r = k1 - k0
@@ -70,6 +74,10 @@ def mac_histogram(
             xk = digits[t0:t1, :, k0:k1].reshape((t1 - t0) * C, r).to(torch.float32)
             m = (xk @ wk).view(t1 - t0, C, P, N).to(torch.int64)
             hist += torch.bincount((m + base).reshape(-1), minlength=hist.numel())
+            if col_max:
+                cmax = torch.maximum(cmax, m.amax(dim=0))
+    if col_max:
+        return hist.view(C, P, M + 1), cmax
     return hist.view(C, P, M + 1)
 
 

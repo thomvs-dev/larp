@@ -33,6 +33,7 @@ import torch
 from cimsim.config import CIMConfig
 from cimsim.core.bitplanes import input_cycles
 from cimsim.core.executor import analog_mask
+from cimsim.stat.saturation import saturation_tables
 
 _SQRT2 = math.sqrt(2.0)
 
@@ -84,14 +85,18 @@ def conversion_moments(m: torch.Tensor, s: torch.Tensor, upper: float, fs: float
 
 
 def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
-                      full_scale: torch.Tensor | None = None) -> dict:
+                      full_scale: torch.Tensor | None = None, exclude_saturation: bool = False) -> dict:
     """hist: [C, P, M+1] counts of ideal MAC values (cimsim.core.calib.mac_histogram).
-    Returns {'gain', 'mean', 'std'} in integer output units plus per-(cycle, plane) diagnostics."""
+    Returns {'gain', 'mean', 'std'} in integer output units plus per-(cycle, plane) diagnostics.
+    exclude_saturation: remove the noise-free saturation term S(m) (cimsim.stat.saturation) from the
+    deterministic part d(m); it is then computed exactly per conversion (F8). The noise variance keeps
+    the clamp, so noise on saturated conversions is absorbed as in the executors."""
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
     C, P = len(cycles), cfg.w_bits
     amask = analog_mask(P, C, cfg.hybrid_levels)
     s_rand, s_nl = cfg.rand_noise_sigma / 100.0, cfg.non_linear_sigma / 100.0
     L = None if cfg.adc_bits is None else 2 ** cfg.adc_bits - 1
+    sat = saturation_tables(cfg, full_scale, hist.shape[-1] - 1) if exclude_saturation else None
     rows = []
     for ci, c in enumerate(cycles):
         fsn = float(cfg.nrow * c.levels)
@@ -112,6 +117,8 @@ def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
                 s = torch.zeros_like(m)
             mean_out, var_out = conversion_moments(m, s, min(fsn, fs), fs, L)
             d = mean_out - m
+            if exclude_saturation:
+                d = d - sat[ci, pi, idx]
             Em, Em2 = float((w * m).sum()), float((w * m * m).sum())
             Vm = max(Em2 - Em * Em, 0.0)
             Ed = float((w * d).sum())

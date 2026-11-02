@@ -123,6 +123,12 @@ Candidates considered: M0 (one Gaussian per layer), M1 (Gaussian per output chan
 
 Validated at layer level against bit-accurate (`tests/test_stat_analytic.py`). Known limitation: large nonlinear rounding error (full-range ADC 6 b, F3) is overestimated (2.3×) because conversions are treated as independent.
 
+**v2: exact sparse saturation (F8).** GATE A3 v1 failed on `f5_adc6_calibrated` (PPL ~55 vs 30.81): ADC saturation is correlated across input planes and M3 overestimated it 2–26×. With `stat_saturation: exact` (default) the saturation term S(m) = readout(m) − Q_u(min(m, FS_nom)) is computed exactly per conversion (`cimsim/stat/saturation.py`), and M3 models only the rest (clamped noise moments minus S(m)):
+
+    y_int = (1 + g)·(q_x·q_wᵀ) + μ + σ·ξ + Σ_{chunks, c, p} coef_cp · S_cp(m)
+
+The MAC m is computed only for (token, chunk, cycle) rows and (plane, column) pairs whose bounds (input digit sum; L_c × weight-plane popcount) reach the saturation threshold and whose calibration column maximum came within `stat_sat_margin` (default 8) MAC units of it. `stat_saturation: analytic` keeps v1 for comparison. Exact for noise-free conversions when the ADC step is 1/n of a MAC unit (all calibrated gate configs). Work per run is reported as `sat_work_fraction` (exact MACs / bit-accurate MACs) in `gate.json`.
+
 ### 3.4 Event counts
 
 `_CIMBase._count` uses `analytic_counts` in every mode, so statistical mode produces the same counts as bit-accurate (asserted in `tests/test_stat_analytic.py`).
@@ -140,7 +146,7 @@ One command per config. One calibration pass (2,048 train tokens) sets ADC range
 | `a3g_adc6cal_all_rn010` | noise, predicted layer error ~3 % | 4,096 | fast seeds 0, 1 |
 | `a3g_adc6cal_all_rn02_hyb6` | noise with hybrid levels (analog mask) | 4,096 | fast seeds 0, 1 |
 
-The original noise levels (0.25 / 0.5 / 1 %) were dropped: they make every layer's error larger than its signal (F7), so perplexity is meaningless in both modes. Noise configs use 4,096 tokens because noisy bit-accurate runs cost ~0.42 s/token (noise sampling). Pass: |median statistical PPL − bit-accurate PPL| / bit-accurate PPL ≤ max(2 %, spread of the bit-accurate runs). Speed-up recorded per config. Summary: `python scripts/a3_gate.py --table` → `results/a3_gate_summary.md`.
+The original noise levels (0.25 / 0.5 / 1 %) were dropped: they make every layer's error larger than its signal (F7), so perplexity is meaningless in both modes. Noise configs use 4,096 tokens because noisy bit-accurate runs cost ~0.42 s/token (noise sampling). Pass: |median statistical PPL − bit-accurate PPL| / bit-accurate PPL ≤ max(2 %, spread of the bit-accurate runs). Speed-up recorded per config. Summary: `python scripts/a3_gate.py --table` → `results/a3_gate_summary.md`. After a change to statistical mode only, `--reuse-ba` reruns fake-quant and statistical and keeps the bit-accurate PPLs (checks model, config, tokens, calibration tokens and the ADC full-scale hash); earlier statistical results stay in `statistical_previous`.
 
 ## 4. Package layout and interfaces
 
@@ -189,6 +195,8 @@ tests/
 | `adc_range_gran` | `cycle_plane` | calibrated FS shared per `layer`, per `cycle`, or per (cycle, plane) |
 | `adc_range_method` | `mse` | `mse` (min squared readout error, ties → largest FS) or `percentile` |
 | `adc_range_pct` | 99.99 | percentile for method `percentile` |
+| `stat_saturation` | `exact` | mode `statistical`: `exact` = ADC saturation computed exactly on sparse candidate conversions (F8); `analytic` = folded into M3 (v1) |
+| `stat_sat_margin` | 8 | `exact`: check only columns whose calibration MAC maximum came within this many MAC units of saturation; `null` = popcount bound only (strict, slow) |
 
 Per-layer overrides in YAML:
 

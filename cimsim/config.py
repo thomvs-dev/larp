@@ -50,6 +50,12 @@ class CIMConfig:
                                          #   calibration data (significance-weighted when shared);
                                          # "percentile": adc_range_pct of calibration MAC values
     adc_range_pct: float = 99.99         # used by method "percentile"
+    stat_saturation: str = "exact"       # mode 'statistical': "exact" = ADC saturation computed exactly
+                                         # on the sparse conversions that can saturate (F8);
+                                         # "analytic" = folded into the Gaussian model M3 (A3 v1)
+    stat_sat_margin: Optional[int] = 8   # 'exact': only columns whose calibration MAC maximum came within
+                                         # this many MAC units of the saturation threshold are computed;
+                                         # None = every column allowed by the popcount bound (strict, slow)
 
     @property
     def w_signed(self) -> bool:
@@ -90,6 +96,10 @@ class CIMConfig:
             raise ValueError(f"adc_range_gran must be one of {ADC_RANGE_GRANS}")
         if self.adc_range_method not in ("mse", "percentile"):
             raise ValueError("adc_range_method must be 'mse' or 'percentile'")
+        if self.stat_sat_margin is not None and self.stat_sat_margin < 0:
+            raise ValueError("stat_sat_margin must be >= 0 or None")
+        if self.stat_saturation not in ("exact", "analytic"):
+            raise ValueError("stat_saturation must be 'exact' or 'analytic'")
         if not 0.0 < self.adc_range_pct <= 100.0:
             raise ValueError("adc_range_pct must be in (0, 100]")
 
