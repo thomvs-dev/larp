@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: statistical v3 passes 5 of 6 GATE A3 configs in the sandbox; rn010 open (statistical PPL varies ×6 between seeds, more bit-accurate seeds running on Thomas's machine); official reruns pending**
+Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: statistical v3 passes 5 of 6 GATE A3 configs in the sandbox; rn010 open, more bit-accurate seeds needed; official reruns pending. Part B started in parallel (B0/B1 groundwork, `docs/part_b_plan.md`); result model: Qwen2.5-1.5B**
 Last updated: 2026-11-03
 
 ---
@@ -183,7 +183,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 ## 4. Part B — System-level energy, latency and area for LLMs
 
-Start only after Part A exit criteria are met (or Thomas says so).
+Start only after Part A exit criteria are met (or Thomas says so). **Thomas, 2026-11-03: start B0/B1 now in parallel with A3/A4.** Detailed plan: `docs/part_b_plan.md`.
 
 ### End goal of Part B
 
@@ -198,6 +198,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 
 ### B0 — Component library
 
+- [x] Part B plan: cost-model structure, calibration macro candidates (Jia JSSC'20 65 nm, Sinangil JSSC'21 7 nm, Wang JSSC'23 22 nm C-2C, Chih ISSCC'21 22 nm DCIM — CiMLoop's validated set + one DCIM), TOPS/W normalisation rules (`docs/part_b_plan.md`). Macro numbers still to be verified from the original papers.
 - [ ] Per-action energy / latency and area for: bitcell read/write, compute bit-line charge/share, SAR and flash ADC (scaling with bits), DAC / wordline driver, shift-add, DCIM adder tree, buffers.
 - [ ] Digital peripheral units: softmax, LayerNorm/RMSNorm, SiLU/GELU, RoPE.
 - [ ] Technology node scaling; every number cited in `docs/assumptions.md`.
@@ -266,7 +267,8 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
      python scripts/a3_gate.py --table
      ```
   3. Agent: GATE A3 verdict. If rn010 bit-accurate seeds spread as widely as statistical ones, compare distributions (median and interquartile range) and propose the criterion for noisy configs to Thomas; if bit-accurate stays tight, look for the remaining model difference. Then A4.
-  4. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
+  4. Agent (parallel, sandbox): Part B B0 — verify M1–M4 specs from the papers, start `cimsim/circuits/` with cited per-action costs (`docs/part_b_plan.md` §3). Open questions for Thomas in §4 of that file (process node, all-analog vs hybrid, macro vs system TOPS/W).
+  5. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
 ---
@@ -309,6 +311,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-03 — Statistical v2 PPLs for the noise configs in the sandbox (4,096 test tokens, seeds 0/1/2; bit-accurate PPLs come from Thomas's gate runs): rn008 25.713 / 25.725 / 25.788, rn010 30.812 / 31.497 / 30.567, rn02_hyb6 29.444 / 29.777 / 29.063; fake-quant 25.381. Layer-level shape at rn010: statistical std matches bit-accurate (ratio 1.00–1.03) but bit-accurate error is sparse (median 3.5 % of outputs non-zero, kurtosis ~680). From Thomas's v1 chain so far: f5 reference backend 30.806 (spread vs fast 0.006 %); adc8 fast 30.483 vs statistical 30.636 / 30.716 / 30.615 (+0.50 %). — `results/a3s_opt125m_*_v2_sandbox/stat_only.json`, `results/a3s_opt125m_rn010_layer_shape_sandbox/`, `scripts/a3_stat_only.py`, `scripts/a3_layer_shape.py`
 - 2026-11-03 — GATE A3 v1 chain finished on Thomas's machine (git 33e49ce): bit-accurate f5 30.808 / 30.806, adc8 30.483 / 30.423, adc7 30.607 / 30.530, rn008 25.716 / 25.731, rn010 137.197 / 143.281, rn02_hyb6 29.232 / 28.954; v1 statistical passes adc8 only. With v2 statistical (sandbox): f5 −0.03 %, adc8 +0.50 %, rn008 +0.04 %, rn02_hyb6 +0.73 % pass; adc7 +2.31 % and rn010 −77.5 % fail. Causes: nonlinear rounding above MAC 64 overestimated by the independent model (adc7); rare large code flips not represented by a Gaussian (rn010) (F9). — `results/a3g_opt125m_*/`, `results/a3_gate_summary.md`, `results/a3_gate_v1_evaluation.md`, `docs/findings.md` F9
 - 2026-11-03 — Statistical v3 (F9): exact sparse deterministic readout term (saturation + nonlinear rounding above the linear region; full-range ADC exact above m = 64) and discrete ADC code-flip sampling for rare noise flips, by exact thinning (candidate MAC computed, accept with P(flip|m)/P_max). Exact saturation path processed in row blocks (memory). Gate script `--ref median`. 216 tests pass. Sandbox (2 threads): f5 30.799 (−0.03 %), adc8 30.443 (−0.13 %), adc7 30.566 (−0.13 %), rn008 median 25.966 (+0.97 %), rn02_hyb6 29.123 (−0.37 %); rn010 12 seeds 69–440, median 174 vs bit-accurate 137 / 143 (open). rn010 layer level matches bit-accurate (std ratio 0.99–1.06, non-zero fraction within 2 %, equal per-position flip rates). — `cimsim/stat/`, `cimsim/core/layers.py`, `tests/test_stat_flips.py`, `results/a3s_opt125m_*_v3*_sandbox/`, `results/a3s_opt125m_rn010_token_rates_sandbox/`, `results/a3_gate_v1_evaluation.md`
+- 2026-11-03 — Part B plan written: cost model (event counts × cited per-action costs), calibration macro candidates M1–M4, GATE B1 normalisation rules. — `docs/part_b_plan.md`
 
 ---
 
@@ -338,13 +341,16 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-03 — Saturation candidates limited by calibration column maxima (`stat_sat_margin`, default 8 MAC units) — the strict popcount bound flags ~half of all conversions at plane density ≈ 0.5 and costs ~15 % of a bit-accurate pass. Assumption: a column that never came within 8 MAC units of saturating on 2,048 calibration tokens does not saturate at test time. `stat_sat_margin: null` restores the strict bound for checks.
 - 2026-11-03 — F9 fix: Thomas chose A1 (exact sparse deterministic term) + B1 (discrete code-flip sampling) over accepting the limits. Flip sampling uses exact thinning instead of a flip rate averaged over MAC values, so the per-conversion distribution equals the bit-accurate executor's. Discrete sampling only for per-conversion flip probability ≤ 0.05 (Poisson placement is wrong when flips are frequent) and < 4 expected flips per output.
 - 2026-11-03 — Proposed (awaiting Thomas): for noisy GATE A3 configs, compare the median statistical PPL with the median of ≥ 5 bit-accurate seeds (`--ref median`); at the noise cliff a single bit-accurate seed is not a stable reference.
+- 2026-11-03 — Result model for the A4/B4 headline results: Qwen2.5-1.5B (Thomas). Fits the 16 GB laptop in statistical mode; 3B would need int8 weight storage and ~day-long runs. (There is no Qwen2.5-2.5B.)
+- 2026-11-03 — Part B started in parallel with A3/A4 (Thomas) — B0/B1 are literature + modelling work in the sandbox and do not compete with the bit-accurate runs on the laptop. Energy numbers for Qwen come from statistical-mode event counts, so they still depend on GATE A3 for accuracy; no TOPS/W figure is reported before GATE B1.
+- 2026-11-03 — Calibration macros: CiMLoop's validated SRAM set (Jia JSSC 2020, Sinangil JSSC 2021, Wang JSSC 2023) plus one digital CIM (Chih ISSCC 2021) — open CiMLoop models allow a direct B5 comparison, and the set covers bit-serial charge-domain, multi-bit analog and DCIM.
 
 ---
 
 ## 9. Open questions / environment
 
 - Machine: Intel Core i7-12700H (6P + 8E cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads by default. Bit-accurate OPT-125M ≈ 74 ms/token.
-- Process node to assume for PPA: _TBD_
+- Process node to assume for PPA: _TBD_ (asked 2026-11-03; 22 / 28 nm have most published SRAM CIM data)
 - Target venue / deadline: _TBD_
 - ASiM licence terms: Apache 2.0 (checked 2026-11-02)
 - Cloud sandbox: CPU only, 2 cores, no HuggingFace access. Model downloads and long runs happen on Thomas's machine (CPU). Local copies for sandbox checks: Thomas saves models / datasets into `D:\japan\hf_local\` (git-ignored), the agent stages them and sets `CIMSIM_WIKITEXT_DIR` to the parquet folder. Available so far: OPT-125M, WikiText-2 raw (train/test parquet).
