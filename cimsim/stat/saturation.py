@@ -31,6 +31,9 @@ from cimsim.core.bitplanes import input_cycles
 from cimsim.core.executor import uniform_chunks
 
 
+_BLOCK_ELEMS = 1 << 22          # elements per [rows, columns] block in saturation_correction (~32 MB int64)
+
+
 def _codes(q: torch.Tensor, bits: int, signed: bool) -> torch.Tensor:
     qi = q.round().to(torch.int64)
     if signed:
@@ -164,15 +167,18 @@ def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, 
                 continue
             p_idx, n_idx = torch.nonzero(col_ok, as_tuple=True)     # selected (plane, column) pairs
             wsel = wbits[p_idx, n_idx].to(torch.float32).t()         # [r, S]
-            xsel = dig[rows].to(torch.float32)                       # [R, r]
-            m = (xsel @ wsel).round().to(torch.int64)                # exact: values <= r * L_c
             macs += rows.numel() * r * p_idx.numel()
-            corr = flat_tab[ci][(p_idx * M1).view(1, -1) + m.clamp_max(M1 - 1)]   # [R, S]
-            nz = corr != 0
-            if not bool(nz.any()):
-                continue
-            ri, si = torch.nonzero(nz, as_tuple=True)
-            out.index_add_(0, rows[ri] * N + n_idx[si], corr[ri, si])
+            base = (p_idx * M1).view(1, -1)
+            rb = max(1, _BLOCK_ELEMS // max(1, p_idx.numel()))      # bound the [rows, S] working set
+            for r0 in range(0, rows.numel(), rb):
+                rws = rows[r0:r0 + rb]
+                m = (dig[rws].to(torch.float32) @ wsel).round().to(torch.int64)   # exact: values <= r * L_c
+                corr = flat_tab[ci][base + m.clamp_max(M1 - 1)]                    # [R, S]
+                nz = corr != 0
+                if not bool(nz.any()):
+                    continue
+                ri, si = torch.nonzero(nz, as_tuple=True)
+                out.index_add_(0, rws[ri] * N + n_idx[si], corr[ri, si])
     if stats is not None:
         stats["macs_exact"] = stats.get("macs_exact", 0) + macs
     return out.view(T, N).to(q_x.device)

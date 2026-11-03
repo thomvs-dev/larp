@@ -10,8 +10,8 @@ same ADC ranges. Then, on the first --tokens WikiText-2 test tokens:
     --ba-seeds (backend fast): the run-to-run spread of the bit-accurate simulation (findings F6),
   - statistical PPL for every seed in --stat-seeds,
   - fake-quant PPL on the same tokens, for reference.
-Pass: |median stat PPL - bit-accurate PPL (fast, first seed)| / bit-accurate PPL <= max(--tol, spread),
-spread = (max - min) / min over the bit-accurate runs.
+Pass: |median stat PPL - bit-accurate PPL (fast, first seed; --ref median: median of all bit-accurate runs)|
+/ bit-accurate PPL <= max(--tol, spread), spread = (max - min) / min over the bit-accurate runs.
 
 Writes results/<name>/{gate.json, config.yaml, stat_params.json}. --table prints a summary of all
 results/a3g_*/gate.json files and writes results/a3_gate_summary.md.
@@ -89,6 +89,8 @@ def main() -> None:
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--table", action="store_true", help="summarise results/a3g_*/gate.json and exit")
+    ap.add_argument("--ref", choices=("first", "median"), default="first",
+                    help="bit-accurate reference: first run (fast, first seed) or median of all runs (noisy configs)")
     ap.add_argument("--reuse-ba", action="store_true",
                     help="reuse bit-accurate results from an existing results/<name>/gate.json")
     args = ap.parse_args()
@@ -174,9 +176,12 @@ def main() -> None:
 
     ba = [v["ppl"] for v in res["bit_accurate"].values()]
     ref = res["bit_accurate"][f"{plan[0][0]}_seed{plan[0][1]}"]
+    ref_ppl = statistics.median(ba) if args.ref == "median" else ref["ppl"]
     st_med = statistics.median(v["ppl"] for v in res["statistical"].values())
+    res["ref"] = args.ref
+    res["ref_ppl"] = ref_ppl
     res["spread"] = (max(ba) - min(ba)) / min(ba)
-    res["rel_diff"] = (st_med - ref["ppl"]) / ref["ppl"]
+    res["rel_diff"] = (st_med - ref_ppl) / ref_ppl
     res["tolerance"] = max(args.tol, res["spread"])
     res["pass"] = abs(res["rel_diff"]) <= res["tolerance"]
     st_ms = statistics.median(v["ms_per_token"] for v in res["statistical"].values())
