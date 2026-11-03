@@ -55,3 +55,4 @@ def test_frequent_flips_stay_gaussian():
     """Above the rare-flip regime (q > 0.05 per conversion) the Gaussian is kept."""
     st, _, _ = _errors(0.5, "auto", T=64)
     assert st.stat_info["flip_pairs"] == 0 and st.stat_info["std"] > 0
+

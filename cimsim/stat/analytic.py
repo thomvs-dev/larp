@@ -136,7 +136,10 @@ def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
                 f = _flip_distribution(m, s, w, min(fsn, fs), fs, L)
                 # discrete only for rare flips: Poisson placement is exact for q << 1 (Binomial otherwise)
                 if f is not None and f["q"] <= _FLIP_Q_MAX and n_chunks * f["q"] < flip_lambda_max:
-                    f.update(c=ci, p=pi, coef=coef)
+                    f.update(c=ci, p=pi, coef=coef, levels=c.levels, bit_lo=c.bit_lo, n_bits=c.n_bits)
+                    m_all = torch.arange(hist.shape[-1], dtype=torch.float64)
+                    s_all = torch.sqrt((s_rand * fsn) ** 2 + (s_nl * fsn) ** 2 / (m_all / c.levels + 1.0))
+                    f.update(_flip_tables(m_all, s_all, min(fsn, fs), fs, L))
                     flips.append(f)
                     mean_out = f["k0"] * (fs / L)                   # noise-free readout; flips sampled separately
                     var_out = torch.zeros_like(m)
@@ -170,6 +173,29 @@ def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
             "std_flips": math.sqrt(flip_var),
             "mean_flips": n_chunks * sum(f["coef"] * f["step"] * f["q"] * float((f["probs"] * f["values"]).sum())
                                          for f in flips)}
+
+
+def _flip_tables(m, s, upper, fs, L):
+    """Per-MAC-value flip tables for exact thinning (F9): pany[m] = P(code != noise-free code | m),
+    pmax = max pany, jvals = offsets with non-negligible probability, cond_cdf[m, :] = cumulative
+    P(j | m, j != 0) over jvals."""
+    p = code_probs(m, s, upper, fs, L)                              # [M+1, L+1]
+    D = fs / L
+    k0 = torch.round(m.clamp(0.0, upper) / D)
+    M1 = m.numel()
+    pj = torch.zeros(M1, 2 * L + 1, dtype=torch.float64)
+    j = (torch.arange(L + 1, dtype=torch.float64).view(1, -1) - k0.view(-1, 1)).long() + L
+    pj.scatter_add_(1, j, p)
+    p0 = pj[:, L].clone()
+    pj[:, L] = 0.0
+    support = torch.nonzero(pj.max(dim=0).values > 1e-15).flatten()
+    pj = pj[:, support]
+    pany = (1.0 - p0).clamp(0.0, 1.0)
+    tot = pj.sum(1, keepdim=True)
+    cond = torch.where(tot > 0, pj / tot.clamp_min(1e-300), torch.full_like(pj, 1.0 / max(1, pj.shape[1])))
+    cdf = torch.cumsum(cond, 1)
+    cdf[:, -1] = 1.0
+    return {"pany": pany, "pmax": float(pany.max()), "jvals": (support - L).double(), "cond_cdf": cdf}
 
 
 def _flip_distribution(m, s, w, upper, fs, L):

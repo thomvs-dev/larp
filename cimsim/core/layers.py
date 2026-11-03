@@ -26,6 +26,11 @@ from cimsim.stat.analytic import layer_stat_params
 from cimsim.stat.saturation import deterministic_tables, saturation_correction, thresholds
 
 
+def _codes_int(q: torch.Tensor, bits: int, signed: bool) -> torch.Tensor:
+    qi = q.round().to(torch.int64)
+    return torch.where(qi < 0, qi + (1 << bits), qi) if signed else qi
+
+
 class _CIMBase(nn.Module):
     """Shared integer-matmul path. Subclasses provide the [T, K] input rows
     and the [N, K] weight matrix, and optionally row chunks."""
@@ -166,7 +171,7 @@ class _CIMBase(nn.Module):
                 y = y + sd * torch.randn(y.shape, generator=self._generator(qx.device), dtype=torch.float64,
                                          device=qx.device)
             if self._flips:
-                self._add_flips(y, self._n_chunks(), self._generator(qx.device))
+                self._add_flips(y, qx.cpu(), qw.cpu(), self._generator(qx.device))
             if cfg.stat_saturation == "exact":
                 s = saturation_correction(qx, qw, cfg, self._saturation_tables(), self._chunks(), self.sat_stats,
                                           col_mask=self.sat_cols if cfg.stat_sat_margin is not None else None)
@@ -175,20 +180,48 @@ class _CIMBase(nn.Module):
             return y.float()
         raise ValueError(cfg.mode)
 
-    def _add_flips(self, y: torch.Tensor, n_chunks: int, gen: torch.Generator) -> None:
-        """Discrete ADC code flips from analog noise (F9): for each (cycle, plane) in self._flips the number
-        of flips over all T·N outputs × n_chunks conversions is Poisson(T·N·n_chunks·q); each flip lands on a
-        uniformly chosen output and changes it by coef · step · j, j drawn from the offset distribution."""
+    def _add_flips(self, y: torch.Tensor, qx: torch.Tensor, qw: torch.Tensor, gen: torch.Generator) -> None:
+        """Discrete ADC code flips from analog noise, sampled by exact thinning (F9). For each (cycle, plane)
+        in self._flips: candidate conversions (token, chunk, column) are drawn at the largest per-conversion
+        flip probability pmax (Poisson count, uniform positions); the ideal MAC m of each candidate is
+        computed exactly; it is kept with probability pany(m) / pmax and changes its output by
+        coef · step · j, j drawn from P(j | m). The result has the per-conversion distribution of the
+        bit-accurate executor (independent noise per conversion), including absorption at m = 0 and above
+        the ADC full scale."""
+        T, N = y.shape
+        chunks = self._chunks()
+        K = qx.shape[1]
+        chunk_list = [(k0, min(K, k0 + self.cfg.nrow)) for k0 in range(0, K, self.cfg.nrow)] if chunks is None else chunks
+        n_chunks = len(chunk_list)
+        ux = _codes_int(qx, self.cfg.x_bits, self.cfg.signed_act)
+        uw = _codes_int(qw, self.cfg.w_bits, self.cfg.w_signed)
         flat = y.view(-1)
-        n_out = flat.numel()
         for f in self._flips:
-            lam = torch.tensor([n_out * n_chunks * f["q"]], dtype=torch.float64)
+            lam = torch.tensor([T * N * n_chunks * f["pmax"]], dtype=torch.float64)
             k = int(torch.poisson(lam, generator=gen).item())
             if k == 0:
                 continue
-            idx = torch.randint(0, n_out, (k,), generator=gen, device=y.device)
-            jj = torch.multinomial(f["probs"], k, replacement=True, generator=gen)
-            flat.index_add_(0, idx, (f["coef"] * f["step"]) * f["values"][jj].to(y.dtype))
+            ti = torch.randint(0, T, (k,), generator=gen)
+            ni = torch.randint(0, N, (k,), generator=gen)
+            ci = torch.randint(0, n_chunks, (k,), generator=gen)
+            m = torch.empty(k, dtype=torch.int64)
+            mask_x = (1 << f["n_bits"]) - 1
+            for c_idx, (k0, k1) in enumerate(chunk_list):
+                sel = torch.nonzero(ci == c_idx).flatten()
+                if sel.numel() == 0:
+                    continue
+                d = (ux[ti[sel], k0:k1] >> f["bit_lo"]) & mask_x
+                b = (uw[ni[sel], k0:k1] >> f["p"]) & 1
+                m[sel] = (d * b).sum(1)
+            m = m.clamp_max(f["pany"].numel() - 1)
+            keep = torch.rand(k, generator=gen, dtype=torch.float64) * f["pmax"] < f["pany"][m]
+            if not bool(keep.any()):
+                continue
+            mk = m[keep]
+            u = torch.rand(mk.numel(), 1, generator=gen, dtype=torch.float64)
+            jj = torch.searchsorted(f["cond_cdf"][mk], u).flatten().clamp_max(f["jvals"].numel() - 1)
+            idx = ti[keep] * N + ni[keep]
+            flat.index_add_(0, idx.to(y.device), ((f["coef"] * f["step"]) * f["jvals"][jj]).to(y.dtype).to(y.device))
 
     def _saturation_tables(self, hist: torch.Tensor | None = None) -> torch.Tensor:
         """S(m) tables, rebuilt when the ADC range or the relevant config fields change."""
