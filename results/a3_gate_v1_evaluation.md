@@ -26,3 +26,27 @@ Causes of the two failures (findings F9):
 - rn010: the Gaussian has the right variance per layer (ratio 1.00–1.03, `results/a3s_opt125m_rn010_layer_shape_sandbox/`)
   but bit-accurate error at this noise level is rare large ADC code flips (median 3.5 % of outputs non-zero,
   up to ~2·10^4 MAC units). Whole-model PPL 137–143 vs 30.8 for the Gaussian: error shape, not size, decides PPL here.
+
+## Statistical v3 (sandbox, 2 threads; bit-accurate from Thomas's runs above)
+
+v3 = exact sparse deterministic readout term (saturation and nonlinear rounding above the exactly linear
+region) + discrete ADC code flips for rare noise flips (`stat_noise: auto`). rn010 uses the final flip
+sampler (exact thinning, git 0e6512f); rn008 and rn02_hyb6 were run with the earlier averaged-placement
+sampler (git 1916262); f5 / adc8 / adc7 are noise-free and identical in both.
+
+| Config | bit-accurate | statistical v3 | median | diff | tolerance | verdict |
+|---|---|---|---|---|---|---|
+| f5 | 30.808 | 30.799 (all seeds) | 30.799 | −0.03 % | 2 % | pass |
+| adc8 | 30.483 | 30.443 (all seeds) | 30.443 | −0.13 % | 2 % | pass |
+| adc7 | 30.607 | 30.566 (all seeds) | 30.566 | −0.13 % | 2 % | pass (v2: +2.31 %) |
+| rn008 | 25.716 / 25.731 | 25.966 / 27.082 / 25.747 | 25.966 | +0.97 % | 2 % | pass |
+| rn02_hyb6 | 29.232 / 28.954 | 29.123 / 29.678 / 29.108 | 29.123 | −0.37 % | 2 % | pass |
+| rn010 | 137.197 / 143.281 | 12 seeds: 69, 86, 113, 133, 134, 171, 178, 213, 238, 301, 385, 440 | 174.2 | +27 % | 4.4 % (2 seeds) | open: needs more bit-accurate seeds |
+
+rn010: the statistical PPL varies by a factor ~6 across seeds; both bit-accurate seeds lie inside its
+interquartile range (133–301). Layer level on real activations the v3 error matches bit-accurate (std ratio
+0.99–1.06, fraction of non-zero outputs within 2 %, kurtosis ~620 vs ~680, per-position flip rates equal:
+`results/a3s_opt125m_rn010_layer_shape_sandbox/`, `results/a3s_opt125m_rn010_token_rates_sandbox/`).
+Whether bit-accurate PPL is equally variable is not known from two seeds; Thomas's run with seeds 2–4 decides.
+Cost: noise-free v3 ~11–12 ms/token on 2 threads (fake-quant ~1.9); rn010 ~17 ms/token (thinning);
+rn02_hyb6 24 ms/token (many low-significance flip pairs, tunable with `stat_flip_lambda_max`).

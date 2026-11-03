@@ -127,7 +127,9 @@ Validated at layer level against bit-accurate (`tests/test_stat_analytic.py`). K
 
     y_int = (1 + g)·(q_x·q_wᵀ) + μ + σ·ξ + Σ_{chunks, c, p} coef_cp · S_cp(m)
 
-The MAC m is computed only for (token, chunk, cycle) rows and (plane, column) pairs whose bounds (input digit sum; L_c × weight-plane popcount) reach the saturation threshold and whose calibration column maximum came within `stat_sat_margin` (default 8) MAC units of it. `stat_saturation: analytic` keeps v1 for comparison. Exact for noise-free conversions when the ADC step is 1/n of a MAC unit (all calibrated gate configs). Work per run is reported as `sat_work_fraction` (exact MACs / bit-accurate MACs) in `gate.json`.
+The MAC m is computed only for (token, chunk, cycle) rows and (plane, column) pairs whose bounds (input digit sum; L_c × weight-plane popcount) reach the saturation threshold and whose calibration column maximum came within `stat_sat_margin` (default 8) MAC units of it. `stat_saturation: analytic` keeps v1 for comparison.
+
+**v3 (F9).** (1) The exact term is generalised from saturation to all nonlinear readout error: T(m) = readout(m) − (1 + g0)·m above the exactly linear region (full-range ADC: m ≥ 65), with a fallback to saturation only where the readout is not near-linear. (2) `stat_noise: auto` (default): analog noise on (cycle, plane) pairs with rare flips (per-conversion probability ≤ 0.05, expected flips per output < `stat_flip_lambda_max` = 4) is sampled as discrete ADC code changes by exact thinning (candidates at the largest rate, exact MAC per candidate, accept with P(flip | m)/P_max, offset from P(j | m)); those pairs are removed from the Gaussian. `stat_noise: gaussian` keeps v2. Exact for noise-free conversions when the ADC step is 1/n of a MAC unit (all calibrated gate configs). Work per run is reported as `sat_work_fraction` (exact MACs / bit-accurate MACs) in `gate.json`.
 
 ### 3.4 Event counts
 
@@ -196,6 +198,8 @@ tests/
 | `adc_range_method` | `mse` | `mse` (min squared readout error, ties → largest FS) or `percentile` |
 | `adc_range_pct` | 99.99 | percentile for method `percentile` |
 | `stat_saturation` | `exact` | mode `statistical`: `exact` = ADC saturation computed exactly on sparse candidate conversions (F8); `analytic` = folded into M3 (v1) |
+| `stat_noise` | `auto` | mode `statistical`: `auto` = rare noise flips sampled as discrete ADC code changes (exact thinning, F9), Gaussian elsewhere; `gaussian` = v2 |
+| `stat_flip_lambda_max` | 4.0 | `auto`: discrete only where expected flips per output are below this (and per-conversion flip probability ≤ 0.05) |
 | `stat_sat_margin` | 8 | `exact`: check only columns whose calibration MAC maximum came within this many MAC units of saturation; `null` = popcount bound only (strict, slow) |
 
 Per-layer overrides in YAML:
