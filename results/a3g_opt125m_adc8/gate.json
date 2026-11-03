@@ -1,0 +1,49 @@
+{
+  "model": "facebook/opt-125m",
+  "config": "config/experiments/example_bit_accurate.yaml",
+  "tokens": 8192,
+  "seq_len": 2048,
+  "calib_tokens": 2048,
+  "calib_seconds": 361.5,
+  "threads": 14,
+  "git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+  "bit_accurate": {
+    "fast_seed0": {
+      "ppl": 30.483456129208598,
+      "seconds": 422.1,
+      "ms_per_token": 51.53
+    },
+    "reference_seed0": {
+      "ppl": 30.423308906029668,
+      "seconds": 2629.9,
+      "ms_per_token": 321.03
+    }
+  },
+  "statistical": {
+    "seed0": {
+      "ppl": 30.635623131522635,
+      "seconds": 40.7,
+      "ms_per_token": 4.96
+    },
+    "seed1": {
+      "ppl": 30.716038913949422,
+      "seconds": 40.2,
+      "ms_per_token": 4.9
+    },
+    "seed2": {
+      "ppl": 30.615251463920565,
+      "seconds": 40.0,
+      "ms_per_token": 4.89
+    }
+  },
+  "fake_quant": {
+    "ppl": 30.44935097937917,
+    "seconds": 9.9,
+    "ms_per_token": 1.21
+  },
+  "spread": 0.001977011224016118,
+  "rel_diff": 0.004991789699601489,
+  "tolerance": 0.02,
+  "pass": true,
+  "speedup": 10.516326530612245
+}

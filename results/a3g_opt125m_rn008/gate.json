@@ -1,0 +1,49 @@
+{
+  "model": "facebook/opt-125m",
+  "config": "config/experiments/a3g_adc6cal_all_rn008.yaml",
+  "tokens": 4096,
+  "seq_len": 2048,
+  "calib_tokens": 2048,
+  "calib_seconds": 332.7,
+  "threads": 14,
+  "git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+  "bit_accurate": {
+    "fast_seed0": {
+      "ppl": 25.716158916554143,
+      "seconds": 1908.7,
+      "ms_per_token": 466.0
+    },
+    "fast_seed1": {
+      "ppl": 25.730629576554975,
+      "seconds": 1917.4,
+      "ms_per_token": 468.12
+    }
+  },
+  "statistical": {
+    "seed0": {
+      "ppl": 43.56134957234976,
+      "seconds": 20.3,
+      "ms_per_token": 4.96
+    },
+    "seed1": {
+      "ppl": 47.83494722888261,
+      "seconds": 20.2,
+      "ms_per_token": 4.93
+    },
+    "seed2": {
+      "ppl": 45.70966902892786,
+      "seconds": 20.3,
+      "ms_per_token": 4.97
+    }
+  },
+  "fake_quant": {
+    "ppl": 25.307509130702094,
+    "seconds": 4.9,
+    "ms_per_token": 1.2
+  },
+  "spread": 0.0005627068975498063,
+  "rel_diff": 0.777468757182994,
+  "tolerance": 0.02,
+  "pass": false,
+  "speedup": 93.95161290322581
+}

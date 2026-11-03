@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: GATE A3 v1 failed on f5 (saturation model, F8); statistical mode v2 with exact sparse saturation implemented; reruns with reused bit-accurate PPLs pending on Thomas's machine**
+Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: statistical v2 passes 4 of 6 GATE A3 configs; adc7 (+2.3 %) and rn010 (−77.5 %) fail (F9); fix pending Thomas's choice**
 Last updated: 2026-11-03
 
 ---
@@ -141,7 +141,8 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] Event counts still produced in fast mode (computed analytically) — same counts as bit-accurate, tested.
 - [x] GATE A3 runs v1: 6 configs with `scripts/a3_gate.py` (Thomas, git 33e49ce). f5: statistical 54–59 vs bit-accurate 30.81 — **fail** (F8). Other configs: see `results/a3_gate_summary.md` once complete.
 - [x] Fix for F8: exact sparse saturation term in statistical mode (`stat_saturation: exact`, `cimsim/stat/saturation.py`), calibration column filter (`stat_sat_margin`), `--reuse-ba` in the gate script. Tested against both backends (`tests/test_stat_saturation.py`).
-- [ ] GATE A3 reruns v2 for calibrated-ADC configs (f5, rn008, rn010, rn02_hyb6) with `--reuse-ba` ← Thomas (commands in Section 6).
+- [x] GATE A3 v1 chain complete (all 6 configs, `results/a3_gate_summary.md`); evaluated with sandbox v2 statistical PPLs (`results/a3_gate_v1_evaluation.md`): f5, adc8, rn008, rn02_hyb6 pass; adc7 (+2.31 %) and rn010 (−77.5 %) fail (F9).
+- [ ] Fix F9 (option chosen by Thomas, see Section 6), then GATE A3 reruns with `--reuse-ba` ← Thomas.
 - [ ] **GATE A3:** on OPT-125M, fast-mode perplexity within agreed tolerance (start with ±2% relative) of bit-accurate on a subset of WikiText-2; speed-up recorded.
 
 ### A4 — LLM integration
@@ -249,18 +250,11 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A3** (statistical fast mode)
 - Next tasks, in order:
-  1. Thomas: let the v1 gate chain (started 2026-11-03, git 33e49ce) finish, including `--table`. **Do not pull while it runs** — each command loads the code when it starts.
-  2. Thomas: then `git fetch origin; git reset --hard origin/main`, `pytest -q`, and rerun the four calibrated-ADC configs in statistical mode v2. Bit-accurate PPLs are reused from each `gate.json`; only calibration (~8 min each), fake-quant and statistical runs are repeated. Expected ~12–20 min per config, ~1 h total:
-     ```
-     python scripts/a3_gate.py --config config/experiments/f5_adc6_calibrated.yaml --name a3g_opt125m_f5 --tokens 8192 --ba-backends fast,reference --reuse-ba
-     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn008.yaml --name a3g_opt125m_rn008 --tokens 4096 --ba-seeds 0,1 --reuse-ba
-     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn010.yaml --name a3g_opt125m_rn010 --tokens 4096 --ba-seeds 0,1 --reuse-ba
-     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn02_hyb6.yaml --name a3g_opt125m_rn02_hyb6 --tokens 4096 --ba-seeds 0,1 --reuse-ba
-     python scripts/a3_gate.py --table
-     ```
-     adc8 / adc7 (full-range ADC) do not saturate; v2 gives the same model as v1 there, so they are not rerun unless they failed.
-  3. Agent: evaluate `results/a3_gate_summary.md` and `sat_work_fraction` in each `gate.json`; if a config fails, locate the cause (per-layer `stat_params.json` vs `results/a3m_*`) before changing code. Open risk: noise 0.10 % (error dominated by rare ADC code flips on the MSB×MSB conversion, F7) may need sparse discrete flip sampling instead of a Gaussian. Then A4.
-  4. Note for A3/A5: bit-accurate numbers at coarse ADC carry float-rounding spread (F6); GATE A3's ±2% tolerance must be compared against the bit-accurate run's own fast-vs-reference spread on the same tokens.
+  1. Thomas: choose the F9 fix (options in the 2026-11-03 report: exact sparse deterministic term for full-range rounding above MAC 64; discrete code-flip sampling for rare noise flips).
+  2. Agent: implement, test against bit-accurate at layer level and in the sandbox (OPT-125M available), push.
+  3. Thomas: pull, `pytest -q`, rerun all six configs with `--reuse-ba` (no bit-accurate reruns; ~10–15 min each, mostly calibration), `--table`.
+  4. Agent: GATE A3 verdict, then A4.
+  5. Note: bit-accurate numbers at coarse ADC carry float-rounding spread (F6); compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
 ---
@@ -301,6 +295,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-03 — Statistical mode v2: exact sparse saturation term (`stat_saturation: exact`, default) with popcount bounds and a calibration column filter (`stat_sat_margin: 8`); M3 keeps the clamped noise moments minus S(m). Synthetic 768→3072 layer, 2,048 tokens, 2 cores: exact work 0.08 % of bit-accurate MACs, 0.23 s vs 0.06 s fake-quant (bound only: 15.7 %, 4.2 s). Gate script: `--reuse-ba`, ADC full-scale hash, `sat_work_fraction`. 208 tests pass. — `cimsim/stat/saturation.py`, `cimsim/stat/analytic.py`, `cimsim/core/layers.py`, `cimsim/core/calib.py`, `scripts/a3_gate.py`, `tests/test_stat_saturation.py`
 - 2026-11-03 — OPT-125M and WikiText-2 copied into the cloud sandbox from `D:\japan\hf_local` (git-ignored; `CIMSIM_WIKITEXT_DIR` selects local parquet files in `load_wikitext2_ids`). Real-model check of statistical v2 on f5 (2 threads): PPL 30.799 on the first 8,192 test tokens vs bit-accurate 30.808 from the gate run (−0.03 %); strict saturation term exact on every 6-bit layer; margin filter missed 7 of 1.7e8 outputs; exact work 0.97 % of bit-accurate MACs; 8.35 ms/token vs 1.55 fake-quant. — `results/a3s_opt125m_f5_v2_sandbox/check.json`, `scripts/a3_real_check.py`, `eval/perplexity.py`
 - 2026-11-03 — Statistical v2 PPLs for the noise configs in the sandbox (4,096 test tokens, seeds 0/1/2; bit-accurate PPLs come from Thomas's gate runs): rn008 25.713 / 25.725 / 25.788, rn010 30.812 / 31.497 / 30.567, rn02_hyb6 29.444 / 29.777 / 29.063; fake-quant 25.381. Layer-level shape at rn010: statistical std matches bit-accurate (ratio 1.00–1.03) but bit-accurate error is sparse (median 3.5 % of outputs non-zero, kurtosis ~680). From Thomas's v1 chain so far: f5 reference backend 30.806 (spread vs fast 0.006 %); adc8 fast 30.483 vs statistical 30.636 / 30.716 / 30.615 (+0.50 %). — `results/a3s_opt125m_*_v2_sandbox/stat_only.json`, `results/a3s_opt125m_rn010_layer_shape_sandbox/`, `scripts/a3_stat_only.py`, `scripts/a3_layer_shape.py`
+- 2026-11-03 — GATE A3 v1 chain finished on Thomas's machine (git 33e49ce): bit-accurate f5 30.808 / 30.806, adc8 30.483 / 30.423, adc7 30.607 / 30.530, rn008 25.716 / 25.731, rn010 137.197 / 143.281, rn02_hyb6 29.232 / 28.954; v1 statistical passes adc8 only. With v2 statistical (sandbox): f5 −0.03 %, adc8 +0.50 %, rn008 +0.04 %, rn02_hyb6 +0.73 % pass; adc7 +2.31 % and rn010 −77.5 % fail. Causes: nonlinear rounding above MAC 64 overestimated by the independent model (adc7); rare large code flips not represented by a Gaussian (rn010) (F9). — `results/a3g_opt125m_*/`, `results/a3_gate_summary.md`, `results/a3_gate_v1_evaluation.md`, `docs/findings.md` F9
 
 ---
 

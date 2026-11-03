@@ -1,0 +1,506 @@
+{
+ "model.decoder.layers.0.self_attn.k_proj": {
+  "gain": -1.5373220971446388e-06,
+  "mean": 0.13935300455258876,
+  "std": 445.3829496215725,
+  "std_noise_only": 436.91361686494815,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.self_attn.v_proj": {
+  "gain": -2.2250516738692897e-08,
+  "mean": 0.0048837721782684545,
+  "std": 437.08705777148043,
+  "std_noise_only": 436.91400310319216,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.self_attn.q_proj": {
+  "gain": -3.153778800555026e-07,
+  "mean": 0.016906399828818544,
+  "std": 439.3497218695418,
+  "std_noise_only": 436.9139955694411,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.self_attn.out_proj": {
+  "gain": -2.3915631069696808e-11,
+  "mean": 0.00016272695400605663,
+  "std": 436.9140539847866,
+  "std_noise_only": 436.9140063018774,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.fc1": {
+  "gain": -1.7903393225450803e-08,
+  "mean": 0.01089103116837417,
+  "std": 436.996991338985,
+  "std_noise_only": 436.91396781551714,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.fc2": {
+  "gain": -5.260206789213433e-05,
+  "mean": 258.15891105672995,
+  "std": 781.1634613709699,
+  "std_noise_only": 780.2331861206386,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.1.self_attn.k_proj": {
+  "gain": -5.92816148109068e-08,
+  "mean": 0.025421878593820044,
+  "std": 437.30206958040765,
+  "std_noise_only": 436.9138374509955,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.self_attn.v_proj": {
+  "gain": -6.20262459220974e-11,
+  "mean": 0.0004973832750266279,
+  "std": 436.9139490467337,
+  "std_noise_only": 436.91389865045386,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.self_attn.q_proj": {
+  "gain": -1.3656404275859095e-06,
+  "mean": -0.01827097971119781,
+  "std": 446.54117433334284,
+  "std_noise_only": 436.9137683148907,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.self_attn.out_proj": {
+  "gain": -8.49010860403505e-20,
+  "mean": -1.0065052853890168e-11,
+  "std": 436.91400872450185,
+  "std_noise_only": 436.91400872450185,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.fc1": {
+  "gain": -3.01604060995276e-06,
+  "mean": 0.87032403660395,
+  "std": 460.4719777139895,
+  "std_noise_only": 436.89066142034926,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.fc2": {
+  "gain": -0.00018434811578507213,
+  "mean": 649.5233487960209,
+  "std": 720.0362672297533,
+  "std_noise_only": 718.7252023475363,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.2.self_attn.k_proj": {
+  "gain": -1.1924237699312854e-05,
+  "mean": 0.03224754667709723,
+  "std": 512.1999234990163,
+  "std_noise_only": 436.91239480949037,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.self_attn.v_proj": {
+  "gain": -2.437022799958138e-10,
+  "mean": 0.0018033540140967373,
+  "std": 436.91341250530655,
+  "std_noise_only": 436.9133973600226,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.self_attn.q_proj": {
+  "gain": -0.0005882189326403558,
+  "mean": -3.246052750652691,
+  "std": 2943.81202089161,
+  "std_noise_only": 436.8373330818714,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.self_attn.out_proj": {
+  "gain": -7.868442257402812e-13,
+  "mean": 7.978357255089844e-06,
+  "std": 436.9140067073234,
+  "std_noise_only": 436.91400665608256,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.fc1": {
+  "gain": -6.684117287296674e-07,
+  "mean": 1.385546697081385,
+  "std": 441.1570192339316,
+  "std_noise_only": 436.88671217137176,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.fc2": {
+  "gain": -0.000185599511443869,
+  "mean": 723.975321940632,
+  "std": 707.367859481715,
+  "std_noise_only": 706.0621689445295,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.3.self_attn.k_proj": {
+  "gain": -7.639433952895754e-06,
+  "mean": 0.0012882523230474693,
+  "std": 515.8713859005255,
+  "std_noise_only": 436.9116696384948,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.self_attn.v_proj": {
+  "gain": -1.031560185418852e-10,
+  "mean": 0.0007246942573205837,
+  "std": 436.9137577537769,
+  "std_noise_only": 436.913751378548,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.self_attn.q_proj": {
+  "gain": -0.00031095687705116784,
+  "mean": -2.121093610296097,
+  "std": 2206.825259200244,
+  "std_noise_only": 436.8141351800497,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.self_attn.out_proj": {
+  "gain": -2.936228426183328e-11,
+  "mean": 0.00017731189978861816,
+  "std": 436.91393266021544,
+  "std_noise_only": 436.9139307280068,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.fc1": {
+  "gain": -2.966287148790836e-08,
+  "mean": 0.014205777629205095,
+  "std": 437.0599232694498,
+  "std_noise_only": 436.91311633474817,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.fc2": {
+  "gain": -0.0001693670463775567,
+  "mean": 886.9075123966808,
+  "std": 678.1449211960982,
+  "std_noise_only": 676.9996650687104,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.4.self_attn.k_proj": {
+  "gain": -1.4787894825240804e-08,
+  "mean": 0.11201120878376934,
+  "std": 436.8772963627282,
+  "std_noise_only": 436.87636408005704,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.self_attn.v_proj": {
+  "gain": -1.1452037885256191e-06,
+  "mean": 0.08821018927956772,
+  "std": 445.39881239324603,
+  "std_noise_only": 436.87591898178425,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.self_attn.q_proj": {
+  "gain": -1.4314228236149368e-08,
+  "mean": 0.11327572063110564,
+  "std": 436.8817807718703,
+  "std_noise_only": 436.876335781791,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.self_attn.out_proj": {
+  "gain": -9.100474261891372e-20,
+  "mean": -9.626763041852747e-12,
+  "std": 436.9140087244892,
+  "std_noise_only": 436.9140087244892,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.fc1": {
+  "gain": -3.834098762974151e-09,
+  "mean": 0.029614505497699284,
+  "std": 436.90611967676364,
+  "std_noise_only": 436.9055297269909,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.fc2": {
+  "gain": -0.00014854468446093928,
+  "mean": 522.7559434562183,
+  "std": 740.1958277319281,
+  "std_noise_only": 738.9132936758579,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.5.self_attn.k_proj": {
+  "gain": -2.4026500486220393e-09,
+  "mean": 0.017569913016152423,
+  "std": 436.9080784015638,
+  "std_noise_only": 436.90792776525007,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.self_attn.v_proj": {
+  "gain": -2.4412342269454233e-09,
+  "mean": 0.01791045150381783,
+  "std": 436.9088792565427,
+  "std_noise_only": 436.90813808559875,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.self_attn.q_proj": {
+  "gain": -2.1057405215432937e-09,
+  "mean": 0.017444812644207358,
+  "std": 436.90853368402617,
+  "std_noise_only": 436.90832136193364,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.self_attn.out_proj": {
+  "gain": -3.0010892062913525e-14,
+  "mean": -1.0336433528585825e-06,
+  "std": 436.9140086487684,
+  "std_noise_only": 436.91400864684533,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.fc1": {
+  "gain": -1.4355941306073805e-09,
+  "mean": 0.003896040175705269,
+  "std": 436.91730792479433,
+  "std_noise_only": 436.9134863882755,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.fc2": {
+  "gain": -8.237131896982329e-05,
+  "mean": 221.78567729719884,
+  "std": 786.2200926676014,
+  "std_noise_only": 785.3955277146126,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.6.self_attn.k_proj": {
+  "gain": -1.2990682484800565e-08,
+  "mean": 0.09774270570083571,
+  "std": 436.88226926992957,
+  "std_noise_only": 436.88146323619594,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.self_attn.v_proj": {
+  "gain": -1.8703102806243975e-06,
+  "mean": 0.1929721900696036,
+  "std": 447.5797566687529,
+  "std_noise_only": 436.88004966738396,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.self_attn.q_proj": {
+  "gain": -1.1935482646193409e-08,
+  "mean": 0.09877977278946817,
+  "std": 436.8834889077174,
+  "std_noise_only": 436.8814664103487,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.self_attn.out_proj": {
+  "gain": -1.4563143865099535e-13,
+  "mean": -2.0345124607449585e-05,
+  "std": 436.91400946006587,
+  "std_noise_only": 436.91400871502043,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.fc1": {
+  "gain": -2.1432246523773625e-08,
+  "mean": 0.1441274877655762,
+  "std": 436.8713136442004,
+  "std_noise_only": 436.8666983090087,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.fc2": {
+  "gain": -6.551817960723827e-05,
+  "mean": 165.779707556455,
+  "std": 795.0325906056873,
+  "std_noise_only": 794.4110151799163,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.7.self_attn.k_proj": {
+  "gain": -1.491779333222783e-08,
+  "mean": 0.1104325648711296,
+  "std": 436.87710494351995,
+  "std_noise_only": 436.8761678024177,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.self_attn.v_proj": {
+  "gain": -6.255290412941712e-05,
+  "mean": 0.0890240910612356,
+  "std": 819.3320679941672,
+  "std_noise_only": 436.8732477816623,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.self_attn.q_proj": {
+  "gain": -3.644846627271161e-05,
+  "mean": -0.026875124230117554,
+  "std": 763.5584148089608,
+  "std_noise_only": 436.8735335016534,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.self_attn.out_proj": {
+  "gain": -8.608380922524989e-20,
+  "mean": -9.87076725227578e-12,
+  "std": 436.91400872449395,
+  "std_noise_only": 436.91400872449395,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.fc1": {
+  "gain": -4.5951018388284606e-08,
+  "mean": 0.08883499868945297,
+  "std": 437.0839543495356,
+  "std_noise_only": 436.888601195587,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.fc2": {
+  "gain": -6.38279481294477e-05,
+  "mean": 155.86406516239506,
+  "std": 796.030753501423,
+  "std_noise_only": 795.3679846603231,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.8.self_attn.k_proj": {
+  "gain": -1.4350546896508457e-08,
+  "mean": 0.1047456442304118,
+  "std": 436.8792576845125,
+  "std_noise_only": 436.8783751951507,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.self_attn.v_proj": {
+  "gain": -4.872350684764319e-06,
+  "mean": 0.16370182247686782,
+  "std": 463.59832380742887,
+  "std_noise_only": 436.87762445815537,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.self_attn.q_proj": {
+  "gain": -3.6480141667147117e-07,
+  "mean": 0.09890620253769941,
+  "std": 438.75901958954853,
+  "std_noise_only": 436.87838068801796,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.self_attn.out_proj": {
+  "gain": -5.772626284900992e-12,
+  "mean": -8.381570544728857e-05,
+  "std": 436.9140199654513,
+  "std_noise_only": 436.9140080398606,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.fc1": {
+  "gain": -2.1425747518207245e-08,
+  "mean": 0.09874560719091557,
+  "std": 436.94832020882393,
+  "std_noise_only": 436.889162661901,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.fc2": {
+  "gain": -7.33200760686136e-05,
+  "mean": 187.54766153776032,
+  "std": 791.9189942705345,
+  "std_noise_only": 791.2052327731424,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.9.self_attn.k_proj": {
+  "gain": -1.2365558063680342e-08,
+  "mean": 0.09119576534640444,
+  "std": 436.88357103024697,
+  "std_noise_only": 436.8827980469961,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.self_attn.v_proj": {
+  "gain": -0.000401077919815473,
+  "mean": -3.1707559704584893,
+  "std": 1957.241919572269,
+  "std_noise_only": 436.8763062832629,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.self_attn.q_proj": {
+  "gain": -5.369471390982003e-05,
+  "mean": -0.0058938787487041655,
+  "std": 868.0583626109625,
+  "std_noise_only": 436.8795688817243,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.self_attn.out_proj": {
+  "gain": -6.258860980983972e-20,
+  "mean": -1.0128767092284562e-11,
+  "std": 436.9140087244958,
+  "std_noise_only": 436.9140087244958,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.fc1": {
+  "gain": -0.0029494693398772393,
+  "mean": -114.6572541374246,
+  "std": 6935.431862402452,
+  "std_noise_only": 436.9008263764926,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.fc2": {
+  "gain": -7.740936838431462e-05,
+  "mean": 201.07872980843993,
+  "std": 789.8180110826559,
+  "std_noise_only": 789.0494551490739,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.10.self_attn.k_proj": {
+  "gain": -1.0338925496085446e-08,
+  "mean": 0.07897573857231063,
+  "std": 436.8886237737496,
+  "std_noise_only": 436.88773448170645,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.self_attn.v_proj": {
+  "gain": -0.0003238034727539166,
+  "mean": -5.405144447697515,
+  "std": 1857.369672624194,
+  "std_noise_only": 436.8842886483287,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.self_attn.q_proj": {
+  "gain": -8.67880964232603e-06,
+  "mean": 0.07414931039542103,
+  "std": 553.9599272377708,
+  "std_noise_only": 436.88733976847897,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.self_attn.out_proj": {
+  "gain": -5.5265214428062204e-12,
+  "mean": -8.377092202615613e-05,
+  "std": 436.91401973174817,
+  "std_noise_only": 436.914007803201,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.fc1": {
+  "gain": -2.869018989245509e-06,
+  "mean": -0.2289552344679019,
+  "std": 458.08039697203526,
+  "std_noise_only": 436.9139964815254,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.fc2": {
+  "gain": -6.27771412969192e-05,
+  "mean": 153.99362821083616,
+  "std": 796.4607316633808,
+  "std_noise_only": 795.7864252559423,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.11.self_attn.k_proj": {
+  "gain": -1.1188434461442672e-08,
+  "mean": 0.08513193328516229,
+  "std": 436.885743128239,
+  "std_noise_only": 436.8850252933514,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.self_attn.v_proj": {
+  "gain": -3.730488042094863e-05,
+  "mean": -1.6760395283669167,
+  "std": 698.685710625235,
+  "std_noise_only": 436.8847631248883,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.self_attn.q_proj": {
+  "gain": -9.869430840118688e-06,
+  "mean": -0.40633891799892924,
+  "std": 561.7657463852988,
+  "std_noise_only": 436.88504325494074,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.self_attn.out_proj": {
+  "gain": -6.072767729890189e-20,
+  "mean": -1.0599089087109142e-11,
+  "std": 436.9140087245087,
+  "std_noise_only": 436.9140087245087,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.fc1": {
+  "gain": -1.6458999076953932e-07,
+  "mean": -0.005801535653713296,
+  "std": 437.47102521655546,
+  "std_noise_only": 436.9140030692028,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.fc2": {
+  "gain": -7.768506969317239e-05,
+  "mean": 204.4312556630992,
+  "std": 789.8787904645271,
+  "std_noise_only": 789.1488428978487,
+  "n_chunks": 24
+ }
+}

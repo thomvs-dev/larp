@@ -1,0 +1,506 @@
+{
+ "model.decoder.layers.0.self_attn.k_proj": {
+  "gain": 0.007873664347758014,
+  "mean": 0.04330405253720239,
+  "std": 27.482160665011797,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.self_attn.v_proj": {
+  "gain": 0.007874013863878458,
+  "mean": 0.00016429831119473072,
+  "std": 1.8967498267741763,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.self_attn.q_proj": {
+  "gain": 0.007873904037893759,
+  "mean": -0.0006670395065418326,
+  "std": 16.05558819737078,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.self_attn.out_proj": {
+  "gain": 0.007874015748031449,
+  "mean": -3.229660241505379e-12,
+  "std": 8.296930330632197e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.fc1": {
+  "gain": 0.007874010853447275,
+  "mean": 0.0028314030026520935,
+  "std": 3.1490021316313084,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.0.fc2": {
+  "gain": 0.001956947162426559,
+  "mean": 1.3192148716853521e-15,
+  "std": 2.2667825927984916e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.1.self_attn.k_proj": {
+  "gain": 0.007873994795726782,
+  "mean": 0.008851262233402725,
+  "std": 7.203534260658374,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.self_attn.v_proj": {
+  "gain": 0.007874015748031496,
+  "mean": -2.783438061887031e-12,
+  "std": 9.34368609408996e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.self_attn.q_proj": {
+  "gain": 0.007873553155133594,
+  "mean": -0.010954459347784025,
+  "std": 38.53914136827963,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.self_attn.out_proj": {
+  "gain": 0.007874015748031432,
+  "mean": -7.499229038561049e-13,
+  "std": 8.855598936412867e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.fc1": {
+  "gain": 0.00787334533469424,
+  "mean": 0.17701274566732095,
+  "std": 32.10962258893688,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.1.fc2": {
+  "gain": 0.001956947162426559,
+  "mean": -2.288286757094138e-15,
+  "std": 1.0447589846244199e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.2.self_attn.k_proj": {
+  "gain": 0.00787034656940432,
+  "mean": 0.03586605537320994,
+  "std": 100.96279472320117,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.self_attn.v_proj": {
+  "gain": 0.007874015748031498,
+  "mean": 5.445687337028908e-12,
+  "std": 8.855027993682305e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.self_attn.q_proj": {
+  "gain": 0.007732690833499385,
+  "mean": -0.7417263185651797,
+  "std": 709.9270670206637,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.self_attn.out_proj": {
+  "gain": 0.007874015748031463,
+  "mean": 4.971517610948095e-12,
+  "std": 8.878889726779395e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.fc1": {
+  "gain": 0.007873879471369674,
+  "mean": 0.3126590977642804,
+  "std": 14.28785944534217,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.2.fc2": {
+  "gain": 0.0019569471624265593,
+  "mean": 5.6567872561278935e-15,
+  "std": 1.2069951808777946e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.3.self_attn.k_proj": {
+  "gain": 0.007872019759017268,
+  "mean": 0.04457611275629084,
+  "std": 79.74312818108737,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.self_attn.v_proj": {
+  "gain": 0.007874015748031449,
+  "mean": 4.565664490218373e-12,
+  "std": 8.719415734110036e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.self_attn.q_proj": {
+  "gain": 0.00779390517954799,
+  "mean": -0.3901323619212079,
+  "std": 598.0832756472478,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.self_attn.out_proj": {
+  "gain": 0.00787401574803145,
+  "mean": 5.035645463609381e-12,
+  "std": 8.572277580905448e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.fc1": {
+  "gain": 0.007874007335370416,
+  "mean": 0.003256300150372388,
+  "std": 3.5068038705619387,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.3.fc2": {
+  "gain": 0.001956947162426559,
+  "mean": -8.495583773651735e-15,
+  "std": 8.2556872838442e-15,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.4.self_attn.k_proj": {
+  "gain": 0.007874015748031414,
+  "mean": 1.947443226230768e-12,
+  "std": 9.094789320933716e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.self_attn.v_proj": {
+  "gain": 0.00787374185473582,
+  "mean": -0.016836345116414894,
+  "std": 24.099573719947433,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.self_attn.q_proj": {
+  "gain": 0.007874015606465744,
+  "mean": 0.0001024870474954052,
+  "std": 0.6367088026365147,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.self_attn.out_proj": {
+  "gain": 0.007874015748031454,
+  "mean": 5.301138178492131e-12,
+  "std": 8.53241889534085e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.fc1": {
+  "gain": 0.007874015733788101,
+  "mean": 6.635182636760564e-05,
+  "std": 0.1437591976956105,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.4.fc2": {
+  "gain": 0.001956947162426559,
+  "mean": 1.0112791620716516e-14,
+  "std": 2.4959326432596878e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.5.self_attn.k_proj": {
+  "gain": 0.007874015748031477,
+  "mean": -9.478848762801959e-13,
+  "std": 8.905684861528074e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.self_attn.v_proj": {
+  "gain": 0.007874015700190707,
+  "mean": 0.00016404264698828707,
+  "std": 0.3252899051167709,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.self_attn.q_proj": {
+  "gain": 0.007874015748031463,
+  "mean": 4.448478855189243e-12,
+  "std": 9.116772961860819e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.self_attn.out_proj": {
+  "gain": 0.007874015748031479,
+  "mean": 8.420784176422778e-13,
+  "std": 8.227981313377925e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.fc1": {
+  "gain": 0.007874015363081443,
+  "mean": 0.0007221268788977169,
+  "std": 0.7972092246845207,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.5.fc2": {
+  "gain": 0.0019569471624265584,
+  "mean": 2.7872166743647775e-14,
+  "std": 3.020342891813754e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.6.self_attn.k_proj": {
+  "gain": 0.007874015748031477,
+  "mean": -8.044934014159414e-13,
+  "std": 8.987754406045091e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.self_attn.v_proj": {
+  "gain": 0.007873685808761197,
+  "mean": 0.027225314796170914,
+  "std": 26.369302121341722,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.self_attn.q_proj": {
+  "gain": 0.007874015660011826,
+  "mean": 0.00032810071775108774,
+  "std": 0.5039369804479444,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.self_attn.out_proj": {
+  "gain": 0.007874015747958063,
+  "mean": -1.0252647395228913e-05,
+  "std": 0.012858213191609185,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.fc1": {
+  "gain": 0.00787401546027216,
+  "mean": 0.0007393198157692148,
+  "std": 0.6887250765753338,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.6.fc2": {
+  "gain": 0.0019569471624265584,
+  "mean": -2.1181576992729733e-15,
+  "std": 3.8641417032499647e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.7.self_attn.k_proj": {
+  "gain": 0.007874015748031437,
+  "mean": -3.153401491726927e-13,
+  "std": 9.314517987411755e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.self_attn.v_proj": {
+  "gain": 0.00785741331432421,
+  "mean": -0.04204500489725713,
+  "std": 198.90325159551415,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.self_attn.q_proj": {
+  "gain": 0.007864477899943363,
+  "mean": -0.0925298328787246,
+  "std": 177.3866233092968,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.self_attn.out_proj": {
+  "gain": 0.007874015748031453,
+  "mean": 3.1930186289167673e-12,
+  "std": 8.508094733184597e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.fc1": {
+  "gain": 0.00787400682167359,
+  "mean": 0.0023082526324749914,
+  "std": 3.8265111211582843,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.7.fc2": {
+  "gain": 0.001956947162426559,
+  "mean": -4.868743894346584e-14,
+  "std": 1.9358378980816033e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.8.self_attn.k_proj": {
+  "gain": 0.00787401574803146,
+  "mean": 2.2012704863410334e-12,
+  "std": 9.175195065574881e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.self_attn.v_proj": {
+  "gain": 0.007872892516273036,
+  "mean": 0.021720928327028592,
+  "std": 49.92883417906605,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.self_attn.q_proj": {
+  "gain": 0.007873908938468786,
+  "mean": 0.0019843900307566606,
+  "std": 17.592109541791064,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.self_attn.out_proj": {
+  "gain": 0.007874015748031486,
+  "mean": -3.74211282650088e-12,
+  "std": 8.314498320907958e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.fc1": {
+  "gain": 0.007874013134897849,
+  "mean": 0.0045300159142554,
+  "std": 2.091742878895628,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.8.fc2": {
+  "gain": 0.001956947162426559,
+  "mean": 4.600785941004229e-14,
+  "std": 3.236781308360209e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.9.self_attn.k_proj": {
+  "gain": 0.007874015748031425,
+  "mean": 7.67422631380098e-12,
+  "std": 9.695325356560454e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.self_attn.v_proj": {
+  "gain": 0.00777613299228041,
+  "mean": -0.750167437797217,
+  "std": 465.3004282689164,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.self_attn.q_proj": {
+  "gain": 0.007860702624282083,
+  "mean": -0.04285557253024989,
+  "std": 202.0270576857231,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.self_attn.out_proj": {
+  "gain": 0.00787401574803151,
+  "mean": 1.7630679484740841e-12,
+  "std": 9.104050941072467e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.fc1": {
+  "gain": 0.0074623803946501826,
+  "mean": -15.951213282977536,
+  "std": 899.771527294555,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.9.fc2": {
+  "gain": 0.0019569471624265584,
+  "mean": -4.929052163073314e-14,
+  "std": 2.9138670487533693e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.10.self_attn.k_proj": {
+  "gain": 0.007874015722082687,
+  "mean": 8.201742869878707e-05,
+  "std": 0.23001471003676224,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.self_attn.v_proj": {
+  "gain": 0.0077986430792798735,
+  "mean": -1.400335947244486,
+  "std": 415.03268106479624,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.self_attn.q_proj": {
+  "gain": 0.007871739569637793,
+  "mean": 0.008560951410201788,
+  "std": 95.00369442162092,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.self_attn.out_proj": {
+  "gain": 0.007874015748031444,
+  "mean": 3.1412021804821573e-12,
+  "std": 8.672774721801526e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.fc1": {
+  "gain": 0.0078732768761316,
+  "mean": -0.05875328399179877,
+  "std": 40.23065600427833,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.10.fc2": {
+  "gain": 0.001956947162426559,
+  "mean": 1.5632123101943086e-14,
+  "std": 3.436289314392937e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ },
+ "model.decoder.layers.11.self_attn.k_proj": {
+  "gain": 0.007874015748031532,
+  "mean": 6.504191270208104e-13,
+  "std": 9.907207249351026e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.self_attn.v_proj": {
+  "gain": 0.00786408801585285,
+  "mean": -0.4655167382792246,
+  "std": 150.41114984028687,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.self_attn.q_proj": {
+  "gain": 0.007871280392137898,
+  "mean": -0.1350164470053628,
+  "std": 109.16721465779189,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.self_attn.out_proj": {
+  "gain": 0.007874015748031472,
+  "mean": -6.103660708146279e-12,
+  "std": 8.99822481279602e-11,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.fc1": {
+  "gain": 0.007873999270221931,
+  "mean": 0.0017475540028841368,
+  "std": 6.212950864830028,
+  "std_noise_only": 0.0,
+  "n_chunks": 6
+ },
+ "model.decoder.layers.11.fc2": {
+  "gain": 0.0019569471624265593,
+  "mean": 3.327020422986309e-14,
+  "std": 2.3191946271651217e-14,
+  "std_noise_only": 0.0,
+  "n_chunks": 24
+ }
+}
