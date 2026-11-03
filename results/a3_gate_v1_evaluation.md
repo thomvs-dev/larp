@@ -50,3 +50,34 @@ interquartile range (133–301). Layer level on real activations the v3 error ma
 Whether bit-accurate PPL is equally variable is not known from two seeds; Thomas's run with seeds 2–4 decides.
 Cost: noise-free v3 ~11–12 ms/token on 2 threads (fake-quant ~1.9); rn010 ~17 ms/token (thinning);
 rn02_hyb6 24 ms/token (many low-significance flip pairs, tunable with `stat_flip_lambda_max`).
+
+## rn010 with 5 bit-accurate seeds (Thomas's machine, git db1c52f, `--ref median`)
+
+Run: `results/a3g_opt125m_rn010/gate.json` (4,096 test tokens, 14 threads; bit-accurate seeds 0–1 reused
+from git 33e49ce, seeds 2–4 new; the bit-accurate executor is unchanged between the two commits).
+
+| | n | sorted PPL | median | interquartile range | geometric mean | sd of log PPL |
+|---|---|---|---|---|---|---|
+| bit-accurate (fast) | 5 | 76.0, 137.2, 143.3, 150.5, 175.5 | 143.3 | 137.2–150.5 | 131.6 | 0.32 |
+| statistical v3 | 8 | 94.8, 113.1, 144.3, 144.8, 156.0, 183.3, 265.0, 308.7 | 150.4 | 136.5–203.7 | 164.0 | 0.40 |
+
+- Bit-accurate PPL at this noise level varies by a factor 2.3 between seeds (76–176). The two-seed
+  reference used before (137 / 143, spread 4.4 %) was an undersample; the earlier "+27 %" was not a model error.
+- Median vs median: +5.0 %. Bootstrap 95 % interval of the median ratio: 0.79–2.05.
+- Geometric-mean ratio: 1.25, approximate 95 % interval 0.80–1.94 (Welch t on log PPL, p = 0.30).
+  Mann-Whitney p = 0.35. No detectable difference between the two distributions.
+- Limit: 2 of 8 statistical seeds (265, 309) lie above the largest bit-accurate seed (176). With 5
+  bit-accurate seeds a heavier statistical upper tail (up to ~2× in geometric mean) cannot be excluded.
+- The gate script's verdict (pass, tolerance = spread 131 %) is correct by the rule as written but the rule is
+  weak here: any statistical median between ~0 and ~330 would pass. See the criterion proposal below.
+- Speed: statistical 26 ms/token vs bit-accurate 443–515 ms/token → 17.7×.
+
+### Proposed criterion for configs at the noise cliff (awaiting Thomas)
+
+A config is "chaotic" when the sd of log PPL over ≥ 5 bit-accurate seeds exceeds 0.10 (≈ 10 %). For those:
+pass if (1) Mann-Whitney between ≥ 5 bit-accurate and ≥ 8 statistical seeds gives p > 0.05, (2) the
+statistical median lies inside the bit-accurate interquartile range widened by 2 % (here 134.5–153.5: 150.4
+inside), and (3) layer-level error agrees (std ratio within 10 %, non-zero fraction within 5 %; done for rn010
+in `results/a3s_opt125m_rn010_layer_shape_sandbox/`). All other configs keep the 2 % rule. rn010 passes all
+three. The report states that whole-model PPL at the noise cliff is a distribution, not a number, and gives
+both distributions.
