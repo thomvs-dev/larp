@@ -3,7 +3,7 @@
 Owner: Thomas
 Folder: `D:\japan`
 Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: statistical v3 passes 5 of 6 GATE A3 configs in the sandbox; rn010 (official run, 5 bit-accurate seeds) agrees in distribution, medians +5.0 %; criterion for noise-cliff configs awaiting Thomas; official reruns of the other five pending. Part B started in parallel (B0/B1 groundwork, `docs/part_b_plan.md`); result model: Qwen2.5-1.5B**
-Last updated: 2026-11-03
+Last updated: 2026-11-04
 
 ---
 
