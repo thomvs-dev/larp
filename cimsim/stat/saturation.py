@@ -60,6 +60,51 @@ def saturation_tables(cfg: CIMConfig, full_scale: torch.Tensor | None, max_mac: 
     return out
 
 
+def deterministic_tables(cfg: CIMConfig, full_scale: torch.Tensor | None, max_mac: int,
+                         hist: torch.Tensor | None = None, mass_max: float = 0.05):
+    """Exact sparse deterministic readout term T(m) per (cycle, plane) (F8, F9): float64 [C, P, max_mac + 1],
+    plus the linear gain g0 [C, P] it is taken relative to and a mode flag [C, P] (1 = linear, 0 = saturation only).
+
+    The noise-free readout is exactly (1 + g0)·m on a region m < m*: g0 = 0 for a calibrated ADC with a
+    step of 1/n MAC units, g0 = round(1/Δ)·Δ − 1 for a full-range ADC (exact for m ≤ ~1/(2|g0|)). Above
+    m* the readout is nonlinear (rounding drift, saturation). Linear mode: T(m) = readout(m) − (1 + g0)·m,
+    zero below m*. If the readout is not linear on the bulk of the calibration MACs (calibration mass at
+    m ≥ m* above mass_max, e.g. a full-range ADC whose step is not 1/n of a MAC unit), only saturation is
+    taken exactly: T(m) = saturation_tables(), and M3 keeps the rounding error (independent conversions)."""
+    sat = saturation_tables(cfg, full_scale, max_mac)
+    cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
+    C, P = len(cycles), cfg.w_bits
+    m = torch.arange(max_mac + 1, dtype=torch.float64)
+    L = None if cfg.adc_bits is None else float(2 ** cfg.adc_bits - 1)
+    out = sat.clone()
+    g0 = torch.zeros(C, P, dtype=torch.float64)
+    mode = torch.zeros(C, P, dtype=torch.int64)
+    for ci, c in enumerate(cycles):
+        fsn = float(cfg.nrow * c.levels)
+        for pi in range(P):
+            fs = fsn if full_scale is None else float(full_scale.reshape(C, P)[ci, pi])
+            v = torch.clamp(torch.clamp(m, 0.0, fsn) / fs, 0.0, 1.0)
+            if L is not None:
+                v = torch.round(v * L) / L
+            readout = v * fs
+            g = float(readout[1] - 1.0) if max_mac >= 1 else 0.0
+            if abs(g) >= 0.25:                                      # ADC step > ~1.5 MAC units: not near-linear
+                continue
+            T = readout - (1.0 + g) * m
+            nz = torch.nonzero(T.abs() > 1e-9).flatten()
+            if nz.numel() and hist is not None:
+                h = hist[ci, pi].double()
+                tot = float(h.sum())
+                n = min(h.numel(), max_mac + 1)
+                above = float(h[int(nz[0]):n].sum()) if int(nz[0]) < n else 0.0
+                if tot > 0 and above / tot > mass_max:
+                    continue                                        # keep saturation-only table
+            out[ci, pi] = T
+            g0[ci, pi] = g
+            mode[ci, pi] = 1
+    return out, g0, mode
+
+
 def thresholds(tables: torch.Tensor) -> torch.Tensor:
     """Smallest m with S(m) != 0 per (cycle, plane); max_mac + 1 if none. int64 [C, P]."""
     nz = tables.abs() > 1e-9

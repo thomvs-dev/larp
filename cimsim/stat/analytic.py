@@ -33,9 +33,10 @@ import torch
 from cimsim.config import CIMConfig
 from cimsim.core.bitplanes import input_cycles
 from cimsim.core.executor import analog_mask
-from cimsim.stat.saturation import saturation_tables
+from cimsim.stat.saturation import deterministic_tables
 
 _SQRT2 = math.sqrt(2.0)
+_FLIP_Q_MAX = 0.05          # largest per-conversion flip probability sampled as discrete flips
 
 
 def _Phi(z: torch.Tensor) -> torch.Tensor:
@@ -67,6 +68,19 @@ def conversion_moments(m: torch.Tensor, s: torch.Tensor, upper: float, fs: float
     L = int(adc_levels)
     D = fs / L
     k = torch.arange(L + 1, dtype=torch.float64)
+    p = code_probs(m, s, upper, fs, L)
+    vals = k * D
+    mean = p @ vals
+    var = (p @ (vals * vals) - mean * mean).clamp_min(0.0)
+    return mean, var
+
+
+def code_probs(m: torch.Tensor, s: torch.Tensor, upper: float, fs: float, L: int) -> torch.Tensor:
+    """P(ADC code = k | m) for k = 0..L: float64 [n, L + 1] (Gaussian noise s, clamp to [0, upper])."""
+    m = m.double()
+    s = s.double().expand_as(m)
+    D = fs / L
+    k = torch.arange(L + 1, dtype=torch.float64)
     thr = (k[:-1] + 0.5) * D                                   # upper edge of codes 0 .. L-1
     above = thr >= upper                                        # clamp(x) < thr always
     det = s <= 0
@@ -77,27 +91,29 @@ def conversion_moments(m: torch.Tensor, s: torch.Tensor, upper: float, fs: float
     cdf = torch.where(above.view(1, -1), torch.ones_like(cdf), cdf)
     cdf = torch.cat([torch.zeros(len(m), 1, dtype=torch.float64), cdf,
                      torch.ones(len(m), 1, dtype=torch.float64)], dim=1)
-    p = (cdf[:, 1:] - cdf[:, :-1]).clamp_min(0.0)                               # [n, L+1]
-    vals = k * D
-    mean = p @ vals
-    var = (p @ (vals * vals) - mean * mean).clamp_min(0.0)
-    return mean, var
+    return (cdf[:, 1:] - cdf[:, :-1]).clamp_min(0.0)                              # [n, L+1]
 
 
 def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
-                      full_scale: torch.Tensor | None = None, exclude_saturation: bool = False) -> dict:
+                      full_scale: torch.Tensor | None = None, exclude_saturation: bool = False,
+                      flip_lambda_max: float | None = None) -> dict:
     """hist: [C, P, M+1] counts of ideal MAC values (cimsim.core.calib.mac_histogram).
     Returns {'gain', 'mean', 'std'} in integer output units plus per-(cycle, plane) diagnostics.
-    exclude_saturation: remove the noise-free saturation term S(m) (cimsim.stat.saturation) from the
-    deterministic part d(m); it is then computed exactly per conversion (F8). The noise variance keeps
-    the clamp, so noise on saturated conversions is absorbed as in the executors."""
+    exclude_saturation: remove the exact sparse deterministic term T(m) (cimsim.stat.saturation.
+    deterministic_tables: saturation, and nonlinear rounding above the exactly linear region) from d(m);
+    it is then computed exactly per conversion (F8, F9). The noise variance keeps the clamp, so noise on
+    saturated conversions is absorbed as in the executors.
+    flip_lambda_max: analog (cycle, plane) pairs whose per-conversion probability of a noise-induced ADC
+    code change q is at most 0.05 and whose expected number per output (n_chunks · q) is below this value
+    are returned in 'flips' for discrete sampling (F9) and left out of the Gaussian part; None = Gaussian
+    for every pair."""
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
     C, P = len(cycles), cfg.w_bits
     amask = analog_mask(P, C, cfg.hybrid_levels)
     s_rand, s_nl = cfg.rand_noise_sigma / 100.0, cfg.non_linear_sigma / 100.0
     L = None if cfg.adc_bits is None else 2 ** cfg.adc_bits - 1
-    sat = saturation_tables(cfg, full_scale, hist.shape[-1] - 1) if exclude_saturation else None
-    rows = []
+    sat = deterministic_tables(cfg, full_scale, hist.shape[-1] - 1, hist)[0] if exclude_saturation else None
+    rows, flips = [], []
     for ci, c in enumerate(cycles):
         fsn = float(cfg.nrow * c.levels)
         for pi in range(P):
@@ -116,6 +132,14 @@ def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
             else:
                 s = torch.zeros_like(m)
             mean_out, var_out = conversion_moments(m, s, min(fsn, fs), fs, L)
+            if flip_lambda_max is not None and L is not None and bool((s > 0).any()):
+                f = _flip_distribution(m, s, w, min(fsn, fs), fs, L)
+                # discrete only for rare flips: Poisson placement is exact for q << 1 (Binomial otherwise)
+                if f is not None and f["q"] <= _FLIP_Q_MAX and n_chunks * f["q"] < flip_lambda_max:
+                    f.update(c=ci, p=pi, coef=coef)
+                    flips.append(f)
+                    mean_out = f["k0"] * (fs / L)                   # noise-free readout; flips sampled separately
+                    var_out = torch.zeros_like(m)
             d = mean_out - m
             if exclude_saturation:
                 d = d - sat[ci, pi, idx]
@@ -136,5 +160,32 @@ def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
     var = n_chunks * sum(r["coef"] ** 2 * (r["noise_var"] + r["resid_var"] + (r["g"] - gbar) ** 2 * r["Vm"])
                          for r in rows)
     var_noise = n_chunks * sum(r["coef"] ** 2 * r["noise_var"] for r in rows)
+    for f in flips:
+        f.pop("k0")
+    flip_var = n_chunks * sum(f["coef"] ** 2 * f["step"] ** 2 * f["q"] * float((f["probs"] * f["values"] ** 2).sum())
+                              for f in flips)
     return {"gain": gbar, "mean": mu, "std": math.sqrt(var), "std_noise_only": math.sqrt(var_noise),
-            "n_chunks": n_chunks, "per_cp": rows}
+            "n_chunks": n_chunks, "per_cp": rows, "flips": flips,
+            "flip_pairs": len(flips), "flip_events_per_output": n_chunks * sum(f["q"] for f in flips),
+            "std_flips": math.sqrt(flip_var),
+            "mean_flips": n_chunks * sum(f["coef"] * f["step"] * f["q"] * float((f["probs"] * f["values"]).sum())
+                                         for f in flips)}
+
+
+def _flip_distribution(m, s, w, upper, fs, L):
+    """Distribution of the noise-induced code offset j = code - noise-free code for one (cycle, plane),
+    averaged over the calibration histogram (weights w). Returns q = P(j != 0), the non-zero offsets
+    and their conditional probabilities, step = ADC step, k0 = noise-free code per m; None if q = 0."""
+    p = code_probs(m, s, upper, fs, L)                              # [n, L+1]
+    D = fs / L
+    k0 = torch.round(m.clamp(0.0, upper) / D)                       # executor rounding (round half to even)
+    j = torch.arange(L + 1, dtype=torch.float64).view(1, -1) - k0.view(-1, 1)   # [n, L+1]
+    pj = torch.zeros(2 * L + 1, dtype=torch.float64)
+    pj.index_add_(0, (j + L).long().flatten(), (w.view(-1, 1) * p).flatten())
+    q = float(1.0 - pj[L])
+    if q <= 1e-15:
+        return None
+    pj[L] = 0.0
+    nz = torch.nonzero(pj > 1e-15).flatten()
+    probs = pj[nz] / pj[nz].sum()
+    return {"q": q, "values": (nz - L).double(), "probs": probs, "step": D, "k0": k0}

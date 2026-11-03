@@ -79,10 +79,51 @@ def test_exact_saturation_beats_independent_model(monkeypatch):
     assert st.stat_info["std"] > 1.5 * float(e.std())
 
 
-def test_full_range_adc_has_no_saturation_work(monkeypatch):
-    st, ba = _pair(monkeypatch, dict(adc_bits=8, adc_range="full"))
-    st(_x(64, 512, 3))
-    assert st.sat_stats["macs_exact"] == 0 and st.sat_stats["macs_total"] > 0
+def _x_dense(T, K, seed):
+    """LLM-like rows plus 1/8 of tokens with small negative codes (dense two's-complement sign-extension
+    planes, F3): together with a few mostly-negative weight columns this gives sparse MACs above 64."""
+    g = torch.Generator().manual_seed(seed)
+    x = torch.randn(T, K, generator=g)
+    x[:, :4] *= 25
+    n = T // 8
+    x[:n] = -torch.rand(n, K, generator=g) * 0.2
+    x[:n, :4] = 25 * torch.randn(n, 4, generator=g)            # outliers set the per-token scale
+    return x
+
+
+@pytest.mark.parametrize("bits", [7, 8])
+@pytest.mark.parametrize("backend", ["fast", "reference"])
+def test_full_range_adc_rounding_residual_exact(bits, backend):
+    """F9: full-range ADC is exactly a gain for m <= 64 and nonlinear above; the exact term makes the
+    noise-free statistical layer equal to bit-accurate, and the independent model (v2) overestimates it."""
+    torch.manual_seed(0)
+    K, N = 512, 64
+    lin = torch.nn.Linear(K, N)
+    with torch.no_grad():
+        lin.weight[:4] = -lin.weight[:4].abs()                   # a few columns with dense weight planes
+    cfg = {**BASE, "adc_bits": bits}
+    st = CIMLinear.from_linear(lin, CIMConfig(mode="statistical", **cfg), name="L")
+    st.start_calibration(); st(_x_dense(192, K, 1)); st.finish_calibration()
+    old = CIMLinear.from_linear(lin, CIMConfig(mode="statistical", stat_saturation="analytic", **cfg), name="L")
+    old.start_calibration(); old(_x_dense(192, K, 1)); old.finish_calibration()
+    ba = CIMLinear.from_linear(lin, CIMConfig(mode="bit_accurate", backend=backend, **cfg), name="L")
+    x = _x_dense(192, K, 2)
+    y_id = CIMLinear(lin.weight, lin.bias, ba.cfg.replace(mode="fake_quant"), name="F")(x).double()
+    y_ba, y_st = ba(x).double(), st(x).double()
+    g = st.stat_info["gain"]
+    resid = (y_ba - y_id) - g * (y_id - lin.bias.detach().double())       # error beyond the linear gain
+    assert float(resid.norm() / (y_ba - y_id).norm()) > 0.05      # the nonlinear region is exercised
+    assert st.stat_info["std"] < 1e-6
+    assert float((y_st - y_ba).norm() / (y_ba - y_id).norm()) < 1e-3
+    assert old.stat_info["std"] > 1.5 * float(resid.std())       # v2: independent sum overestimates
+
+
+def test_misaligned_full_range_adc_falls_back():
+    """Full-range 6 b at nrow 128 (step 2.03 MAC units) is not near-linear: only saturation is exact."""
+    st = CIMLinear.from_linear(torch.nn.Linear(256, 32), CIMConfig(mode="statistical", **{**BASE, "adc_bits": 6}), name="L")
+    st.start_calibration(); st(_x(64, 256, 1)); st.finish_calibration()
+    st(_x(64, 256, 2))
+    assert st.sat_stats["macs_exact"] == 0 and st.stat_info["std"] > 0
 
 
 def test_conv_custom_chunks_saturation_exact(monkeypatch):

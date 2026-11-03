@@ -84,8 +84,11 @@ def test_noise_std_matches_bit_accurate(kw, relu):
     st, ba = _pair(kw, relu=relu)
     i, e = _measured(ba, 512, relu)
     r = e - st.stat_info["gain"] * i
-    assert st.stat_info["std"] == pytest.approx(float(r.std()), rel=0.05)
-    assert abs(float(r.mean()) - st.stat_info["mean"]) < 4 * float(r.std()) / math.sqrt(r.numel())
+    info = st.stat_info
+    std = math.sqrt(info["std"] ** 2 + info.get("std_flips", 0.0) ** 2)    # Gaussian part + discrete flips (F9)
+    assert std == pytest.approx(float(r.std()), rel=0.05)
+    mean = info["mean"] + info.get("mean_flips", 0.0)
+    assert abs(float(r.mean()) - mean) < 4 * float(r.std()) / math.sqrt(r.numel())
 
 
 def test_calibrated_lossless_has_no_error_model():

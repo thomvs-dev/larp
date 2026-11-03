@@ -23,7 +23,7 @@ from cimsim.core.executor_fast import cim_matmul_int_fast
 from cimsim.core.bitplanes import input_cycles
 from cimsim.core.calib import mac_histogram, full_scale_from_histogram
 from cimsim.stat.analytic import layer_stat_params
-from cimsim.stat.saturation import saturation_tables, saturation_correction, thresholds
+from cimsim.stat.saturation import deterministic_tables, saturation_correction, thresholds
 
 
 class _CIMBase(nn.Module):
@@ -49,6 +49,8 @@ class _CIMBase(nn.Module):
         self.stat_info: dict | None = None          # diagnostics from layer_stat_params
         self._sat_tables: torch.Tensor | None = None  # S(m) tables for stat_saturation 'exact'
         self._sat_key = None
+        self._det_hist: torch.Tensor | None = None   # calibration histogram kept for the T(m) table choice
+        self._flips: list = []                       # discrete code-flip distributions (stat_noise 'auto', F9)
         self._cal_colmax: torch.Tensor | None = None  # [C, P, N] largest calibration MAC per column
         self.register_buffer("sat_cols", None)       # [C, P, N] bool: columns checked for saturation
         self.sat_stats: dict = {}                    # exact-saturation work: macs_exact / macs_total
@@ -111,19 +113,22 @@ class _CIMBase(nn.Module):
         if self.cfg.mode == "statistical":
             exact_sat = self.cfg.stat_saturation == "exact"
             info = layer_stat_params(self._hist, self.cfg, self._n_chunks(), self.adc_fs,
-                                     exclude_saturation=exact_sat)
+                                     exclude_saturation=exact_sat,
+                                     flip_lambda_max=self.cfg.stat_flip_lambda_max if self.cfg.stat_noise == "auto" else None)
             self.stat_params = torch.tensor([info["gain"], info["mean"], info["std"]], dtype=torch.float64)
-            self.stat_info = {k: v for k, v in info.items() if k != "per_cp"}
+            self._flips = info["flips"]
+            self.stat_info = {k: v for k, v in info.items() if k not in ("per_cp", "flips")}
+            self.stat_info["stat_noise"] = self.cfg.stat_noise
             self.stat_info["stat_saturation"] = self.cfg.stat_saturation
             self._sat_tables = None
+            self._det_hist = self._hist.clone() if exact_sat else None
             if exact_sat and self.cfg.stat_sat_margin is not None and self._cal_colmax is not None:
-                thr = thresholds(self._saturation_tables())                         # [C, P]
+                thr = thresholds(self._saturation_tables(self._hist))               # [C, P]
                 self.sat_cols = self._cal_colmax >= (thr - self.cfg.stat_sat_margin).unsqueeze(-1)
                 self.stat_info["sat_cols_frac"] = float(self.sat_cols.double().mean())
             else:
                 self.sat_cols = None
         self._cal_colmax = None
-        self._sat_tables = None
         self._hist = None
 
     def _int_matmul(self, qx: torch.Tensor, qw: torch.Tensor) -> torch.Tensor:
@@ -160,6 +165,8 @@ class _CIMBase(nn.Module):
             if sd > 0:
                 y = y + sd * torch.randn(y.shape, generator=self._generator(qx.device), dtype=torch.float64,
                                          device=qx.device)
+            if self._flips:
+                self._add_flips(y, self._n_chunks(), self._generator(qx.device))
             if cfg.stat_saturation == "exact":
                 s = saturation_correction(qx, qw, cfg, self._saturation_tables(), self._chunks(), self.sat_stats,
                                           col_mask=self.sat_cols if cfg.stat_sat_margin is not None else None)
@@ -168,7 +175,22 @@ class _CIMBase(nn.Module):
             return y.float()
         raise ValueError(cfg.mode)
 
-    def _saturation_tables(self) -> torch.Tensor:
+    def _add_flips(self, y: torch.Tensor, n_chunks: int, gen: torch.Generator) -> None:
+        """Discrete ADC code flips from analog noise (F9): for each (cycle, plane) in self._flips the number
+        of flips over all T·N outputs × n_chunks conversions is Poisson(T·N·n_chunks·q); each flip lands on a
+        uniformly chosen output and changes it by coef · step · j, j drawn from the offset distribution."""
+        flat = y.view(-1)
+        n_out = flat.numel()
+        for f in self._flips:
+            lam = torch.tensor([n_out * n_chunks * f["q"]], dtype=torch.float64)
+            k = int(torch.poisson(lam, generator=gen).item())
+            if k == 0:
+                continue
+            idx = torch.randint(0, n_out, (k,), generator=gen, device=y.device)
+            jj = torch.multinomial(f["probs"], k, replacement=True, generator=gen)
+            flat.index_add_(0, idx, (f["coef"] * f["step"]) * f["values"][jj].to(y.dtype))
+
+    def _saturation_tables(self, hist: torch.Tensor | None = None) -> torch.Tensor:
         """S(m) tables, rebuilt when the ADC range or the relevant config fields change."""
         c = self.cfg
         fs = self.adc_fs if c.adc_range == "calibrated" else None
@@ -179,7 +201,12 @@ class _CIMBase(nn.Module):
             K = self._weight_matrix().shape[1]
             max_len = max(k1 - k0 for k0, k1 in chunks) if chunks else min(K, c.nrow)
             levels = max(cy.levels for cy in input_cycles(None, c.x_bits, c.signed_act, c.act_enc))
-            self._sat_tables = saturation_tables(c, None if fs is None else fs.cpu(), max_len * levels)
+            M = max_len * levels
+            hist = hist if hist is not None else self._det_hist
+            if hist is not None and hist.shape[-1] < M + 1:
+                hist = F.pad(hist, (0, M + 1 - hist.shape[-1]))
+            self._sat_tables = deterministic_tables(c, None if fs is None else fs.cpu(), M,
+                                                    None if hist is None else hist[..., :M + 1])[0]
             self._sat_key = key
         return self._sat_tables
 
