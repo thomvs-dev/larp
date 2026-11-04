@@ -150,6 +150,30 @@ One command per config. One calibration pass (2,048 train tokens) sets ADC range
 
 The original noise levels (0.25 / 0.5 / 1 %) were dropped: they make every layer's error larger than its signal (F7), so perplexity is meaningless in both modes. Noise configs use 4,096 tokens because noisy bit-accurate runs cost ~0.42 s/token (noise sampling). Pass: |median statistical PPL − bit-accurate PPL| / bit-accurate PPL ≤ max(2 %, spread of the bit-accurate runs). Noise-cliff configs (approved by Thomas 2026-11-04): if the sd of log PPL over ≥ 5 bit-accurate seeds exceeds 0.10, the config is judged on distributions instead — Mann-Whitney p > 0.05 between ≥ 5 bit-accurate and ≥ 8 statistical seeds, statistical median inside the bit-accurate interquartile range ± 2 %, and layer-level agreement (std ratio within 10 %, non-zero fraction within 5 %). Speed-up recorded per config. Summary: `python scripts/a3_gate.py --table` → `results/a3_gate_summary.md`. After a change to statistical mode only, `--reuse-ba` reruns fake-quant and statistical and keeps the bit-accurate PPLs (checks model, config, tokens, calibration tokens and the ADC full-scale hash); earlier statistical results stay in `statistical_previous`.
 
+## 3A. LLM integration (A4)
+
+### 3A.1 Per-layer mapping policy
+`CIMConfig.macro`: `acim` (analog SRAM CIM, simulated per `mode`), `dcim` (digital SRAM CIM: exact integer
+result, counts `dcim_column_ops` = one adder-tree reduction per (row chunk, input cycle, weight bit, column)),
+`digital` (digital integer unit: exact, counts `digital_macs`). YAML `policy:` maps roles to macros:
+`qkv`, `o`, `up_gate`, `down` (linear layers, patterns in `cimsim.config.ROLE_PATTERNS` for OPT, GPT-2,
+Llama, Qwen2) and `qk`, `sv` (attention matmuls). `layers:` globs are applied after the policy.
+
+### 3A.2 Attention matmuls on CIM (`cimsim/core/attention.py`)
+YAML `attention: true` attaches `CIMMatMul` modules `<attn>.qk` and `<attn>.sv` to every attention module
+and registers the HF attention implementation `cim` (eager attention with the two matmuls replaced; works
+for OPT, GPT-2, Llama, Qwen2 through the HF attention interface).
+- **qk** (S = Q·Kᵀ): keys written into the array, one key per column, rows = head dim D. Keys quantized per
+  key (column scale), queries per token (signed, bit-serial input). Contraction D: ceil(D / nrow) chunks.
+- **sv** (O = P·V): values written into the array, one position per row. P is unsigned (softmax output).
+  Values quantized per position; that scale lies on the contraction axis and is folded into P digitally
+  before P is quantized: O = Σ_s (P[t,s]·sV[s])·qV[s,:]. Contraction S: ceil(S / nrow) chunks.
+- Events: MACs and ADC conversions only for unmasked (query, key) pairs; for sv, ceil(valid keys / nrow)
+  chunks per query. `kv_bits_written` = keys and values of the new tokens of the call, once per KV head.
+- Modes and ADC calibration as for linear layers; the dynamic operand is the "weight" of one call.
+  Statistical sv: Gaussian part scaled with the chunk count of the call; strict saturation bound (no
+  column filter, columns change per call). Bit-accurate sv simulates fully masked chunks with zero inputs.
+
 ## 4. Package layout and interfaces
 
 ```

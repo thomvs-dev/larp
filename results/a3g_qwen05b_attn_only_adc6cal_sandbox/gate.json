@@ -1,0 +1,39 @@
+{
+  "model": "/home/claude/hf_local/qwen2.5-0.5b",
+  "config": "config/experiments/a4_attn_only_adc6cal.yaml",
+  "tokens": 2048,
+  "seq_len": 512,
+  "calib_tokens": 512,
+  "calib_seconds": 65.7,
+  "threads": 2,
+  "git": "2d1d11f3b9243ec17e254a9f3880b6384a746e46",
+  "adc_fs_hash": "3b3055770a4fb4b0c498f6661152fa6c",
+  "bit_accurate": {
+    "fast_seed0": {
+      "ppl": 17.595918289223974,
+      "seconds": 78.8,
+      "ms_per_token": 38.46
+    }
+  },
+  "statistical": {
+    "seed0": {
+      "ppl": 17.595918289223974,
+      "seconds": 33.6,
+      "ms_per_token": 16.42,
+      "sat_work_fraction": 0.0009371721673579443
+    }
+  },
+  "bit_accurate_git": "2d1d11f3b9243ec17e254a9f3880b6384a746e46",
+  "fake_quant": {
+    "ppl": 17.737449255960215,
+    "seconds": 17.1,
+    "ms_per_token": 8.37
+  },
+  "ref": "first",
+  "ref_ppl": 17.595918289223974,
+  "spread": 0.0,
+  "rel_diff": 0.0,
+  "tolerance": 0.02,
+  "pass": true,
+  "speedup": 2.342265529841656
+}

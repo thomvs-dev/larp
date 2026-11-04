@@ -114,6 +114,22 @@ Observations from runs that affect the design or the paper. Each entry: what was
 - Final (GATE A3 passed 2026-11-04): rn02_hyb6 v3.1 on Thomas's machine 29.544 median vs 29.232 (+1.07 %) at 55× (`results/a3g_opt125m_rn02_hyb6/`); rn010 accepted under the noise-cliff distribution rule (`docs/part_a_plan.md` §3.5).
 - Consequence: the deterministic part of the readout error should be computed exactly wherever it is nonlinear and sparse (generalise F8's saturation term to T(m) = readout(m) − (1 + g)·m above a threshold), and analog noise should be sampled as discrete code flips where flips are rare per output (Poisson count, then position and size), Gaussian only where many flips add up.
 
+## F10 — 8-bit Q·Kᵀ needs per-channel key scales on Qwen; attention on CIM is then free of measurable loss
+
+- Seen (Qwen2.5-0.5B, sandbox, 2,048 test tokens in 512-token windows, `results/a4_attention_summary.md`):
+  W8A8 linear 17.895; adding 8-bit Q·Kᵀ with keys quantized per key token → 18.642 (+4.2 %); per key channel
+  (scale folded into Q) → 17.636. P·V at 8 bit (values per position, scale folded into P) costs nothing.
+- Cause: a few key channels are much larger than the rest; with one scale per key token the other channels
+  get few quantization levels. In a CIM array both operands are integers, so a per-channel key scale has to
+  be folded into the query before it is quantized; that moves the large channels into Q, which is
+  quantized per token, but on real Qwen activations the net effect is still a full recovery.
+- With keys per channel, 8-bit attention and analog attention (6-bit calibrated ADC, no noise) stay within
+  the ±1.5 % run-to-run scale of W8A8 linear; statistical = bit-accurate exactly on attention.
+- Consequence: `kv_gran: auto` (keys per channel, values per token) is the default. Results with attention
+  on CIM must state the key granularity. Per-channel key scales need a static (calibrated) scale per
+  channel in hardware when keys are written incrementally during decode — the simulation computes them
+  from the current keys (to check against a calibrated static scale in A5).
+
 ## Machine / speed notes
 
 - Thomas's machine: Intel Core i7-12700H (6 P-cores + 8 E-cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads.

@@ -86,6 +86,7 @@ def main() -> None:
     ap.add_argument("--stat-seeds", default="0,1,2")
     ap.add_argument("--tol", type=float, default=0.02)
     ap.add_argument("--calib-tokens", type=int, default=2048)
+    ap.add_argument("--seq-len", type=int, default=None, help="window length (default: context, capped at 2048)")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--table", action="store_true", help="summarise results/a3g_*/gate.json and exit")
@@ -111,7 +112,7 @@ def main() -> None:
     # layers whose YAML mode is bit_accurate or statistical are run in both modes; fp / fake_quant stay as set
     if not any(m._yaml_mode in ("bit_accurate", "statistical") and m.cfg.macro == "acim" for m in cim):
         raise SystemExit("config has no analog (acim) bit_accurate / statistical layers")
-    seq_len = min(context_len(model), 2048)
+    seq_len = min(context_len(model), 2048 if args.seq_len is None else args.seq_len)
     n_windows = max(1, args.tokens // seq_len)
     ids = load_wikitext2_ids(tok)
 

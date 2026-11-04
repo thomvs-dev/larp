@@ -30,12 +30,18 @@ ROLE_PATTERNS = {
     "o": ("*.o_proj", "*.self_attn.out_proj", "*.attn.c_proj"),
     "up_gate": ("*.gate_proj", "*.up_proj", "*.fc1", "*.mlp.c_fc"),
     "down": ("*.down_proj", "*.fc2", "*.mlp.c_proj"),
+    "qk": ("*.qk",),             # attention S = Q·Kᵀ (cimsim.core.attention, YAML `attention: true`)
+    "sv": ("*.sv",),             # attention O = P·V
 }
 
 
 @dataclass
 class CIMConfig:
     mode: str = "fake_quant"
+    kv_gran: str = "auto"                # attention operands written into arrays (A4): "token" = one scale per
+                                         # key / value position, "channel" = one scale per head-dim channel;
+                                         # "auto" = keys per channel, values per token (KIVI convention).
+                                         # A scale on the contraction axis is folded into the input digitally.
     macro: str = "acim"                  # where the layer runs: "acim" = analog SRAM CIM (mode decides how it
                                          # is simulated); "dcim" = digital SRAM CIM (exact integer result, no
                                          # ADC); "digital" = digital int unit (exact integer result, no array).
@@ -89,6 +95,8 @@ class CIMConfig:
     def validate(self) -> None:
         if self.mode not in MODES:
             raise ValueError(f"mode must be one of {MODES}, got {self.mode!r}")
+        if self.kv_gran not in ("auto", "token", "channel"):
+            raise ValueError("kv_gran must be 'auto', 'token' or 'channel'")
         if self.macro not in MACROS:
             raise ValueError(f"macro must be one of {MACROS}, got {self.macro!r}")
         if self.w_gran not in GRANULARITIES_W:

@@ -47,7 +47,12 @@ def swap_from_config(model, config_path: str, counter: EventCounter) -> tuple[di
         return None, []
     with open(config_path, "r", encoding="utf-8") as f:
         cfg_dict = yaml.safe_load(f)
-    return cfg_dict, swap_linears(model, LayerConfigMap.from_dict(cfg_dict), counter)
+    cfg_map = LayerConfigMap.from_dict(cfg_dict)
+    replaced = swap_linears(model, cfg_map, counter)
+    if cfg_dict.get("attention", False):            # QKᵀ and P·V on CIM arrays (cimsim.core.attention)
+        from cimsim.core.attention import swap_attention
+        replaced += swap_attention(model, cfg_map, counter)
+    return cfg_dict, replaced
 
 
 def context_len(model) -> int:

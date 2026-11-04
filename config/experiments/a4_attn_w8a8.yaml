@@ -1,0 +1,6 @@
+# A4: ideal W8A8 everywhere, including the attention matmuls Q·Kᵀ and P·V (8-bit Q, K, P, V).
+attention: true
+default:
+  mode: fake_quant
+  w_bits: 8
+  x_bits: 8

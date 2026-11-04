@@ -1,0 +1,10 @@
+# A4: only the attention matmuls on analog CIM (bit-serial 8-bit, nrow 128, ADC 6 b calibrated per layer,
+# no noise); linear layers ideal W8A8. Isolates the error of Q·Kᵀ and P·V on the arrays.
+attention: true
+default:
+  mode: fake_quant
+  w_bits: 8
+  x_bits: 8
+layers:
+  "*.qk": {mode: statistical, nrow: 128, adc_bits: 6, adc_range: calibrated, adc_range_gran: layer}
+  "*.sv": {mode: statistical, nrow: 128, adc_bits: 6, adc_range: calibrated, adc_range_gran: layer}

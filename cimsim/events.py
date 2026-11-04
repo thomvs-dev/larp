@@ -17,6 +17,7 @@ FIELDS = (
     "weight_bits_written",
     "dcim_column_ops",      # macro 'dcim': one adder-tree reduction per (row chunk, input cycle, weight bit, column)
     "digital_macs",         # macro 'digital': MACs on a digital integer unit
+    "kv_bits_written",      # attention (A4): key / value bits written into CIM arrays (new tokens only)
 )
 
 

@@ -1,0 +1,13 @@
+# A4: every linear layer and both attention matmuls on analog CIM: bit-serial W8A8, nrow 128,
+# ADC 6 b MSE-calibrated per layer, no noise.
+attention: true
+default:
+  mode: statistical
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: layer
+  rand_noise_sigma: 0.0

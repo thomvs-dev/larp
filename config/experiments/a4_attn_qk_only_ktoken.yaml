@@ -1,0 +1,5 @@
+# A4 ablation: 8-bit Q·Kᵀ only (P·V in float), keys quantized per key token.
+attention: true
+default: {mode: fake_quant, w_bits: 8, x_bits: 8, kv_gran: token}
+layers:
+  "*.sv": {mode: fp}
