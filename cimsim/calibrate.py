@@ -25,6 +25,8 @@ from cimsim.core.layers import _CIMBase
 def needs_calibration(cfg) -> bool:
     """bit_accurate layers with a calibrated ADC range, and every statistical layer
     (its error model is computed from the same MAC histogram)."""
+    if cfg.macro != "acim":
+        return False                     # dcim / digital layers are exact; nothing to calibrate
     return (cfg.mode == "bit_accurate" and cfg.adc_range == "calibrated") or cfg.mode == "statistical"
 
 

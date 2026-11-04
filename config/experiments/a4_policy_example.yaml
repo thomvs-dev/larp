@@ -1,0 +1,17 @@
+# A4: per-layer mapping policy example. Roles (cimsim.config.ROLE_PATTERNS) map to a macro type:
+# acim = analog SRAM CIM (simulated per `mode`), dcim = digital SRAM CIM (exact, no ADC),
+# digital = digital integer unit. `layers:` glob overrides are applied after the policy.
+default:
+  mode: statistical
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  adc_range: calibrated
+  adc_range_gran: layer
+  rand_noise_sigma: 0.0
+policy:
+  qkv: acim
+  o: acim
+  up_gate: acim
+  down: dcim          # down_proj / fc2 inputs carry the largest activation outliers

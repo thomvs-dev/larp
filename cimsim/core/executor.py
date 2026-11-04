@@ -33,6 +33,10 @@ def analytic_counts(T: int, K: int, N: int, cfg: CIMConfig, n_chunks: int | None
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
     C, P = len(cycles), cfg.w_bits
     n_analog = int(analog_mask(P, C, cfg.hybrid_levels).sum())
+    if cfg.macro == "digital":
+        return {"macs": T * K * N, "digital_macs": T * K * N}
+    if cfg.macro == "dcim":
+        return {"macs": T * K * N, "array_cycles": T * n_chunks * C, "dcim_column_ops": T * n_chunks * C * P * N}
     return {
         "macs": T * K * N,
         "adc_conversions": T * n_chunks * C * P * N,

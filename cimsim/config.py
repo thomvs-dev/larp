@@ -21,11 +21,26 @@ GRANULARITIES_X = ("per_tensor", "per_token")
 W_QUANT = ("symmetric", "asymmetric")
 ADC_RANGES = ("full", "calibrated")
 ADC_RANGE_GRANS = ("layer", "cycle", "cycle_plane")
+MACROS = ("acim", "dcim", "digital")
+
+# Layer roles for the per-layer mapping policy (A4), as glob patterns on module names.
+# Covers OPT, GPT-2 (Conv1D names), Llama / Qwen2 / Mistral.
+ROLE_PATTERNS = {
+    "qkv": ("*.q_proj", "*.k_proj", "*.v_proj", "*.attn.c_attn"),
+    "o": ("*.o_proj", "*.self_attn.out_proj", "*.attn.c_proj"),
+    "up_gate": ("*.gate_proj", "*.up_proj", "*.fc1", "*.mlp.c_fc"),
+    "down": ("*.down_proj", "*.fc2", "*.mlp.c_proj"),
+}
 
 
 @dataclass
 class CIMConfig:
     mode: str = "fake_quant"
+    macro: str = "acim"                  # where the layer runs: "acim" = analog SRAM CIM (mode decides how it
+                                         # is simulated); "dcim" = digital SRAM CIM (exact integer result, no
+                                         # ADC); "digital" = digital int unit (exact integer result, no array).
+                                         # dcim / digital compute as fake_quant whatever the mode; only the
+                                         # event counts differ (Part B costs them).
     w_bits: int = 8
     x_bits: int = 8
     w_gran: str = "per_channel"
@@ -74,6 +89,8 @@ class CIMConfig:
     def validate(self) -> None:
         if self.mode not in MODES:
             raise ValueError(f"mode must be one of {MODES}, got {self.mode!r}")
+        if self.macro not in MACROS:
+            raise ValueError(f"macro must be one of {MACROS}, got {self.macro!r}")
         if self.w_gran not in GRANULARITIES_W:
             raise ValueError(f"w_gran must be one of {GRANULARITIES_W}")
         if self.x_gran not in GRANULARITIES_X:
@@ -139,9 +156,18 @@ class LayerConfigMap:
 
     @classmethod
     def from_dict(cls, d: dict) -> "LayerConfigMap":
+        """default: CIMConfig fields. policy: role -> macro name or dict of fields, roles from
+        ROLE_PATTERNS (qkv, o, up_gate, down). layers: glob -> dict of fields. Later entries win;
+        layers are applied after policy."""
         default = CIMConfig(**d.get("default", {}))
+        overrides = []
+        for role, val in (d.get("policy", {}) or {}).items():
+            if role not in ROLE_PATTERNS:
+                raise ValueError(f"unknown policy role {role!r}; one of {tuple(ROLE_PATTERNS)}")
+            delta = {"macro": val} if isinstance(val, str) else dict(val)
+            overrides += [(pat, delta) for pat in ROLE_PATTERNS[role]]
         layers = d.get("layers", {}) or {}
-        overrides = [(pat, dict(delta)) for pat, delta in layers.items()]
+        overrides += [(pat, dict(delta)) for pat, delta in layers.items()]
         # validate overrides early
         for _, delta in overrides:
             default.replace(**delta)

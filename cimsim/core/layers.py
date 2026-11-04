@@ -72,14 +72,21 @@ class _CIMBase(nn.Module):
         self._qw = None
 
     def _weights(self):
+        """Integer weight codes (float32 [N, K]), scale and zero point. The codes are cached as int8 /
+        uint8 when they fit (w_bits <= 8) and converted per call: for 1.5B-parameter models a float32
+        cache would double the weight memory."""
         if self._qw is None or self._qw.device != self._weight_matrix().device:
             w = self._weight_matrix().float()
             if self.cfg.w_signed:
-                self._qw, self._wscale = quantize_weight(w, self.cfg.w_bits, self.cfg.w_gran)
+                qw, self._wscale = quantize_weight(w, self.cfg.w_bits, self.cfg.w_gran)
                 self._wzero = None
+                store = torch.int8 if self.cfg.w_bits <= 8 else None
             else:
-                self._qw, self._wscale, self._wzero = quantize_weight_asym(w, self.cfg.w_bits, self.cfg.w_gran)
-        return self._qw, self._wscale, self._wzero
+                qw, self._wscale, self._wzero = quantize_weight_asym(w, self.cfg.w_bits, self.cfg.w_gran)
+                store = torch.uint8 if self.cfg.w_bits <= 8 else None
+            self._qw = qw.to(store) if store is not None else qw
+        qw = self._qw if self._qw.dtype == torch.float32 else self._qw.float()
+        return qw, self._wscale, self._wzero
 
     def _generator(self, device: torch.device) -> torch.Generator:
         if self._gen is None or self._gen.device != device:
@@ -93,7 +100,7 @@ class _CIMBase(nn.Module):
             return
         chunks = self._chunks()
         self.counter.add(self.name, **analytic_counts(T, K, N, self.cfg, None if chunks is None else len(chunks)))
-        if not self._weights_counted:
+        if not self._weights_counted and self.cfg.macro != "digital":
             self.counter.add(self.name, weight_bits_written=K * N * self.cfg.w_bits)
             self._weights_counted = True
 
@@ -148,7 +155,7 @@ class _CIMBase(nn.Module):
                 self._cal_colmax = cm if self._cal_colmax is None else torch.maximum(self._cal_colmax, cm)
             self._hist = h if self._hist is None else self._pad_add(self._hist, h)
             return qx @ qw.t()                                   # ideal output while calibrating
-        if cfg.mode == "fake_quant" or self._ideal_override:
+        if cfg.mode == "fake_quant" or cfg.macro != "acim" or self._ideal_override:
             return qx @ qw.t()
         if cfg.mode == "bit_accurate":
             fs = None
