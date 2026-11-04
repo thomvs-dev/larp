@@ -41,5 +41,13 @@ class EventCounter:
     def reset(self) -> None:
         self.per_layer.clear()
 
+    def reset_compute(self) -> None:
+        """Zero every count except weight_bits_written (weights are written into the arrays once).
+        Used after calibration so that events.json covers only the evaluated tokens."""
+        for rec in self.per_layer.values():
+            for k in rec:
+                if k != "weight_bits_written":
+                    rec[k] = 0
+
     def to_dict(self) -> dict:
         return {"total": self.total(), "per_layer": {k: dict(v) for k, v in self.per_layer.items()}}

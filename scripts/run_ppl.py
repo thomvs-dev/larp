@@ -61,6 +61,7 @@ def main() -> None:
         max_windows = max(1, args.max_tokens // seq_len)
 
     calibrated, calib_s = calibrate_if_needed(model, tok, seq_len, args.calib_tokens, args.device)
+    counter.reset_compute()              # events.json: evaluated tokens only (calibration pass excluded)
     t0 = time.time()
     res = perplexity(model, ids, seq_len, max_windows, args.device)
     res.update({

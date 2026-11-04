@@ -44,13 +44,15 @@ def mac_histogram(
     q_w: torch.Tensor,
     cfg: CIMConfig,
     chunks: list[tuple[int, int]] | None = None,
-    token_block: int = 64,
+    token_block: int = 128,
     col_max: bool = False,
 ):
     """Histogram of ideal MAC values per (cycle, plane): int64 [C, P, M + 1],
     M = nrow * max(L_c). Uses the same bit decomposition as the executors.
     col_max: also return the largest MAC per (cycle, plane, output column), int64 [C, P, N]
-    (used by stat_saturation 'exact' to skip columns that never come near saturation)."""
+    (used by stat_saturation 'exact' to skip columns that never come near saturation).
+    MAC values are integers < 2^24, so they are exact in float32; the histogram is taken with one
+    torch.histc call per block over (cycle, plane)-offset values (no int64 copies)."""
     T, K = q_x.shape
     N = q_w.shape[0]
     nrow, P = cfg.nrow, cfg.w_bits
@@ -58,27 +60,30 @@ def mac_histogram(
     C = len(cycles)
     max_len = max(k1 - k0 for k0, k1 in chunks) if chunks else min(K, nrow)
     M = max(nrow, max_len) * max(c.levels for c in cycles)
+    nb = C * P * (M + 1)
+    tb = max(1, min(token_block, (1 << 23) // max(1, N)))     # per-bin count per call < 2^23: exact in float32
     ux = _codes(q_x, cfg.x_bits, cfg.signed_act)
-    digits = torch.stack([((ux >> c.bit_lo) & ((1 << c.n_bits) - 1)).to(torch.uint8) for c in cycles], dim=1)
+    digits = torch.stack([((ux >> c.bit_lo) & ((1 << c.n_bits) - 1)).to(torch.float32) for c in cycles], dim=1)
     uw = _codes(q_w, P, cfg.w_signed).to(torch.int16)
     shifts = torch.arange(P, dtype=torch.int16).view(P, 1, 1)
-    base = (torch.arange(C * P, dtype=torch.int64) * (M + 1)).view(1, C, P, 1)
-    hist = torch.zeros(C * P * (M + 1), dtype=torch.int64)
-    cmax = torch.zeros(C, P, N, dtype=torch.int64) if col_max else None
+    base = (torch.arange(C * P, dtype=torch.float32) * (M + 1)).view(1, C, P, 1)
+    hist = torch.zeros(nb, dtype=torch.float64)
+    cmax = torch.zeros(C, P, N, dtype=torch.float32) if col_max else None
     chunk_list = [(k0, min(K, k0 + nrow)) for k0 in range(0, K, nrow)] if chunks is None else chunks
     for k0, k1 in chunk_list:
         r = k1 - k0
         wk = ((uw[:, k0:k1].unsqueeze(0) >> shifts) & 1).to(torch.float32).reshape(P * N, r).t().contiguous()
-        for t0 in range(0, T, token_block):
-            t1 = min(T, t0 + token_block)
-            xk = digits[t0:t1, :, k0:k1].reshape((t1 - t0) * C, r).to(torch.float32)
-            m = (xk @ wk).view(t1 - t0, C, P, N).to(torch.int64)
-            hist += torch.bincount((m + base).reshape(-1), minlength=hist.numel())
+        for t0 in range(0, T, tb):
+            t1 = min(T, t0 + tb)
+            xk = digits[t0:t1, :, k0:k1].reshape((t1 - t0) * C, r)
+            m = (xk @ wk).view(t1 - t0, C, P, N)
             if col_max:
                 cmax = torch.maximum(cmax, m.amax(dim=0))
+            hist += torch.histc(m.add_(base), bins=nb, min=-0.5, max=nb - 0.5).double()
+    hist = hist.round().to(torch.int64).view(C, P, M + 1)
     if col_max:
-        return hist.view(C, P, M + 1), cmax
-    return hist.view(C, P, M + 1)
+        return hist, cmax.to(torch.int64)
+    return hist
 
 
 def _quantile_fraction(hist_rows: list[torch.Tensor], fs_noms: list[float], pct: float) -> float:

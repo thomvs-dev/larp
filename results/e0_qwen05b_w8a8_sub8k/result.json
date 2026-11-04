@@ -1,0 +1,26 @@
+{
+  "ppl": 14.820955929554023,
+  "nll": 2.6960421204566956,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    2.2426064014434814,
+    2.7251131534576416,
+    2.9602015018463135,
+    2.8562474250793457
+  ],
+  "model": "Qwen/Qwen2.5-0.5B",
+  "config": "config/experiments/e0_w8a8.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 168,
+  "seconds": 34.2,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "git": "6bf9d616836b24ddf5f238981f20bf9c05cc67a5"
+}

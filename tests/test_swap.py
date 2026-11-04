@@ -187,3 +187,24 @@ def test_dcim_and_digital_are_exact_and_counted_separately():
     with torch.no_grad():
         model(ids)
     assert counter.total()["adc_conversions"] > 0
+
+
+def test_events_exclude_calibration_after_reset_compute():
+    from cimsim import calibrate_adc_range
+    model = tiny("qwen2").eval()
+    ids = torch.randint(0, 100, (1, 16))
+    counter = EventCounter()
+    swap_linears(model, LayerConfigMap.from_dict({"default": {"mode": "statistical", "nrow": 32, "adc_bits": 6,
+                                                              "adc_range": "calibrated"}}), counter)
+    calibrate_adc_range(model, lambda: model(ids))
+    wbits = counter.total()["weight_bits_written"]
+    counter.reset_compute()
+    assert counter.total()["macs"] == 0 and counter.total()["weight_bits_written"] == wbits > 0
+    with torch.no_grad():
+        model(ids)
+    ref = EventCounter()
+    m2 = tiny("qwen2").eval()
+    swap_linears(m2, LayerConfigMap(default=CIMConfig(mode="fake_quant", nrow=32, adc_bits=6)), ref)
+    with torch.no_grad():
+        m2(ids)
+    assert counter.total() == ref.total()
