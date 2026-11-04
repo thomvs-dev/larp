@@ -96,7 +96,8 @@ def code_probs(m: torch.Tensor, s: torch.Tensor, upper: float, fs: float, L: int
 
 def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
                       full_scale: torch.Tensor | None = None, exclude_saturation: bool = False,
-                      flip_lambda_max: float | None = None) -> dict:
+                      flip_lambda_max: float | None = None,
+                      flip_kurtosis_min: float | None = None) -> dict:
     """hist: [C, P, M+1] counts of ideal MAC values (cimsim.core.calib.mac_histogram).
     Returns {'gain', 'mean', 'std'} in integer output units plus per-(cycle, plane) diagnostics.
     exclude_saturation: remove the exact sparse deterministic term T(m) (cimsim.stat.saturation.
@@ -106,7 +107,10 @@ def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
     flip_lambda_max: analog (cycle, plane) pairs whose per-conversion probability of a noise-induced ADC
     code change q is at most 0.05 and whose expected number per output (n_chunks · q) is below this value
     are returned in 'flips' for discrete sampling (F9) and left out of the Gaussian part; None = Gaussian
-    for every pair."""
+    for every pair.
+    flip_kurtosis_min: if the discrete flips would give the layer's output error an excess kurtosis below
+    this value (many flips per output, close to Gaussian), every pair is modelled as Gaussian instead:
+    the discrete path costs an exact MAC per candidate and gives the same result there."""
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
     C, P = len(cycles), cfg.w_bits
     amask = analog_mask(P, C, cfg.hybrid_levels)
@@ -167,10 +171,20 @@ def layer_stat_params(hist: torch.Tensor, cfg: CIMConfig, n_chunks: int,
         f.pop("k0")
     flip_var = n_chunks * sum(f["coef"] ** 2 * f["step"] ** 2 * f["q"] * float((f["probs"] * f["values"] ** 2).sum())
                               for f in flips)
+    # excess kurtosis of the output error: 4th cumulant of the compound-Poisson flip sum over total variance^2
+    k4 = n_chunks * sum(f["coef"] ** 4 * f["step"] ** 4 * f["q"] * float((f["probs"] * f["values"] ** 4).sum())
+                        for f in flips)
+    v_tot = var + flip_var
+    kurt = k4 / v_tot ** 2 if v_tot > 0 else 0.0
+    if flips and flip_kurtosis_min is not None and kurt < flip_kurtosis_min:
+        out = layer_stat_params(hist, cfg, n_chunks, full_scale, exclude_saturation, flip_lambda_max=None)
+        out["flip_kurtosis"] = kurt
+        out["flip_fallback"] = "gaussian"
+        return out
     return {"gain": gbar, "mean": mu, "std": math.sqrt(var), "std_noise_only": math.sqrt(var_noise),
             "n_chunks": n_chunks, "per_cp": rows, "flips": flips,
             "flip_pairs": len(flips), "flip_events_per_output": n_chunks * sum(f["q"] for f in flips),
-            "std_flips": math.sqrt(flip_var),
+            "std_flips": math.sqrt(flip_var), "flip_kurtosis": kurt,
             "mean_flips": n_chunks * sum(f["coef"] * f["step"] * f["q"] * float((f["probs"] * f["values"]).sum())
                                          for f in flips)}
 

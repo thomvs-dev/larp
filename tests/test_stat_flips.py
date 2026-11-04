@@ -56,3 +56,26 @@ def test_frequent_flips_stay_gaussian():
     st, _, _ = _errors(0.5, "auto", T=64)
     assert st.stat_info["flip_pairs"] == 0 and st.stat_info["std"] > 0
 
+
+
+def test_many_flips_per_output_fall_back_to_gaussian():
+    """Flips rare per conversion but ~30 per output (hybrid 6, K 3072, like OPT fc2 at noise 0.18 %): the
+    output error is close to Gaussian (excess kurtosis ~0.1), so the cheap Gaussian is used and matches the
+    bit-accurate std. With stat_flip_kurtosis_min None the layer stays discrete."""
+    K, N, T = 3072, 64, 256
+    torch.manual_seed(0)
+    lin = torch.nn.Linear(K, N)
+    cfg = {**BASE, "rand_noise_sigma": 0.18, "hybrid_levels": 6, "seed": 0}
+    st = CIMLinear.from_linear(lin, CIMConfig(mode="statistical", **cfg), name="L")
+    st.start_calibration(); st(_x(256, K, 1)); st.finish_calibration()
+    assert st.stat_info["flip_fallback"] == "gaussian" and st.stat_info["flip_kurtosis"] < 1.0
+    assert st.stat_info["flip_pairs"] == 0 and st.stat_info["std"] > 0
+    keep = CIMLinear.from_linear(lin, CIMConfig(mode="statistical", stat_flip_kurtosis_min=None, **cfg), name="L")
+    keep.start_calibration(); keep(_x(256, K, 1)); keep.finish_calibration()
+    assert keep.stat_info["flip_pairs"] > 0 and keep.stat_info["flip_events_per_output"] > 10
+    ba = CIMLinear.from_linear(lin, CIMConfig(mode="bit_accurate", **cfg), name="L")
+    ba.adc_fs = st.adc_fs
+    x = _x(T, K, 2)
+    y0 = CIMLinear(lin.weight, lin.bias, ba.cfg.replace(mode="fake_quant"), name="F")(x).double()
+    e_st, e_ba = st(x).double() - y0, ba(x).double() - y0
+    assert float(e_st.std() / e_ba.std()) == pytest.approx(1.0, rel=0.1)

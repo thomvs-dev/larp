@@ -4,9 +4,10 @@
   "tokens": 8192,
   "seq_len": 2048,
   "calib_tokens": 2048,
-  "calib_seconds": 332.8,
+  "calib_seconds": 367.3,
   "threads": 14,
-  "git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+  "git": "79b2b4a2c44785dc836a4a257acdeb76e7356d69",
+  "adc_fs_hash": "d41d8cd98f00b204e9800998ecf8427e",
   "bit_accurate": {
     "fast_seed0": {
       "ppl": 30.606811051059456,
@@ -21,29 +22,57 @@
   },
   "statistical": {
     "seed0": {
-      "ppl": 31.315061749281913,
-      "seconds": 40.5,
-      "ms_per_token": 4.94
+      "ppl": 30.529858299590135,
+      "seconds": 71.1,
+      "ms_per_token": 8.68,
+      "sat_work_fraction": 0.004874908031872761
     },
     "seed1": {
-      "ppl": 31.42767698070414,
-      "seconds": 41.1,
-      "ms_per_token": 5.01
+      "ppl": 30.529858299590135,
+      "seconds": 72.3,
+      "ms_per_token": 8.82,
+      "sat_work_fraction": 0.004874908031872761
     },
     "seed2": {
-      "ppl": 31.210156339917354,
-      "seconds": 40.8,
-      "ms_per_token": 4.98
+      "ppl": 30.529858299590135,
+      "seconds": 71.8,
+      "ms_per_token": 8.76,
+      "sat_work_fraction": 0.004874908031872761
     }
   },
+  "bit_accurate_git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+  "statistical_previous": [
+    {
+      "git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+      "runs": {
+        "seed0": {
+          "ppl": 31.315061749281913,
+          "seconds": 40.5,
+          "ms_per_token": 4.94
+        },
+        "seed1": {
+          "ppl": 31.42767698070414,
+          "seconds": 41.1,
+          "ms_per_token": 5.01
+        },
+        "seed2": {
+          "ppl": 31.210156339917354,
+          "seconds": 40.8,
+          "ms_per_token": 4.98
+        }
+      }
+    }
+  ],
   "fake_quant": {
     "ppl": 30.44935097937917,
-    "seconds": 9.8,
-    "ms_per_token": 1.2
+    "seconds": 9.7,
+    "ms_per_token": 1.19
   },
+  "ref": "first",
+  "ref_ppl": 30.606811051059456,
   "spread": 0.0025185418255868467,
-  "rel_diff": 0.023140297009084883,
+  "rel_diff": -0.0025142361724958986,
   "tolerance": 0.02,
-  "pass": false,
-  "speedup": 10.311244979919678
+  "pass": true,
+  "speedup": 5.8618721461187215
 }

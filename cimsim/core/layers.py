@@ -119,7 +119,8 @@ class _CIMBase(nn.Module):
             exact_sat = self.cfg.stat_saturation == "exact"
             info = layer_stat_params(self._hist, self.cfg, self._n_chunks(), self.adc_fs,
                                      exclude_saturation=exact_sat,
-                                     flip_lambda_max=self.cfg.stat_flip_lambda_max if self.cfg.stat_noise == "auto" else None)
+                                     flip_lambda_max=self.cfg.stat_flip_lambda_max if self.cfg.stat_noise == "auto" else None,
+                                     flip_kurtosis_min=self.cfg.stat_flip_kurtosis_min)
             self.stat_params = torch.tensor([info["gain"], info["mean"], info["std"]], dtype=torch.float64)
             self._flips = info["flips"]
             self.stat_info = {k: v for k, v in info.items() if k not in ("per_cp", "flips")}

@@ -57,6 +57,9 @@ class CIMConfig:
                                          # flips where flips are rare per output (F9), Gaussian elsewhere;
                                          # "gaussian" = Gaussian for every (cycle, plane) (v2)
     stat_flip_lambda_max: float = 4.0    # "auto": discrete when expected code flips per output < this
+    stat_flip_kurtosis_min: Optional[float] = 1.0   # "auto": layers whose discrete flips would give an output
+                                         # error excess kurtosis below this use the Gaussian (same result,
+                                         # far cheaper); None = always discrete where allowed
     stat_sat_margin: Optional[int] = 8   # 'exact': only columns whose calibration MAC maximum came within
                                          # this many MAC units of the saturation threshold are computed;
                                          # None = every column allowed by the popcount bound (strict, slow)
@@ -102,6 +105,8 @@ class CIMConfig:
             raise ValueError("adc_range_method must be 'mse' or 'percentile'")
         if self.stat_noise not in ("auto", "gaussian"):
             raise ValueError("stat_noise must be 'auto' or 'gaussian'")
+        if self.stat_flip_kurtosis_min is not None and self.stat_flip_kurtosis_min < 0:
+            raise ValueError("stat_flip_kurtosis_min must be >= 0 or None")
         if self.stat_flip_lambda_max <= 0:
             raise ValueError("stat_flip_lambda_max must be > 0")
         if self.stat_sat_margin is not None and self.stat_sat_margin < 0:

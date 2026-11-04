@@ -4,9 +4,10 @@
   "tokens": 8192,
   "seq_len": 2048,
   "calib_tokens": 2048,
-  "calib_seconds": 495.2,
+  "calib_seconds": 362.7,
   "threads": 14,
-  "git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+  "git": "79b2b4a2c44785dc836a4a257acdeb76e7356d69",
+  "adc_fs_hash": "1bee98c6fc76f7992fc3d1f138ac7f77",
   "bit_accurate": {
     "fast_seed0": {
       "ppl": 30.807600699980142,
@@ -21,29 +22,57 @@
   },
   "statistical": {
     "seed0": {
-      "ppl": 53.97120728864729,
-      "seconds": 48.6,
-      "ms_per_token": 5.93
+      "ppl": 30.804648109514304,
+      "seconds": 51.6,
+      "ms_per_token": 6.3,
+      "sat_work_fraction": 0.009680769894915967
     },
     "seed1": {
-      "ppl": 58.83860029624714,
-      "seconds": 49.6,
-      "ms_per_token": 6.05
+      "ppl": 30.804648109514304,
+      "seconds": 52.3,
+      "ms_per_token": 6.38,
+      "sat_work_fraction": 0.009680769894915967
     },
     "seed2": {
-      "ppl": 54.58454548613228,
-      "seconds": 49.4,
-      "ms_per_token": 6.03
+      "ppl": 30.804648109514304,
+      "seconds": 52.7,
+      "ms_per_token": 6.44,
+      "sat_work_fraction": 0.009680769894915967
     }
   },
+  "bit_accurate_git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+  "statistical_previous": [
+    {
+      "git": "33e49ce128371816c4d9904ae7745fa9364c12b7",
+      "runs": {
+        "seed0": {
+          "ppl": 53.97120728864729,
+          "seconds": 48.6,
+          "ms_per_token": 5.93
+        },
+        "seed1": {
+          "ppl": 58.83860029624714,
+          "seconds": 49.6,
+          "ms_per_token": 6.05
+        },
+        "seed2": {
+          "ppl": 54.58454548613228,
+          "seconds": 49.4,
+          "ms_per_token": 6.03
+        }
+      }
+    }
+  ],
   "fake_quant": {
     "ppl": 30.44935097937917,
-    "seconds": 16.7,
-    "ms_per_token": 2.03
+    "seconds": 9.2,
+    "ms_per_token": 1.12
   },
+  "ref": "first",
+  "ref_ppl": 30.807600699980142,
   "spread": 6.365978681835906e-05,
-  "rel_diff": 0.7717882680220359,
+  "rel_diff": -9.583967588363396e-05,
   "tolerance": 0.02,
-  "pass": false,
-  "speedup": 15.490878938640131
+  "pass": true,
+  "speedup": 14.641065830721002
 }
