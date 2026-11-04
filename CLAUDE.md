@@ -152,7 +152,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 ### A4 — LLM integration
 
-- [x] Layer swapping for HuggingFace models (OPT, GPT-2, Llama-family, Qwen): Qwen2 added to the tiny-model tests (q/k/v biases, tied LM head kept digital), statistical mode with calibration runs on tiny Llama / Qwen2; quantized weight codes cached as int8 (memory for 1.5B models). Real-model check pending (Qwen2.5-0.5B smoke run). (`tests/test_swap.py`, `cimsim/core/layers.py`)
+- [x] Layer swapping for HuggingFace models (OPT, GPT-2, Llama-family, Qwen): Qwen2 added to the tiny-model tests (q/k/v biases, tied LM head kept digital), statistical mode with calibration runs on tiny Llama / Qwen2; quantized weight codes cached as int8 (memory for 1.5B models). Real-model check: Qwen2.5-0.5B statistical vs bit-accurate 11.994 vs 11.993 (+0.009 %, 4,096 tokens, `results/a3g_qwen05b_adc6cal/`). (`tests/test_swap.py`, `cimsim/core/layers.py`)
 - [x] Per-layer mapping policy in config: which of Q/K/V/O, FFN up/gate/down run on analog CIM, DCIM, or digital. `macro: acim | dcim | digital` per layer; YAML `policy:` maps roles qkv / o / up_gate / down (same across OPT, GPT-2, Llama, Qwen2) to a macro; `layers:` globs override. dcim / digital compute exactly and count `dcim_column_ops` / `digital_macs` instead of ADC conversions. (`cimsim/config.py` ROLE_PATTERNS, `cimsim/events.py`, `config/experiments/a4_policy_example.yaml`, `tests/test_swap.py`)
 - [ ] `CIMMatMul` for dynamic operands (QKᵀ, S·V) with write events counted (KV written into arrays).
 - [ ] Eval: WikiText-2 perplexity + small zero-shot set (e.g. ARC-e, PIQA, HellaSwag via lm-eval-harness).
@@ -258,7 +258,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A4** (LLM integration)
 - Next tasks, in order:
-  1. Thomas: `git fetch origin; git reset --hard origin/main`, `pytest -q` (229); Qwen2.5-0.5B statistical vs bit-accurate check on 4,096 tokens (`scripts/a3_gate.py --model Qwen/Qwen2.5-0.5B --config config/experiments/a4_stat_adc6cal.yaml --name a3g_qwen05b_adc6cal --tokens 4096 --stat-seeds 0`, ~1 h), then Qwen2.5-1.5B FP32 / W8A8 / statistical on the full test set overnight (~9 h; commands in the agent's message of 2026-11-04 evening).
+  1. Thomas: Qwen2.5-1.5B FP32 / W8A8 / statistical on the full test set overnight (~9 h; commands in the agent's message of 2026-11-04 evening).
   2. Agent: evaluate; Qwen2.5-1.5B full test set; CIMMatMul for QKᵀ / S·V.
   3. Agent: zero-shot eval wrapper (lm-eval-harness) for statistical mode.
   4. Agent (parallel, sandbox): Part B B0 — verify M1–M4 specs from the papers, start `cimsim/circuits/` with cited per-action costs (`docs/part_b_plan.md` §3). Open questions for Thomas in §4 of that file (process node, all-analog vs hybrid, macro vs system TOPS/W).
@@ -311,6 +311,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-04 — A4 start: Qwen2 swapping tested on tiny models; per-layer mapping policy (`macro` field, role `policy:` in YAML) with separate dcim / digital event counts; int8 cache for quantized weights (Qwen2.5-1.5B linear weights: 5.2 GB float32 + 1.3 GB codes instead of 10.5 GB). 228 tests pass. — `cimsim/config.py`, `cimsim/events.py`, `cimsim/core/executor.py`, `cimsim/core/layers.py`, `cimsim/calibrate.py`, `tests/test_swap.py`, `config/experiments/a4_*.yaml`
 - 2026-11-04 — Qwen2.5-0.5B smoke runs (Thomas, git 6bf9d61, 8,192 tokens): FP32 14.569, W8A8 14.821 (+1.73 %), statistical ADC 6 b calibrated 14.809 (−0.08 % vs W8A8); calibration picks FS 63 on all 168 layers (F5 holds on Qwen); calibration 1,461 s, statistical 20 ms/token. MAC histogram rewritten (float32 + histc, identical output, 2.1× faster); events.json now excludes the calibration pass (`EventCounter.reset_compute`). 229 tests pass. — `results/a4_qwen05b_summary.md`, `results/e0_qwen05b_*_sub8k/`, `results/a4_qwen05b_stat_adc6cal_sub8k/`, `cimsim/core/calib.py`, `cimsim/events.py`, `scripts/run_ppl.py`
 - 2026-11-04 — Qwen2.5-1.5B on 8,192 tokens (Thomas, git 0e2ca2c): FP32 10.113, W8A8 10.338 (+2.23 %), statistical ADC 6 b calibrated 10.342 (+0.03 % vs W8A8); FS 63 on all 196 layers; calibration 3,193 s, evaluation 66 ms/token; events exclude calibration (MACs equal W8A8). Gate script now accepts statistical configs (first Qwen gate attempt stopped on that check); smoke-tested on OPT-125M in the sandbox. — `results/a4_qwen05b_summary.md`, `results/e0_qwen15b_*_sub8k/`, `results/a4_qwen15b_stat_adc6cal_sub8k/`, `scripts/a3_gate.py`
+- 2026-11-04 — Qwen2.5-0.5B gate check (Thomas, git 724b0a5, 4,096 tokens): statistical 11.994 vs bit-accurate 11.993 (+0.009 %), 18× faster; calibration 695 s (2.1× faster than before). Statistical mode validated on Qwen2. — `results/a3g_qwen05b_adc6cal/`, `results/a4_qwen05b_summary.md`
 - 2026-11-03 — Part B plan written: cost model (event counts × cited per-action costs), calibration macro candidates M1–M4, GATE B1 normalisation rules. — `docs/part_b_plan.md`
 
 ---

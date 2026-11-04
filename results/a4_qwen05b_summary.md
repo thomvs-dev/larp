@@ -40,3 +40,12 @@ bit-serial W8A8, nrow 128, ADC 6 b on all 168 linear layers, MSE-calibrated full
 - Ran within the laptop's 16 GB (peak not reported).
 - Statistical vs bit-accurate on Qwen not yet checked: the first gate attempt stopped because
   `scripts/a3_gate.py` only accepted configs with bit_accurate layers (fixed: it now takes statistical configs too).
+
+# Statistical vs bit-accurate on Qwen2.5-0.5B (Thomas's machine, git 724b0a5)
+
+`scripts/a3_gate.py --model Qwen/Qwen2.5-0.5B --config config/experiments/a4_stat_adc6cal.yaml --tokens 4096`
+(`results/a3g_qwen05b_adc6cal/gate.json`): fake-quant 11.987, statistical 11.994, bit-accurate (fast) 11.993 →
++0.009 %, tolerance 2 %, **pass**. Statistical 19.6 ms/token vs bit-accurate 352 ms/token → 18×. Calibration
+695 s (was 1,461 s before the histogram rewrite). Exact saturation work 0.36 % of bit-accurate MACs; at most
+6.2 % of a layer's (cycle, plane, column) triples checked. The statistical model validated on OPT-125M
+(GATE A3) holds on a Qwen2 model (gated FFN, larger activation outliers, K up to 4,864).
