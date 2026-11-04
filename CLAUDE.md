@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0, A1, A2 done (GATE A2 passed). A3: official v3 reruns pass all six GATE A3 configs on accuracy (rn010 under the proposed noise-cliff rule, awaiting Thomas's OK); v3.1 speed fix for rn02_hyb6 needs one official rerun. Part B started in parallel (B0/B1 groundwork, `docs/part_b_plan.md`); result model: Qwen2.5-1.5B**
+Status: **Part A — A0–A3 done (GATE A2, GATE A3 passed). A4 (LLM integration) started. Part B started in parallel (B0/B1 groundwork, `docs/part_b_plan.md`); result model: Qwen2.5-1.5B**
 Last updated: 2026-11-04
 
 ---
@@ -144,11 +144,11 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] GATE A3 v1 chain complete (all 6 configs, `results/a3_gate_summary.md`); evaluated with sandbox v2 statistical PPLs (`results/a3_gate_v1_evaluation.md`): f5, adc8, rn008, rn02_hyb6 pass; adc7 (+2.31 %) and rn010 (−77.5 %) fail (F9).
 - [x] Fix F9 (Thomas chose A1 + B1): exact sparse deterministic term incl. nonlinear rounding, discrete code-flip sampling by exact thinning (`stat_noise: auto`); 216 tests pass. Sandbox v3: f5, adc8, adc7, rn008, rn02_hyb6 pass; rn010 open (`results/a3_gate_v1_evaluation.md` §v3).
 - [x] rn010: bit-accurate seeds 2–4 + statistical v3 seeds 0–7 with `--ref median` (Thomas, git db1c52f): bit-accurate 76–176 (median 143.3), statistical 95–309 (median 150.4), +5.0 %, Mann-Whitney p = 0.35 (`results/a3g_opt125m_rn010/`, `results/a3_gate_v1_evaluation.md` §rn010).
-- [ ] Thomas: approve (or change) the criterion for noise-cliff configs (`results/a3_gate_v1_evaluation.md` §rn010, proposal).
+- [x] Criterion for noise-cliff configs approved by Thomas 2026-11-04 (`docs/part_a_plan.md` §3.5).
 - [x] Official GATE A3 reruns of all six configs with v3 and `--reuse-ba` (Thomas, git 79b2b4a): f5 −0.01 %, adc8 −0.20 %, adc7 −0.25 %, rn008 −0.09 %, rn010 +4.97 % (medians), rn02_hyb6 +0.25 %; speed-up 6–29× except rn02_hyb6 1.1× (`results/a3_gate_summary.md`, `results/a3_gate_v1_evaluation.md` §Official).
 - [x] Speed fix v3.1: Gaussian instead of discrete flips where flips would leave the output error near-Gaussian (`stat_flip_kurtosis_min`, default 1.0); rn02_hyb6 sandbox 29.444 median at 12.5 ms/token; 217 tests pass (`results/a3s_opt125m_rn02_hyb6_v31_sandbox/`).
-- [ ] Official rerun of rn02_hyb6 with v3.1 ← Thomas (command in Section 6).
-- [ ] **GATE A3:** on OPT-125M, fast-mode perplexity within agreed tolerance (start with ±2% relative) of bit-accurate on a subset of WikiText-2; speed-up recorded.
+- [x] Official rerun of rn02_hyb6 with v3.1 (Thomas, git 0517165): 29.544 / 29.891 / 29.012 vs 29.232, +1.07 %, 55× (`results/a3g_opt125m_rn02_hyb6/`).
+- [x] **GATE A3:** on OPT-125M, fast-mode perplexity within agreed tolerance (start with ±2% relative) of bit-accurate on a subset of WikiText-2; speed-up recorded. Passed 2026-11-04: all six configs (f5 −0.01 %, adc8 −0.20 %, adc7 −0.25 %, rn008 −0.09 %, rn010 +4.97 % on medians under the noise-cliff rule, rn02_hyb6 +1.07 %); speed-up 6–55× (`results/a3_gate_summary.md`, `results/a3_gate_v1_evaluation.md` §verdict).
 
 ### A4 — LLM integration
 
@@ -255,15 +255,11 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 ## 6. Status
 
 - Current part: **A**
-- Current milestone: **A3** (statistical fast mode)
+- Current milestone: **A4** (LLM integration)
 - Next tasks, in order:
-  1. Thomas: decide the criterion for noise-cliff configs (proposal in `results/a3_gate_v1_evaluation.md` §rn010).
-  2. Thomas: `git fetch origin; git reset --hard origin/main`, `pytest -q` (217), then one rerun of rn02_hyb6 with v3.1 (~10 min, mostly calibration):
-     ```
-     python scripts/a3_gate.py --config config/experiments/a3g_adc6cal_all_rn02_hyb6.yaml --name a3g_opt125m_rn02_hyb6 --tokens 4096 --ba-seeds 0,1 --reuse-ba
-     python scripts/a3_gate.py --table
-     ```
-  3. Agent: tick GATE A3 once 1 and 2 are done, then A4 (layer swapping incl. Qwen2 family, Qwen2.5-1.5B in statistical mode).
+  1. Agent: A4 layer swapping for the Qwen2 / Llama family (q/k/v/o, gate/up/down), tested on a small random-weight Qwen2 config in the sandbox (no download needed); per-layer mapping policy in config.
+  2. Thomas: save Qwen2.5-1.5B (and Qwen2.5-0.5B, TinyLlama-1.1B) into `D:\japan\hf_local\` the same way as OPT-125M, for the A4 runs.
+  3. Agent: Qwen2.5-0.5B statistical-mode smoke run (fake-quant vs statistical, a few windows) before the 1.5B runs.
   4. Agent (parallel, sandbox): Part B B0 — verify M1–M4 specs from the papers, start `cimsim/circuits/` with cited per-action costs (`docs/part_b_plan.md` §3). Open questions for Thomas in §4 of that file (process node, all-analog vs hybrid, macro vs system TOPS/W).
   5. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
@@ -310,6 +306,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-03 — Statistical v3 (F9): exact sparse deterministic readout term (saturation + nonlinear rounding above the linear region; full-range ADC exact above m = 64) and discrete ADC code-flip sampling for rare noise flips, by exact thinning (candidate MAC computed, accept with P(flip|m)/P_max). Exact saturation path processed in row blocks (memory). Gate script `--ref median`. 216 tests pass. Sandbox (2 threads): f5 30.799 (−0.03 %), adc8 30.443 (−0.13 %), adc7 30.566 (−0.13 %), rn008 median 25.966 (+0.97 %), rn02_hyb6 29.123 (−0.37 %); rn010 12 seeds 69–440, median 174 vs bit-accurate 137 / 143 (open). rn010 layer level matches bit-accurate (std ratio 0.99–1.06, non-zero fraction within 2 %, equal per-position flip rates). — `cimsim/stat/`, `cimsim/core/layers.py`, `tests/test_stat_flips.py`, `results/a3s_opt125m_*_v3*_sandbox/`, `results/a3s_opt125m_rn010_token_rates_sandbox/`, `results/a3_gate_v1_evaluation.md`
 - 2026-11-04 — rn010 official gate run (Thomas, git db1c52f, 5 bit-accurate + 8 statistical seeds, `--ref median`): bit-accurate 137.2 / 143.3 / 150.5 / 175.5 / 76.0 — bit-accurate PPL at the noise cliff varies by a factor 2.3, so the two-seed reference was undersampled. Statistical 94.8–308.7. Medians 143.3 vs 150.4 (+5.0 %), geometric-mean ratio 1.25 (approx. 95 % 0.80–1.94), Mann-Whitney p = 0.35; speed-up 17.7×. Criterion proposal for noise-cliff configs written. — `results/a3g_opt125m_rn010/`, `results/a3_gate_summary.md`, `results/a3_gate_v1_evaluation.md` §rn010, `docs/findings.md` F9
 - 2026-11-04 — Official GATE A3 v3 reruns (Thomas, git 79b2b4a): all six pass on accuracy (f5 −0.01 %, adc8 −0.20 %, adc7 −0.25 %, rn008 −0.09 %, rn010 +4.97 % medians, rn02_hyb6 +0.25 %). Statistical 6.3–9.2 ms/token noise-free (6–15× faster than bit-accurate), rn008 29×, rn010 18×, rn02_hyb6 450 ms/token (1.1×). Fix v3.1: kurtosis test for discrete flips (`stat_flip_kurtosis_min`); rn02_hyb6 sandbox 29.444 / 29.777 / 29.063 at 12.5 ms/token. 217 tests pass. — `results/a3g_opt125m_*/`, `results/a3_gate_summary.md`, `results/a3_gate_v1_evaluation.md` §Official, `results/a3s_opt125m_rn02_hyb6_v31_sandbox/`, `cimsim/stat/analytic.py`, `tests/test_stat_flips.py`
+- 2026-11-04 — rn02_hyb6 v3.1 official rerun (Thomas, git 0517165): 29.544 / 29.891 / 29.012 vs bit-accurate 29.232 (+1.07 %), 9.2 ms/token, 55×. Noise-cliff criterion approved by Thomas. **GATE A3 passed** (all six configs). — `results/a3g_opt125m_rn02_hyb6/`, `results/a3_gate_summary.md`, `results/a3_gate_v1_evaluation.md` §verdict, `docs/part_a_plan.md` §3.5
 - 2026-11-03 — Part B plan written: cost model (event counts × cited per-action costs), calibration macro candidates M1–M4, GATE B1 normalisation rules. — `docs/part_b_plan.md`
 
 ---
@@ -339,8 +336,8 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-03 — Statistical mode computes ADC saturation exactly (sparse) instead of modelling it — saturation is deterministic, sparse and correlated across planes (F8); no Gaussian approximation matched it. Option chosen by Thomas over a covariance-corrected Gaussian (wrong error shape) and per-layer bit-accurate fallback (≤ 4× speed-up).
 - 2026-11-03 — Saturation candidates limited by calibration column maxima (`stat_sat_margin`, default 8 MAC units) — the strict popcount bound flags ~half of all conversions at plane density ≈ 0.5 and costs ~15 % of a bit-accurate pass. Assumption: a column that never came within 8 MAC units of saturating on 2,048 calibration tokens does not saturate at test time. `stat_sat_margin: null` restores the strict bound for checks.
 - 2026-11-03 — F9 fix: Thomas chose A1 (exact sparse deterministic term) + B1 (discrete code-flip sampling) over accepting the limits. Flip sampling uses exact thinning instead of a flip rate averaged over MAC values, so the per-conversion distribution equals the bit-accurate executor's. Discrete sampling only for per-conversion flip probability ≤ 0.05 (Poisson placement is wrong when flips are frequent) and < 4 expected flips per output.
-- 2026-11-03 — Proposed (awaiting Thomas): for noisy GATE A3 configs, compare the median statistical PPL with the median of ≥ 5 bit-accurate seeds (`--ref median`); at the noise cliff a single bit-accurate seed is not a stable reference.
-- 2026-11-04 — Proposed (awaiting Thomas), replaces the tolerance = spread rule for noise-cliff configs: a config is chaotic if sd of log PPL over ≥ 5 bit-accurate seeds > 0.10; then pass needs Mann-Whitney p > 0.05 (≥ 5 vs ≥ 8 seeds), statistical median inside the bit-accurate interquartile range ± 2 %, and layer-level agreement (std ratio within 10 %, non-zero fraction within 5 %). Other configs keep 2 %. Reason: rn010 tolerance = spread = 131 % accepts almost any result.
+- 2026-11-03 — Approved by Thomas 2026-11-04 (with the distribution rule below): for noisy GATE A3 configs, compare the median statistical PPL with the median of ≥ 5 bit-accurate seeds (`--ref median`); at the noise cliff a single bit-accurate seed is not a stable reference.
+- 2026-11-04 — Approved by Thomas (2026-11-04), replaces the tolerance = spread rule for noise-cliff configs: a config is chaotic if sd of log PPL over ≥ 5 bit-accurate seeds > 0.10; then pass needs Mann-Whitney p > 0.05 (≥ 5 vs ≥ 8 seeds), statistical median inside the bit-accurate interquartile range ± 2 %, and layer-level agreement (std ratio within 10 %, non-zero fraction within 5 %). Other configs keep 2 %. Reason: rn010 tolerance = spread = 131 % accepts almost any result.
 - 2026-11-04 — Discrete flip sampling only where it changes the error shape: a layer keeps discrete flips if they give its output error an excess kurtosis ≥ 1, otherwise Gaussian — with many flips per output the two give the same result (rn02_hyb6: v2 Gaussian 29.444 = v3.1) and the discrete path costs an exact MAC per flip (450 ms/token vs 12.5).
 - 2026-11-03 — Result model for the A4/B4 headline results: Qwen2.5-1.5B (Thomas). Fits the 16 GB laptop in statistical mode; 3B would need int8 weight storage and ~day-long runs. (There is no Qwen2.5-2.5B.)
 - 2026-11-03 — Part B started in parallel with A3/A4 (Thomas) — B0/B1 are literature + modelling work in the sandbox and do not compete with the bit-accurate runs on the laptop. Energy numbers for Qwen come from statistical-mode event counts, so they still depend on GATE A3 for accuracy; no TOPS/W figure is reported before GATE B1.

@@ -118,3 +118,27 @@ Statistical v3 on the same machine as the bit-accurate runs (`results/a3g_opt125
   rn02_hyb6 statistical 29.444 / 29.777 / 29.063 (median 29.444, +0.72 % vs bit-accurate 29.232; equal
   to v2 as expected, since only the fc2 layers had flips) at 12.5 ms/token (v3 on Thomas's machine:
   450 ms/token). Official number needs one rerun of rn02_hyb6 on Thomas's machine.
+
+## GATE A3 verdict (2026-11-04)
+
+rn02_hyb6 rerun with v3.1 on Thomas's machine (git 0517165, `results/a3g_opt125m_rn02_hyb6/gate.json`):
+statistical 29.544 / 29.891 / 29.012 (median 29.544) vs bit-accurate 29.232 → +1.07 %, tolerance 2 %, pass;
+9.2 ms/token vs 505 ms/token bit-accurate → 55×. (Sandbox v3.1 median 29.444; the 0.3 % difference is the
+known machine-to-machine offset.)
+
+All six configs pass. rn010 passes under the noise-cliff rule approved by Thomas on 2026-11-04 (Mann-Whitney
+p = 0.35, statistical median 150.4 inside the bit-accurate interquartile range 137.2–150.5 widened by 2 %,
+layer-level std ratio 0.99–1.06 and non-zero fraction within 2 %). **GATE A3 passed.**
+
+| Config | diff | speed-up |
+|---|---|---|
+| f5 | −0.01 % | 15× |
+| adc8 | −0.20 % | 6× |
+| adc7 | −0.25 % | 6× |
+| rn008 | −0.09 % | 29× |
+| rn010 | +4.97 % (medians, distribution rule) | 18× |
+| rn02_hyb6 | +1.07 % | 55× |
+
+Known limits carried forward: noise-free speed-up 6–15× (A5 sub-task to vectorise the exact path);
+statistical upper tail at the noise cliff possibly heavier than bit-accurate (rn010, 5 vs 8 seeds);
+margin-filter assumption for saturation candidates (`stat_sat_margin`).
