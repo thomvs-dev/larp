@@ -81,3 +81,40 @@ inside), and (3) layer-level error agrees (std ratio within 10 %, non-zero fract
 in `results/a3s_opt125m_rn010_layer_shape_sandbox/`). All other configs keep the 2 % rule. rn010 passes all
 three. The report states that whole-model PPL at the noise cliff is a distribution, not a number, and gives
 both distributions.
+
+## Official v3 reruns (Thomas's machine, git 79b2b4a, `--reuse-ba`)
+
+Statistical v3 on the same machine as the bit-accurate runs (`results/a3g_opt125m_*/gate.json`,
+`results/a3_gate_summary.md`). Reference = bit-accurate fast seed 0; rn010 = median of 5 seeds.
+
+| Config | bit-accurate | statistical v3 (seeds) | diff | tolerance | pass | stat ms/token | BA ms/token | speed-up |
+|---|---|---|---|---|---|---|---|---|
+| f5 | 30.808 / 30.806 (ref) | 30.805 ×3 | −0.01 % | 2 % | yes | 6.3 | 93 | 15× |
+| adc8 | 30.483 / 30.423 (ref) | 30.422 ×3 | −0.20 % | 2 % | yes | 9.2 | 52 | 6× |
+| adc7 | 30.607 / 30.530 (ref) | 30.530 ×3 | −0.25 % | 2 % | yes | 8.7 | 51 | 6× |
+| rn008 | 25.716 / 25.731 | 25.694 / 25.638 / 26.760 | −0.09 % | 2 % | yes | 8.8–16.4 | 466 | 29× |
+| rn010 | 5 seeds, median 143.3 | 8 seeds, median 150.4 | +4.97 % | see §rn010 | yes (proposed rule) | 26 | 443–515 | 18× |
+| rn02_hyb6 | 29.232 / 28.954 | 29.306 / 29.852 / 29.164 | +0.25 % | 2 % | yes | 450–458 | 505 | **1.1×** |
+
+- Accuracy: all six configs pass. Noise-free statistical results equal the reference-backend bit-accurate
+  PPL to ≤ 0.01 % (adc7 30.530 = 30.530, adc8 30.422 vs 30.423); the fast-backend bit-accurate value
+  differs from both by 0.2–0.25 % (float summation order, F6).
+- rn008 seed 2 (26.760, +4.1 %) is one rare-flip realisation with a large effect; the median is used.
+- Speed: rn02_hyb6 statistical is no faster than bit-accurate. Cause: its 12 fc2 layers (K = 3072,
+  24 row chunks, hybrid 6 leaves low-significance analog pairs with per-conversion flip probability just
+  under the 0.05 limit) get ~45 discrete flips per output, each needing an exact MAC by thinning. With
+  that many flips per output the error is close to Gaussian, so the discrete path costs time and adds
+  nothing (v2 Gaussian on the same config: +0.73 %, pass).
+- Fix (statistical v3.1, `stat_flip_kurtosis_min`, default 1.0): a layer keeps discrete flips only if
+  they give its output error an excess kurtosis ≥ 1 (4th cumulant of the compound-Poisson flip sum over
+  total variance squared); otherwise all its pairs are Gaussian. rn02_hyb6 fc2: kurtosis ~0.1 →
+  Gaussian. rn008 / rn010 are unchanged: every flip layer there has λ ≤ 0.12 flips per output and no
+  Gaussian part, so kurtosis ≥ 1/λ ≥ 8 (Jensen). Test: `tests/test_stat_flips.py::
+  test_many_flips_per_output_fall_back_to_gaussian` (217 tests pass).
+- Noise-free speed-up is 6–15×, below the 30–50× hoped for in the A3 plan; the exact saturation /
+  rounding loop (Python, per chunk and cycle) dominates. Enough for A4 (Qwen2.5-1.5B statistical); an
+  optimisation task is added for A5 sweeps.
+- v3.1 check in the sandbox (2 threads, git 8c94c01, `results/a3s_opt125m_rn02_hyb6_v31_sandbox/`):
+  rn02_hyb6 statistical 29.444 / 29.777 / 29.063 (median 29.444, +0.72 % vs bit-accurate 29.232; equal
+  to v2 as expected, since only the fc2 layers had flips) at 12.5 ms/token (v3 on Thomas's machine:
+  450 ms/token). Official number needs one rerun of rn02_hyb6 on Thomas's machine.
