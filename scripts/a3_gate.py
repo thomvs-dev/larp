@@ -108,8 +108,9 @@ def main() -> None:
     cim = [m for m in model.modules() if isinstance(m, _CIMBase)]
     for m in cim:
         m._yaml_mode = m.cfg.mode
-    if not any(m._yaml_mode == "bit_accurate" for m in cim):
-        raise SystemExit("config has no bit_accurate layers")
+    # layers whose YAML mode is bit_accurate or statistical are run in both modes; fp / fake_quant stay as set
+    if not any(m._yaml_mode in ("bit_accurate", "statistical") and m.cfg.macro == "acim" for m in cim):
+        raise SystemExit("config has no analog (acim) bit_accurate / statistical layers")
     seq_len = min(context_len(model), 2048)
     n_windows = max(1, args.tokens // seq_len)
     ids = load_wikitext2_ids(tok)

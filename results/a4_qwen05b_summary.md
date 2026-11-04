@@ -21,3 +21,22 @@ bit-serial W8A8, nrow 128, ADC 6 b on all 168 linear layers, MSE-calibrated full
   counter after calibration.
 - Not yet checked: statistical vs bit-accurate on Qwen (GATE A3 used OPT-125M only). Planned:
   `scripts/a3_gate.py --model Qwen/Qwen2.5-0.5B` on 4,096 tokens.
+
+# Qwen2.5-1.5B (Thomas's machine, git 0e2ca2c, 14 threads, same protocol)
+
+| Run | PPL | vs FP32 | vs W8A8 | s (eval) | ms/token | results |
+|---|---|---|---|---|---|---|
+| FP32 | 10.113 | — | — | 95.6 | 11.7 | `results/e0_qwen15b_fp32_sub8k/` |
+| W8A8 fake-quant | 10.338 | +2.23 % | — | 129.4 | 15.8 | `results/e0_qwen15b_w8a8_sub8k/` |
+| statistical, ADC 6 b calibrated | 10.342 | +2.27 % | +0.03 % | 539.5 | 65.9 | `results/a4_qwen15b_stat_adc6cal_sub8k/` |
+
+- Full scale 63 (1 MAC unit per ADC step) on all 196 layers; the analog macro adds +0.03 % over W8A8.
+- W8A8 costs more on the larger Qwen (+2.2 % vs +1.7 % for 0.5B); the loss is in the 8-bit activation /
+  weight quantization, not in the CIM array.
+- Calibration 3,193 s (53 min) with the faster histogram — the main cost of a run; evaluation 66 ms/token
+  (full WikiText-2 test set, 299k tokens: ~5.5 h).
+- events.json now covers only the evaluated tokens (MACs equal to the W8A8 run: 1.07e13). ADC conversions
+  per token: 6.55e8 (nrow 128) vs 3.28e8 for the e0 W8A8 config (default nrow 256).
+- Ran within the laptop's 16 GB (peak not reported).
+- Statistical vs bit-accurate on Qwen not yet checked: the first gate attempt stopped because
+  `scripts/a3_gate.py` only accepted configs with bit_accurate layers (fixed: it now takes statistical configs too).
