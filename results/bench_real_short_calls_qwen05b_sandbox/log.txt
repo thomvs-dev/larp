@@ -1,0 +1,6 @@
+calibrated 168 layers in 925.0 s
+calibrated 925.0 s
+{'layers_with_plan': 168, 'layers': 168, 'cached': 168, 'entries': 13541, 'cache_MB': 106.5}
+64 {'loop': 85.78, 'batched': 49.1} 0.0
+128 {'loop': 59.4, 'batched': 38.1} 0.0
+256 {'loop': 40.11, 'batched': 32.39} 0.0

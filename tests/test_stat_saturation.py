@@ -190,5 +190,56 @@ def test_cached_plan_matches_fresh_plan(monkeypatch):
         if a is None:
             assert b is None
         else:
-            assert torch.equal(a, b)
+            torch.testing.assert_close(a, b, rtol=1e-10, atol=1e-8)       # float64 summation order may differ
         assert torch.isfinite(y_cached).all()
+
+
+@pytest.mark.parametrize("kw,K,N", [
+    (dict(adc_bits=5, adc_range="calibrated", stat_sat_margin=None), 600, 48),
+    (dict(adc_bits=4, adc_range="calibrated", stat_sat_margin=None, nrow=64), 333, 40),
+    (dict(adc_bits=6, adc_range="calibrated", stat_sat_margin=None, input_mode="bit_parallel"), 512, 32),
+])
+def test_batched_path_matches_loop_path(monkeypatch, kw, K, N):
+    """The batched path (no row selection, padded buckets) equals the per-entry loop, for several call
+    lengths incl. one token, uneven last chunk, and the same MACs in the work statistic."""
+    from cimsim.quant import quantize_act
+    from cimsim.stat.saturation import saturation_correction
+    try:
+        st, _ = _pair(monkeypatch, kw, 20, K=K, N=N)
+    except TypeError:
+        kw = {k: v for k, v in kw.items() if k != "input_mode"}
+        st, _ = _pair(monkeypatch, kw, 20, K=K, N=N)
+    qw = st._weights()[0]
+    tab = st._saturation_tables()
+    for seed, T in ((2, 1), (3, 7), (4, 64), (5, 130)):
+        x = _x(T, K, seed)
+        st(x)
+        plan = st._sat_plan[1]
+        if plan is None:
+            continue
+        assert plan["cached"] and "buckets" in plan
+        qx = quantize_act(x, st.cfg.x_bits, st.cfg.x_gran, st.cfg.signed_act)[0]
+        s1, s2 = {}, {}
+        a = saturation_correction(qx, qw, st.cfg, tab, st._chunks(), s1, plan=plan, batch=True)
+        b = saturation_correction(qx, qw, st.cfg, tab, st._chunks(), s2, plan=plan, batch=False)
+        torch.testing.assert_close(a, b, rtol=1e-10, atol=1e-8)
+        assert s1["macs_exact"] == s2["macs_exact"]
+
+
+def test_plan_cache_limit_falls_back(monkeypatch):
+    """Over the per-layer limit the plan stores no weight bits and the loop path (weights recomputed per
+    call) gives the same result."""
+    import cimsim.stat.saturation as sat
+    from cimsim.quant import quantize_act
+    st, _ = _pair(monkeypatch, dict(adc_bits=5, adc_range="calibrated", stat_sat_margin=None), 31, K=600)
+    qw = st._weights()[0]
+    tab = st._saturation_tables()
+    x = _x(40, 600, 2)
+    qx = quantize_act(x, st.cfg.x_bits, st.cfg.x_gran, st.cfg.signed_act)[0]
+    full = sat.saturation_plan(qw, st.cfg, tab, st._chunks(), 600, None)
+    monkeypatch.setattr(sat, "PLAN_CACHE_MB", 1e-6)
+    small = sat.saturation_plan(qw, st.cfg, tab, st._chunks(), 600, None)
+    assert full["cached"] and not small["cached"]
+    a = sat.saturation_correction(qx, qw, st.cfg, tab, st._chunks(), plan=full)
+    b = sat.saturation_correction(qx, qw, st.cfg, tab, st._chunks(), plan=small)
+    torch.testing.assert_close(a, b, rtol=1e-10, atol=1e-8)

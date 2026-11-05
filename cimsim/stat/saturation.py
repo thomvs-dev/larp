@@ -24,6 +24,8 @@ the M3 residual.
 
 from __future__ import annotations
 
+import os
+
 import torch
 
 from cimsim.config import CIMConfig
@@ -32,6 +34,11 @@ from cimsim.core.executor import uniform_chunks
 
 
 _BLOCK_ELEMS = 1 << 22          # elements per [rows, columns] block in saturation_correction (~32 MB int64)
+BATCH_T_MAX = 256               # calls with at most this many tokens use the batched path (see saturation_correction)
+_BATCH_ELEMS = 1 << 22          # elements per [entries, tokens, columns] block in the batched path
+_BATCH_ENTRIES = 256            # entries per block in the batched path
+_BUCKET_ENTRIES = 1024          # entries per padded bucket in the plan
+PLAN_CACHE_MB = float(os.environ.get("CIMSIM_SAT_PLAN_MB", "32"))   # per-layer limit for cached weight bits
 
 
 def _codes(q: torch.Tensor, bits: int, signed: bool) -> torch.Tensor:
@@ -118,7 +125,7 @@ def thresholds(tables: torch.Tensor) -> torch.Tensor:
 
 def saturation_plan(q_w: torch.Tensor, cfg: CIMConfig, tables: torch.Tensor,
                     chunks: list[tuple[int, int]] | None, K: int,
-                    col_mask: torch.Tensor | None = None) -> dict | None:
+                    col_mask: torch.Tensor | None = None, cache: bool = True) -> dict | None:
     """Weight-dependent part of saturation_correction: per (chunk, cycle), the (plane, column) pairs whose
     bound L_c x weight-plane popcount (and col_mask) reaches the threshold, and the smallest threshold among
     them. Depends only on the weights, tables and col_mask, so CIMLinear computes it once and reuses it
@@ -140,6 +147,8 @@ def saturation_plan(q_w: torch.Tensor, cfg: CIMConfig, tables: torch.Tensor,
     cm = None if col_mask is None else col_mask.cpu()
     pshift = torch.arange(P).view(P, 1, 1)
     entries = []
+    wbs = []                                                         # per entry: weight bits [r, S] uint8 (cache only)
+    cache_bytes = 0
     for j, (k0, k1) in enumerate(chunk_list):
         wbits = ((uw[:, k0:k1].unsqueeze(0) >> pshift) & 1)          # [P, N, r] int64
         wpop = wbits.sum(dim=-1)                                     # [P, N]
@@ -153,21 +162,77 @@ def saturation_plan(q_w: torch.Tensor, cfg: CIMConfig, tables: torch.Tensor,
             t_min = int(t_cp[col_ok.any(dim=1)].min())
             p_idx, n_idx = torch.nonzero(col_ok, as_tuple=True)
             entries.append((j, ci, t_min, p_idx, n_idx))
+            if cache:
+                cache_bytes += int(p_idx.numel()) * (k1 - k0)
+                if cache_bytes > PLAN_CACHE_MB * 1e6:
+                    cache = False
+                    wbs = []
+                else:
+                    wbs.append(wbits[p_idx, n_idx].t().contiguous().to(torch.uint8))     # [r, S]
     if not entries:
         return None
-    return {"entries": entries, "flat_tab": flat_tab, "chunks": chunk_list, "M1": M1}
+    plan = {"entries": entries, "flat_tab": flat_tab, "chunks": chunk_list, "M1": M1, "cached": bool(cache),
+            "cache_bytes": cache_bytes if cache else 0}
+    if cache:
+        _bucket_entries(plan, wbs)
+    return plan
+
+
+def _bucket_entries(plan: dict, wbs: list[torch.Tensor]) -> None:
+    """Pad the cached weight bits of all entries into buckets of entries with similar column counts
+    (padded size at most 2x the real one). plan['entries'][e] gets its location (bucket, row) in plan['loc'][e]."""
+    entries, chunk_list = plan["entries"], plan["chunks"]
+    r_max = max(k1 - k0 for k0, k1 in chunk_list)
+    order = sorted(range(len(entries)), key=lambda e: entries[e][3].numel())
+    loc = [None] * len(entries)
+    buckets = []
+    pos = 0
+    while pos < len(order):
+        s0 = max(entries[order[pos]][3].numel(), 16)
+        members = []
+        while pos < len(order) and len(members) < _BUCKET_ENTRIES and entries[order[pos]][3].numel() <= 2 * s0:
+            members.append(order[pos])
+            pos += 1
+        smax = max(entries[e][3].numel() for e in members)
+        E = len(members)
+        wb = torch.zeros(E, r_max, smax, dtype=torch.uint8)
+        pp = torch.zeros(E, smax, dtype=torch.int64)
+        nn = torch.zeros(E, smax, dtype=torch.int64)
+        for i, e in enumerate(members):
+            j, ci, t_min, p_idx, n_idx = entries[e]
+            S = p_idx.numel()
+            r = chunk_list[j][1] - chunk_list[j][0]
+            wb[i, :r, :S] = wbs[e]
+            pp[i, :S] = p_idx
+            nn[i, :S] = n_idx
+            loc[e] = (len(buckets), i, S)
+        buckets.append({
+            "wb": wb, "p": pp, "n": nn, "smax": smax,
+            "ej": torch.tensor([entries[e][0] for e in members], dtype=torch.int64),
+            "ec": torch.tensor([entries[e][1] for e in members], dtype=torch.int64),
+            "tmin": torch.tensor([entries[e][2] for e in members], dtype=torch.int64),
+            "S": torch.tensor([entries[e][3].numel() for e in members], dtype=torch.int64),
+            "r": torch.tensor([chunk_list[entries[e][0]][1] - chunk_list[entries[e][0]][0] for e in members],
+                              dtype=torch.int64),
+        })
+    plan["buckets"], plan["loc"], plan["r_max"] = buckets, loc, r_max
 
 
 def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, tables: torch.Tensor,
                           chunks: list[tuple[int, int]] | None = None,
                           stats: dict | None = None, col_mask: torch.Tensor | None = None,
-                          plan: dict | None | bool = False) -> torch.Tensor | None:
+                          plan: dict | None | bool = False, batch: bool | None = None) -> torch.Tensor | None:
     """sum over chunks, cycles, planes of coef_cp * S(m) for every output: float64 [T, N],
     or None if no conversion can saturate. stats (optional) accumulates 'macs_exact' and
     'macs_total' (MACs of the exact sub-matmuls vs a full bit-accurate pass).
     col_mask: optional bool [C, P, N]; only these (cycle, plane, column) conversions are checked
     (set from calibration column maxima, see CIMConfig.stat_sat_margin). None = popcount bound only.
-    plan: result of saturation_plan() for these weights (reused across calls); False = build it here."""
+    plan: result of saturation_plan() for these weights (reused across calls); False = build it here
+    (without the weight-bit cache, for dynamic operands).
+    batch: True = compute all entries as a few padded batched matmuls (no row selection; fast for short
+    calls, where the per-entry Python loop dominates), False = loop over entries with row selection
+    (less work for long calls), None = batched if the plan has cached bits and T <= BATCH_T_MAX.
+    Both give the same result up to float64 summation order."""
     T, K = q_x.shape
     N = q_w.shape[0]
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
@@ -176,16 +241,25 @@ def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, 
         stats["macs_total"] = stats.get("macs_total", 0) + T * K * N * C * P
         stats.setdefault("macs_exact", 0)
     if plan is False:
-        plan = saturation_plan(q_w, cfg, tables, chunks, K, col_mask)
+        plan = saturation_plan(q_w, cfg, tables, chunks, K, col_mask, cache=False)
     if plan is None:
         return None
     M1, flat_tab, chunk_list = plan["M1"], plan["flat_tab"], plan["chunks"]
     ux = _codes(q_x.cpu(), cfg.x_bits, cfg.signed_act)               # [T, K]
-    qw_cpu = q_w.cpu()
     out = torch.zeros(T * N, dtype=torch.float64)
+    if batch is None:
+        batch = plan["cached"] and T <= BATCH_T_MAX
+    if batch:
+        if not plan["cached"]:
+            raise ValueError("batched saturation path needs a plan built with cache=True within the size limit")
+        macs = _batched(plan, ux, cfg, cycles, T, N, K, out, stats is not None)
+        if stats is not None:
+            stats["macs_exact"] = stats.get("macs_exact", 0) + macs
+        return out.view(T, N).to(q_x.device)
+    qw_cpu = q_w.cpu()
     macs = 0
     uwc = {}
-    for j, ci, t_min, p_idx, n_idx in plan["entries"]:
+    for e, (j, ci, t_min, p_idx, n_idx) in enumerate(plan["entries"]):
         c = cycles[ci]
         k0, k1 = chunk_list[j]
         r = k1 - k0
@@ -193,9 +267,13 @@ def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, 
         rows = torch.nonzero(dig.sum(dim=1) >= t_min).flatten()
         if rows.numel() == 0:
             continue
-        if j not in uwc:                                             # weight codes of this chunk, once per call
-            uwc[j] = _codes(qw_cpu[:, k0:k1], P, cfg.w_signed)       # [N, r]
-        wsel = ((uwc[j][n_idx] >> p_idx.view(-1, 1)) & 1).to(torch.float32).t()  # [r, S]
+        if plan["cached"]:
+            b, i, S = plan["loc"][e]
+            wsel = plan["buckets"][b]["wb"][i, :r, :S].to(torch.float32)             # [r, S] from the cache
+        else:
+            if j not in uwc:                                         # weight codes of this chunk, once per call
+                uwc[j] = _codes(qw_cpu[:, k0:k1], P, cfg.w_signed)   # [N, r]
+            wsel = ((uwc[j][n_idx] >> p_idx.view(-1, 1)) & 1).to(torch.float32).t()  # [r, S]
         macs += rows.numel() * r * p_idx.numel()
         base = (p_idx * M1).view(1, -1)
         rb = max(1, _BLOCK_ELEMS // max(1, p_idx.numel()))          # bound the [rows, S] working set
@@ -211,3 +289,48 @@ def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, 
     if stats is not None:
         stats["macs_exact"] = stats.get("macs_exact", 0) + macs
     return out.view(T, N).to(q_x.device)
+
+
+
+def _batched(plan: dict, ux: torch.Tensor, cfg: CIMConfig, cycles, T: int, N: int, K: int,
+             out: torch.Tensor, want_macs: bool) -> int:
+    """All entries as padded batched matmuls: for a block of entries (chunk j, cycle c, columns S),
+    m = digits[j, c] [T, r] @ weight bits [r, S] (exact in float32), then the table lookup and a sparse
+    accumulation. Every token row is computed (no row selection); rows below an entry's bound give S(m) = 0.
+    Adds into out [T * N]; returns the MACs the per-entry path would have computed (rows reaching the
+    bound x r x S) when want_macs, else 0."""
+    chunk_list, M1, flat_tab, r_max = plan["chunks"], plan["M1"], plan["flat_tab"], plan["r_max"]
+    C, J = len(cycles), len(chunk_list)
+    digs = torch.stack([((ux >> c.bit_lo) & ((1 << c.n_bits) - 1)) for c in cycles]).to(torch.float32)  # [C, T, K]
+    widths = [k1 - k0 for k0, k1 in chunk_list]
+    uniform = all(chunk_list[j][0] == j * r_max for j in range(J)) and all(w == r_max for w in widths[:-1])
+    if uniform:
+        pad = J * r_max - K
+        d = torch.nn.functional.pad(digs, (0, pad)) if pad else digs
+        D = d.view(C, T, J, r_max).permute(2, 0, 1, 3).contiguous()            # [J, C, T, r_max]
+    else:
+        D = torch.zeros(J, C, T, r_max)
+        for j, (k0, k1) in enumerate(chunk_list):
+            D[j, :, :, :k1 - k0] = digs[:, :, k0:k1]
+    macs = 0
+    for bk in plan["buckets"]:
+        E, smax = bk["wb"].shape[0], bk["smax"]
+        step = max(1, min(_BATCH_ENTRIES, _BATCH_ELEMS // max(1, T * smax)))
+        for e0 in range(0, E, step):
+            sl = slice(e0, e0 + step)
+            ej, ec = bk["ej"][sl], bk["ec"][sl]
+            Dsel = D[ej, ec]                                                    # [e, T, r_max]
+            wsel = bk["wb"][sl].to(torch.float32)                               # [e, r_max, smax]
+            m = torch.bmm(Dsel, wsel).round().to(torch.int64)                   # [e, T, smax]
+            e = m.shape[0]
+            if want_macs:
+                rows = (Dsel.sum(dim=2) >= bk["tmin"][sl].view(-1, 1)).sum(dim=1)        # [e]
+                macs += int((rows * bk["r"][sl] * bk["S"][sl]).sum())
+            idx = bk["p"][sl].mul(M1).unsqueeze(1) + m.clamp_max(M1 - 1)         # [e, T, smax]
+            corr = flat_tab[ec.view(e, 1, 1), idx]                              # [e, T, smax]
+            nz = corr != 0
+            if not bool(nz.any()):
+                continue
+            ei, ti, si = torch.nonzero(nz, as_tuple=True)
+            out.index_add_(0, ti * N + bk["n"][sl][ei, si], corr[ei, ti, si])
+    return macs
