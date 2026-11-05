@@ -116,24 +116,17 @@ def thresholds(tables: torch.Tensor) -> torch.Tensor:
     return torch.where(nz, idx, torch.full_like(idx, M1)).min(dim=-1).values
 
 
-def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, tables: torch.Tensor,
-                          chunks: list[tuple[int, int]] | None = None,
-                          stats: dict | None = None, col_mask: torch.Tensor | None = None) -> torch.Tensor | None:
-    """sum over chunks, cycles, planes of coef_cp * S(m) for every output: float64 [T, N],
-    or None if no conversion can saturate. stats (optional) accumulates 'macs_exact' and
-    'macs_total' (MACs of the exact sub-matmuls vs a full bit-accurate pass).
-    col_mask: optional bool [C, P, N]; only these (cycle, plane, column) conversions are checked
-    (set from calibration column maxima, see CIMConfig.stat_sat_margin). None = popcount bound only."""
-    T, K = q_x.shape
-    N = q_w.shape[0]
+def saturation_plan(q_w: torch.Tensor, cfg: CIMConfig, tables: torch.Tensor,
+                    chunks: list[tuple[int, int]] | None, K: int,
+                    col_mask: torch.Tensor | None = None) -> dict | None:
+    """Weight-dependent part of saturation_correction: per (chunk, cycle), the (plane, column) pairs whose
+    bound L_c x weight-plane popcount (and col_mask) reaches the threshold, and the smallest threshold among
+    them. Depends only on the weights, tables and col_mask, so CIMLinear computes it once and reuses it
+    for every call (for short sequences this part dominated the cost). None if nothing can saturate."""
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
     C, P = len(cycles), cfg.w_bits
     M1 = tables.shape[-1]
     thr = thresholds(tables)                                        # [C, P]
-    chunk_list = uniform_chunks(K, cfg.nrow) if chunks is None else chunks
-    if stats is not None:
-        stats["macs_total"] = stats.get("macs_total", 0) + T * K * N * C * P
-        stats.setdefault("macs_exact", 0)
     if bool((thr >= M1).all()) or (col_mask is not None and not bool(col_mask.any())):
         return None
     coef = torch.empty(C, P, dtype=torch.float64)
@@ -142,43 +135,79 @@ def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, 
             wsign = -1 if (cfg.w_signed and pi == P - 1) else 1
             coef[ci, pi] = c.sign * wsign * 2.0 ** (c.shift + pi)
     flat_tab = (tables * coef.view(C, P, 1)).reshape(C, P * M1)     # coef folded in
-
-    ux = _codes(q_x.cpu(), cfg.x_bits, cfg.signed_act)               # [T, K]
+    chunk_list = uniform_chunks(K, cfg.nrow) if chunks is None else chunks
     uw = _codes(q_w.cpu(), P, cfg.w_signed)                          # [N, K]
-    out = torch.zeros(T * N, dtype=torch.float64)
-    macs = 0
+    cm = None if col_mask is None else col_mask.cpu()
     pshift = torch.arange(P).view(P, 1, 1)
-    for k0, k1 in chunk_list:
-        r = k1 - k0
+    entries = []
+    for j, (k0, k1) in enumerate(chunk_list):
         wbits = ((uw[:, k0:k1].unsqueeze(0) >> pshift) & 1)          # [P, N, r] int64
         wpop = wbits.sum(dim=-1)                                     # [P, N]
         for ci, c in enumerate(cycles):
             t_cp = thr[ci]                                           # [P]
             col_ok = (wpop * c.levels) >= t_cp.view(P, 1)            # [P, N]
-            if col_mask is not None:
-                col_ok = col_ok & col_mask[ci].cpu()
+            if cm is not None:
+                col_ok = col_ok & cm[ci]
             if not bool(col_ok.any()):
                 continue
-            dig = (ux[:, k0:k1] >> c.bit_lo) & ((1 << c.n_bits) - 1)  # [T, r]
-            dsum = dig.sum(dim=1)                                    # [T]
             t_min = int(t_cp[col_ok.any(dim=1)].min())
-            rows = torch.nonzero(dsum >= t_min).flatten()
-            if rows.numel() == 0:
+            p_idx, n_idx = torch.nonzero(col_ok, as_tuple=True)
+            entries.append((j, ci, t_min, p_idx, n_idx))
+    if not entries:
+        return None
+    return {"entries": entries, "flat_tab": flat_tab, "chunks": chunk_list, "M1": M1}
+
+
+def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, tables: torch.Tensor,
+                          chunks: list[tuple[int, int]] | None = None,
+                          stats: dict | None = None, col_mask: torch.Tensor | None = None,
+                          plan: dict | None | bool = False) -> torch.Tensor | None:
+    """sum over chunks, cycles, planes of coef_cp * S(m) for every output: float64 [T, N],
+    or None if no conversion can saturate. stats (optional) accumulates 'macs_exact' and
+    'macs_total' (MACs of the exact sub-matmuls vs a full bit-accurate pass).
+    col_mask: optional bool [C, P, N]; only these (cycle, plane, column) conversions are checked
+    (set from calibration column maxima, see CIMConfig.stat_sat_margin). None = popcount bound only.
+    plan: result of saturation_plan() for these weights (reused across calls); False = build it here."""
+    T, K = q_x.shape
+    N = q_w.shape[0]
+    cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
+    C, P = len(cycles), cfg.w_bits
+    if stats is not None:
+        stats["macs_total"] = stats.get("macs_total", 0) + T * K * N * C * P
+        stats.setdefault("macs_exact", 0)
+    if plan is False:
+        plan = saturation_plan(q_w, cfg, tables, chunks, K, col_mask)
+    if plan is None:
+        return None
+    M1, flat_tab, chunk_list = plan["M1"], plan["flat_tab"], plan["chunks"]
+    ux = _codes(q_x.cpu(), cfg.x_bits, cfg.signed_act)               # [T, K]
+    qw_cpu = q_w.cpu()
+    out = torch.zeros(T * N, dtype=torch.float64)
+    macs = 0
+    uwc = {}
+    for j, ci, t_min, p_idx, n_idx in plan["entries"]:
+        c = cycles[ci]
+        k0, k1 = chunk_list[j]
+        r = k1 - k0
+        dig = (ux[:, k0:k1] >> c.bit_lo) & ((1 << c.n_bits) - 1)       # [T, r]
+        rows = torch.nonzero(dig.sum(dim=1) >= t_min).flatten()
+        if rows.numel() == 0:
+            continue
+        if j not in uwc:                                             # weight codes of this chunk, once per call
+            uwc[j] = _codes(qw_cpu[:, k0:k1], P, cfg.w_signed)       # [N, r]
+        wsel = ((uwc[j][n_idx] >> p_idx.view(-1, 1)) & 1).to(torch.float32).t()  # [r, S]
+        macs += rows.numel() * r * p_idx.numel()
+        base = (p_idx * M1).view(1, -1)
+        rb = max(1, _BLOCK_ELEMS // max(1, p_idx.numel()))          # bound the [rows, S] working set
+        for r0 in range(0, rows.numel(), rb):
+            rws = rows[r0:r0 + rb]
+            m = (dig[rws].to(torch.float32) @ wsel).round().to(torch.int64)   # exact: values <= r * L_c
+            corr = flat_tab[ci][base + m.clamp_max(M1 - 1)]                    # [R, S]
+            nz = corr != 0
+            if not bool(nz.any()):
                 continue
-            p_idx, n_idx = torch.nonzero(col_ok, as_tuple=True)     # selected (plane, column) pairs
-            wsel = wbits[p_idx, n_idx].to(torch.float32).t()         # [r, S]
-            macs += rows.numel() * r * p_idx.numel()
-            base = (p_idx * M1).view(1, -1)
-            rb = max(1, _BLOCK_ELEMS // max(1, p_idx.numel()))      # bound the [rows, S] working set
-            for r0 in range(0, rows.numel(), rb):
-                rws = rows[r0:r0 + rb]
-                m = (dig[rws].to(torch.float32) @ wsel).round().to(torch.int64)   # exact: values <= r * L_c
-                corr = flat_tab[ci][base + m.clamp_max(M1 - 1)]                    # [R, S]
-                nz = corr != 0
-                if not bool(nz.any()):
-                    continue
-                ri, si = torch.nonzero(nz, as_tuple=True)
-                out.index_add_(0, rws[ri] * N + n_idx[si], corr[ri, si])
+            ri, si = torch.nonzero(nz, as_tuple=True)
+            out.index_add_(0, rws[ri] * N + n_idx[si], corr[ri, si])
     if stats is not None:
         stats["macs_exact"] = stats.get("macs_exact", 0) + macs
     return out.view(T, N).to(q_x.device)

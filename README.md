@@ -46,7 +46,7 @@ The project runs CPU-only. Speeds, run budgets and the evaluation protocol are i
 | `fp` | original layer |
 | `fake_quant` | integer quantization, normal matmul (ideal digital reference) |
 | `bit_accurate` | full bit-plane / ADC / noise simulation (ASiM-compatible) |
-| `statistical` | calibrated error injection (milestone A3, not implemented yet) |
+| `statistical` | calibrated error injection (A3): analytic gain + noise, exact sparse saturation / rounding, discrete ADC code flips |
 
 ## A0 baselines (E0)
 
@@ -112,3 +112,13 @@ calibrate_adc_range(model, lambda: model(calib_ids))
 out = model(input_ids)
 print(counter.total())
 ```
+
+## Zero-shot accuracy (lm-eval-harness)
+
+```bash
+pip install -e ".[eval]"
+python scripts/run_zeroshot.py --model Qwen/Qwen2.5-0.5B --config config/experiments/a4_stat_adc6cal.yaml --name zs_qwen05b_stat_adc6cal --limit 1000 --threads 14
+python scripts/zeroshot_compare.py --ref results/zs_qwen05b_w8a8 results/zs_qwen05b_fp32 results/zs_qwen05b_stat_adc6cal --out results/zs_qwen05b_summary.md
+```
+
+Default tasks: arc_easy, piqa, hellaswag, 0-shot. `--limit N` takes the first N documents of each task, so runs with the same N are paired. Calibration (if needed) runs once, then all tasks. Batch size 8 by default, 1 when attention runs on CIM. An interrupted run continues where it stopped. Output per task: `results/<name>/zs_<task>.json` (acc, acc_norm, per-document scores, ms/token) and `events_<task>.json`.

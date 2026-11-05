@@ -32,6 +32,12 @@ Fast vs reference executor on one 768×3072 layer: 2.4–3.4× faster noise-free
 - `result.json` stores per-window NLL so the spread across windows can be reported.
 - Result models (Qwen2.5-0.5B, TinyLlama-1.1B) are never run bit_accurate end to end on CPU. They use statistical mode (A3).
 
+## Zero-shot runs (A4)
+
+Zero-shot requests are short (about 30–150 tokens per forward call). Statistical mode has a per-call cost (Python loop over row chunks and input cycles in the exact saturation term), so per token it is slower on short calls than on 2,048-token windows: random-weight Qwen2-0.5B-shaped model, 2 threads, 16.9 ms/token at 64 tokens vs 5.3 at 2,048 (`results/bench_short_calls_sandbox/`; 31.5 before the per-layer saturation plan cache, `results/bench_short_calls_sandbox_before/`). Batching requests (default 8 when attention is not on CIM) brings calls back to a few hundred tokens.
+
+Approximate model tokens per task (0-shot, lm-eval prompts): ARC-e ~140 per document (4 choices), PIQA ~100 (2 choices), HellaSwag ~380 (4 choices). With `--limit 1000` a run is ~0.6M model tokens; full HellaSwag alone is ~3.8M. Use `--limit` on the laptop.
+
 ## Practical settings
 
 - `token_block: 128` (default) keeps the per-layer working set to a few hundred MB. Lower it to 64 if memory is tight.

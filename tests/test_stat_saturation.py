@@ -170,3 +170,25 @@ def test_margin_filter_matches_strict_bound(monkeypatch):
     assert torch.equal(y1, y2)
     assert st.sat_stats["macs_exact"] <= strict.sat_stats["macs_exact"]
     assert 0.0 < st.stat_info["sat_cols_frac"] <= 1.0
+
+
+def test_cached_plan_matches_fresh_plan(monkeypatch):
+    """CIMLinear reuses the weight-only saturation plan across calls; the output equals a plan built
+    per call, for several inputs and sequence lengths (incl. one token)."""
+    from cimsim.stat.saturation import saturation_correction
+    st, _ = _pair(monkeypatch, dict(adc_bits=5, adc_range="calibrated", stat_sat_margin=None), 31, K=600)
+    qw = st._weights()[0]
+    tab = st._saturation_tables()
+    for seed, T in ((2, 192), (3, 7), (4, 1), (5, 64)):
+        x = _x(T, 600, seed)
+        y_cached = st(x).double()
+        assert st._sat_plan is not None
+        from cimsim.quant import quantize_act
+        qx = quantize_act(x, st.cfg.x_bits, st.cfg.x_gran, st.cfg.signed_act)[0]
+        a = saturation_correction(qx, qw, st.cfg, tab, st._chunks(), plan=st._sat_plan[1])
+        b = saturation_correction(qx, qw, st.cfg, tab, st._chunks())
+        if a is None:
+            assert b is None
+        else:
+            assert torch.equal(a, b)
+        assert torch.isfinite(y_cached).all()

@@ -23,7 +23,7 @@ from cimsim.core.executor_fast import cim_matmul_int_fast
 from cimsim.core.bitplanes import input_cycles
 from cimsim.core.calib import mac_histogram, full_scale_from_histogram
 from cimsim.stat.analytic import layer_stat_params
-from cimsim.stat.saturation import deterministic_tables, saturation_correction, thresholds
+from cimsim.stat.saturation import deterministic_tables, saturation_correction, saturation_plan, thresholds
 
 
 def _codes_int(q: torch.Tensor, bits: int, signed: bool) -> torch.Tensor:
@@ -54,6 +54,7 @@ class _CIMBase(nn.Module):
         self.stat_info: dict | None = None          # diagnostics from layer_stat_params
         self._sat_tables: torch.Tensor | None = None  # S(m) tables for stat_saturation 'exact'
         self._sat_key = None
+        self._sat_plan = None                        # (key, saturation_plan) for static weights
         self._det_hist: torch.Tensor | None = None   # calibration histogram kept for the T(m) table choice
         self._flips: list = []                       # discrete code-flip distributions (stat_noise 'auto', F9)
         self._cal_colmax: torch.Tensor | None = None  # [C, P, N] largest calibration MAC per column
@@ -71,6 +72,7 @@ class _CIMBase(nn.Module):
     # --- shared ---
     def requantize(self) -> None:
         self._qw = None
+        self._sat_plan = None
 
     def _weights(self):
         """Integer weight codes (float32 [N, K]), scale and zero point. The codes are cached as int8 /
@@ -86,6 +88,7 @@ class _CIMBase(nn.Module):
                 qw, self._wscale, self._wzero = quantize_weight_asym(w, self.cfg.w_bits, self.cfg.w_gran)
                 store = torch.uint8 if self.cfg.w_bits <= 8 else None
             self._qw = qw.to(store) if store is not None else qw
+            self._sat_plan = None
         qw = self._qw if self._qw.dtype == torch.float32 else self._qw.float()
         return qw, self._wscale, self._wzero
 
@@ -119,6 +122,7 @@ class _CIMBase(nn.Module):
         """Sets the ADC full scale (adc_range: calibrated) and, for mode 'statistical',
         the analytic error model, both from the MAC histogram recorded since start_calibration."""
         self._calibrating = False
+        self._sat_plan = None
         if self._hist is None:
             raise RuntimeError(f"{self.name}: no calibration data seen")
         if self.cfg.adc_range == "calibrated":
@@ -182,8 +186,17 @@ class _CIMBase(nn.Module):
             if self._flips:
                 self._add_flips(y, qx.cpu(), qw.cpu(), self._generator(qx.device))
             if cfg.stat_saturation == "exact":
-                s = saturation_correction(qx, qw, cfg, self._saturation_tables(), self._chunks(), self.sat_stats,
-                                          col_mask=self.sat_cols if cfg.stat_sat_margin is not None else None)
+                tables = self._saturation_tables()
+                col_mask = self.sat_cols if cfg.stat_sat_margin is not None else None
+                plan = False                                     # dynamic operand: build per call
+                if not self._dynamic_operand:
+                    key = (id(self._qw), self._sat_key, id(col_mask))
+                    if self._sat_plan is None or self._sat_plan[0] != key:
+                        self._sat_plan = (key, saturation_plan(qw, cfg, tables, self._chunks(), qw.shape[1],
+                                                               col_mask))
+                    plan = self._sat_plan[1]
+                s = saturation_correction(qx, qw, cfg, tables, self._chunks(), self.sat_stats,
+                                          col_mask=col_mask, plan=plan)
                 if s is not None:
                     y = y + s
             return y.float()
