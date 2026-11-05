@@ -11,7 +11,7 @@ from cimsim.config import CIMConfig, LayerConfigMap  # noqa: E402
 from cimsim.core.attention import CIMMatMul, swap_attention  # noqa: E402
 from cimsim.events import EventCounter  # noqa: E402
 from cimsim.models.swap import set_mode, swap_linears  # noqa: E402
-from tests.test_swap import tiny  # noqa: E402
+from test_swap import tiny  # noqa: E402  (pytest puts tests/ on sys.path)
 
 ARCHS = ["opt", "gpt2", "llama", "qwen2"]
 
