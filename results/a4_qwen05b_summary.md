@@ -49,3 +49,23 @@ bit-serial W8A8, nrow 128, ADC 6 b on all 168 linear layers, MSE-calibrated full
 695 s (was 1,461 s before the histogram rewrite). Exact saturation work 0.36 % of bit-accurate MACs; at most
 6.2 % of a layer's (cycle, plane, column) triples checked. The statistical model validated on OPT-125M
 (GATE A3) holds on a Qwen2 model (gated FFN, larger activation outliers, K up to 4,864).
+
+# Qwen2.5-1.5B, full WikiText-2 test set (Thomas's machine, git 2d1d11f, 14 threads)
+
+298,862 tokens, 146 windows of 2,048. Statistical config `a4_stat_adc6cal.yaml` (all 196 linear layers on
+analog CIM: bit-serial W8A8, nrow 128, ADC 6 b MSE-calibrated per layer, no noise; attention and LM head digital).
+
+| Run | PPL | vs FP32 | vs W8A8 | eval time | ms/token | results |
+|---|---|---|---|---|---|---|
+| FP32 | 9.264 | — | — | 67.6 min | 13.6 | `results/e0_qwen15b_fp32/` |
+| W8A8 fake-quant | 9.487 | +2.41 % | — | 60.0 min | 12.1 | `results/e0_qwen15b_w8a8/` |
+| statistical, ADC 6 b calibrated | 9.492 | +2.46 % | +0.05 % | 345 min | 69.3 | `results/a4_qwen15b_stat_adc6cal/` |
+
+- Per-window NLL difference analog − W8A8: mean +0.00047 nats, standard error 0.00042 (146 windows), 55 %
+  of windows worse: not distinguishable from zero. W8A8 − FP32: +0.0238 ± 0.0005 nats. On the full test
+  set the 6-bit calibrated analog macro adds no measurable loss on top of 8-bit quantization.
+- Calibration 2,656 s (44 min; 3,193 s on the earlier run — machine load varies). Statistical evaluation
+  slowed from ~2.2 to ~3.4 min per window between windows 67 and 85 (laptop load), so ms/token is an upper
+  bound.
+- Events (evaluated tokens only): 3.92e14 MACs, 1.96e14 ADC conversions (0.5 per MAC: 8×8 bit-plane
+  conversions per 128 rows), 1.05e10 weight bits written (1.31e9 weights × 8 b).

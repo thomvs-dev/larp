@@ -1,0 +1,9 @@
+{
+  "macs": 0,
+  "adc_conversions": 0,
+  "adc_conversions_analog": 0,
+  "array_cycles": 0,
+  "weight_bits_written": 0,
+  "dcim_column_ops": 0,
+  "digital_macs": 0
+}

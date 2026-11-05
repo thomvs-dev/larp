@@ -258,8 +258,8 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current part: **A**
 - Current milestone: **A4** (LLM integration)
 - Next tasks, in order:
-  1. Thomas: Qwen2.5-1.5B FP32 / W8A8 / statistical on the full test set overnight (~9 h; commands in the agent's message of 2026-11-04 evening).
-  2. Agent: evaluate the overnight full-test-set runs; then attention-on-CIM runs on Thomas's machine (Qwen2.5-0.5B / 1.5B, 2,048-token windows).
+  1. Thomas: attention-on-CIM runs at 2,048-token windows (Qwen2.5-0.5B statistical vs bit-accurate, Qwen2.5-1.5B 8,192 tokens) — commands in the agent's message of 2026-11-05.
+  2. Agent: evaluate; zero-shot eval wrapper; TinyLlama-1.1B.
   3. Agent: zero-shot eval wrapper (lm-eval-harness) for statistical mode.
   4. Agent (parallel, sandbox): Part B B0 — verify M1–M4 specs from the papers, start `cimsim/circuits/` with cited per-action costs (`docs/part_b_plan.md` §3). Open questions for Thomas in §4 of that file (process node, all-analog vs hybrid, macro vs system TOPS/W).
   5. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
@@ -313,6 +313,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-04 — Qwen2.5-1.5B on 8,192 tokens (Thomas, git 0e2ca2c): FP32 10.113, W8A8 10.338 (+2.23 %), statistical ADC 6 b calibrated 10.342 (+0.03 % vs W8A8); FS 63 on all 196 layers; calibration 3,193 s, evaluation 66 ms/token; events exclude calibration (MACs equal W8A8). Gate script now accepts statistical configs (first Qwen gate attempt stopped on that check); smoke-tested on OPT-125M in the sandbox. — `results/a4_qwen05b_summary.md`, `results/e0_qwen15b_*_sub8k/`, `results/a4_qwen15b_stat_adc6cal_sub8k/`, `scripts/a3_gate.py`
 - 2026-11-04 — Qwen2.5-0.5B gate check (Thomas, git 724b0a5, 4,096 tokens): statistical 11.994 vs bit-accurate 11.993 (+0.009 %), 18× faster; calibration 695 s (2.1× faster than before). Statistical mode validated on Qwen2. — `results/a3g_qwen05b_adc6cal/`, `results/a4_qwen05b_summary.md`
 - 2026-11-04 — Attention on CIM (A4): `CIMMatMul` (qk: keys in array columns, contraction D; sv: values in array rows, contraction S, per-position V scale folded into P), registered as HF attention implementation `cim`; causal-pair event counts, `kv_bits_written`; gate script `--seq-len`. Qwen2.5-0.5B sandbox (2,048 tokens, 512-token windows): 8-bit Q·Kᵀ with per-token keys +4.2 %, per-channel keys 0 % (F10); analog attention statistical = bit-accurate (17.596); all linear + attention on CIM 17.620 (W8A8 linear 17.895, FP32 17.411). 242 tests pass. — `cimsim/core/attention.py`, `tests/test_attention.py`, `results/a4_attention_summary.md`, `results/a4s_qwen05b_*_s512_sandbox/`, `results/a3g_qwen05b_attn_only_adc6cal_sandbox/`, `docs/findings.md` F10
+- 2026-11-05 — Qwen2.5-1.5B full WikiText-2 test set (Thomas, git 2d1d11f, 298,862 tokens): FP32 9.264, W8A8 9.487 (+2.41 %), statistical ADC 6 b calibrated 9.492 (+0.05 % vs W8A8; per-window NLL difference +0.00047 ± 0.00042 nats, not significant). Evaluation 345 min (69 ms/token), calibration 44 min. — `results/e0_qwen15b_fp32/`, `results/e0_qwen15b_w8a8/`, `results/a4_qwen15b_stat_adc6cal/`, `results/a4_qwen05b_summary.md`
 - 2026-11-03 — Part B plan written: cost model (event counts × cited per-action costs), calibration macro candidates M1–M4, GATE B1 normalisation rules. — `docs/part_b_plan.md`
 
 ---
