@@ -31,3 +31,25 @@ Findings (see `docs/findings.md` F10):
   (3.85e11 vs 3.66e11), 1.0e8 KV bits written for 2,048 tokens (24 layers × 2 KV heads × 64 × 8 b × K and V).
   Attention's share grows linearly with context length.
 - Not yet run on Thomas's machine at 2,048-token windows or on Qwen2.5-1.5B.
+
+## Thomas's machine, 2,048-token windows (git 67b4623)
+
+| Run | PPL | results |
+|---|---|---|
+| Qwen2.5-0.5B, 4,096 tokens: fake-quant of the same config (ideal 8-bit attention) | 12.053 | `results/a3g_qwen05b_attn_only_adc6cal/gate.json` |
+| 0.5B attention on analog CIM (ADC 6 b cal.), statistical | 12.043 | (same) |
+| 0.5B same, bit-accurate | 12.043 (identical, +0.00 %), 21 vs 112 ms/token (5.3x) | (same) |
+| Qwen2.5-1.5B, 8,192 tokens: FP32 | 10.113 | `results/e0_qwen15b_fp32_sub8k/` |
+| 1.5B W8A8 linear | 10.338 | `results/e0_qwen15b_w8a8_sub8k/` |
+| 1.5B analog linear (statistical, ADC 6 b cal.) | 10.342 | `results/a4_qwen15b_stat_adc6cal_sub8k/` |
+| 1.5B W8A8 linear + 8-bit attention (ideal) | 10.413 | `results/e0_qwen15b_w8a8_attn_sub8k/` |
+| 1.5B analog linear + analog attention (statistical) | 10.378 | `results/a4_qwen15b_stat_adc6cal_attn_sub8k/` |
+
+- 8-bit attention operands cost +0.73 % over W8A8 linear on 1.5B (10.413 vs 10.338).
+- Analog attention + analog linear is 0.34 % below the ideal 8-bit attention run (per-window NLL difference
+  -0.0034 +- 0.0022 nats over 4 windows, t = -1.6, not significant). An analog path at or slightly below the
+  ideal quantized one also appeared on 0.5B at 512-token windows. Not an improvement claim; the
+  difference is inside run-to-run scale. To check in A5: the same comparison on the full test set.
+- Attention adds 6.7 % MACs and 6.9 % ADC conversions on 1.5B at 2,048 tokens (1.1455e13 vs 1.0733e13 MACs;
+  5.739e12 vs 5.367e12 conversions), 9.4e8 KV bits written for 8,188 tokens.
+- Calibration 3,313 s, evaluation 16.8 min (123 ms/token) for 1.5B with attention.

@@ -1,0 +1,18 @@
+attention: true
+default:
+  mode: fake_quant
+  w_bits: 8
+  x_bits: 8
+layers:
+  '*.qk':
+    adc_bits: 6
+    adc_range: calibrated
+    adc_range_gran: layer
+    mode: statistical
+    nrow: 128
+  '*.sv':
+    adc_bits: 6
+    adc_range: calibrated
+    adc_range_gran: layer
+    mode: statistical
+    nrow: 128
