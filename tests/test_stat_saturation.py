@@ -243,3 +243,21 @@ def test_plan_cache_limit_falls_back(monkeypatch):
     a = sat.saturation_correction(qx, qw, st.cfg, tab, st._chunks(), plan=full)
     b = sat.saturation_correction(qx, qw, st.cfg, tab, st._chunks(), plan=small)
     torch.testing.assert_close(a, b, rtol=1e-10, atol=1e-8)
+
+
+def test_exact_matmul_float32_path_equals_float64():
+    """The float32 path of the statistical matmul (taken when the Cauchy-Schwarz bound is below 2^23)
+    gives the same float64 values as a float64 matmul; above the bound the float64 path is used."""
+    torch.manual_seed(0)
+    lin = torch.nn.Linear(896, 128)
+    st = CIMLinear.from_linear(lin, CIMConfig(mode="statistical", w_bits=8, x_bits=8), name="L")
+    qw = torch.randint(-127, 128, (128, 896)).float()
+    for T in (1, 8, 64):
+        qx = torch.randint(-127, 128, (T, 896)).float()
+        ref = qx.double() @ qw.double().t()
+        assert torch.equal(st._exact_matmul(qx, qw), ref)
+    # down_proj-sized contraction with large codes: bound above 2^23 -> float64 path, still exact
+    qw2 = torch.full((16, 4864), 127.0)
+    qx2 = torch.full((4, 4864), 127.0)
+    st._qw_norm = None
+    assert torch.equal(st._exact_matmul(qx2, qw2), qx2.double() @ qw2.double().t())

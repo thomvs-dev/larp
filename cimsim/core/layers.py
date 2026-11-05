@@ -55,6 +55,7 @@ class _CIMBase(nn.Module):
         self._sat_tables: torch.Tensor | None = None  # S(m) tables for stat_saturation 'exact'
         self._sat_key = None
         self._sat_plan = None                        # (key, saturation_plan) for static weights
+        self._qw_norm = None                         # (id of weight cache, max row L2 norm of codes)
         self._det_hist: torch.Tensor | None = None   # calibration histogram kept for the T(m) table choice
         self._flips: list = []                       # discrete code-flip distributions (stat_noise 'auto', F9)
         self._cal_colmax: torch.Tensor | None = None  # [C, P, N] largest calibration MAC per column
@@ -73,6 +74,7 @@ class _CIMBase(nn.Module):
     def requantize(self) -> None:
         self._qw = None
         self._sat_plan = None
+        self._qw_norm = None
 
     def _weights(self):
         """Integer weight codes (float32 [N, K]), scale and zero point. The codes are cached as int8 /
@@ -89,6 +91,7 @@ class _CIMBase(nn.Module):
                 store = torch.uint8 if self.cfg.w_bits <= 8 else None
             self._qw = qw.to(store) if store is not None else qw
             self._sat_plan = None
+            self._qw_norm = None
         qw = self._qw if self._qw.dtype == torch.float32 else self._qw.float()
         return qw, self._wscale, self._wzero
 
@@ -123,6 +126,7 @@ class _CIMBase(nn.Module):
         the analytic error model, both from the MAC histogram recorded since start_calibration."""
         self._calibrating = False
         self._sat_plan = None
+        self._qw_norm = None
         if self._hist is None:
             raise RuntimeError(f"{self.name}: no calibration data seen")
         if self.cfg.adc_range == "calibrated":
@@ -179,7 +183,7 @@ class _CIMBase(nn.Module):
                 raise RuntimeError(f"{self.name}: mode 'statistical' needs the error model; run "
                                    "cimsim.calibrate_adc_range (it also prepares statistical layers)")
             g, mu, sd = (float(v) for v in self.stat_params)
-            y = (qx.double() @ qw.double().t()) * (1.0 + g) + mu
+            y = self._exact_matmul(qx, qw) * (1.0 + g) + mu
             if sd > 0:
                 y = y + sd * torch.randn(y.shape, generator=self._generator(qx.device), dtype=torch.float64,
                                          device=qx.device)
@@ -201,6 +205,24 @@ class _CIMBase(nn.Module):
                     y = y + s
             return y.float()
         raise ValueError(cfg.mode)
+
+    def _exact_matmul(self, qx: torch.Tensor, qw: torch.Tensor) -> torch.Tensor:
+        """Exact integer product qx @ qw.T as float64. Uses a float32 matmul when every partial sum is an
+        integer below 2^24 (then float32 is exact in any summation order): by Cauchy-Schwarz each partial
+        sum is at most max_t ||qx_t||_2 * max_n ||qw_n||_2; the check uses 2^23 to leave room for rounding
+        in the norms. Otherwise float64."""
+        key = id(self._qw) if not self._dynamic_operand else None
+        cached = getattr(self, "_qw_norm", None)
+        if key is not None and cached is not None and cached[0] == key:
+            wn = cached[1]
+        else:
+            wn = float(qw.float().norm(dim=1).max()) if qw.numel() else 0.0
+            if key is not None:
+                self._qw_norm = (key, wn)
+        xn = float(qx.float().norm(dim=1).max()) if qx.numel() else 0.0
+        if xn * wn < 2.0 ** 23:
+            return (qx.float() @ qw.float().t()).double()
+        return qx.double() @ qw.double().t()
 
     def _add_flips(self, y: torch.Tensor, qx: torch.Tensor, qw: torch.Tensor, gen: torch.Generator) -> None:
         """Discrete ADC code flips from analog noise, sampled by exact thinning (F9). For each (cycle, plane)

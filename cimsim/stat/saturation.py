@@ -259,12 +259,17 @@ def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, 
     qw_cpu = q_w.cpu()
     macs = 0
     uwc = {}
+    mmin = _mmin(plan)
+    digc = {}                     # digits and row sums of the current (chunk, cycle); entries are ordered by them
     for e, (j, ci, t_min, p_idx, n_idx) in enumerate(plan["entries"]):
         c = cycles[ci]
         k0, k1 = chunk_list[j]
         r = k1 - k0
-        dig = (ux[:, k0:k1] >> c.bit_lo) & ((1 << c.n_bits) - 1)       # [T, r]
-        rows = torch.nonzero(dig.sum(dim=1) >= t_min).flatten()
+        if (j, ci) not in digc:
+            d = ((ux[:, k0:k1] >> c.bit_lo) & ((1 << c.n_bits) - 1)).to(torch.float32)   # [T, r]
+            digc = {(j, ci): (d, d.sum(dim=1))}
+        dig, dsum = digc[(j, ci)]
+        rows = torch.nonzero(dsum >= t_min).flatten()
         if rows.numel() == 0:
             continue
         if plan["cached"]:
@@ -275,21 +280,35 @@ def saturation_correction(q_x: torch.Tensor, q_w: torch.Tensor, cfg: CIMConfig, 
                 uwc[j] = _codes(qw_cpu[:, k0:k1], P, cfg.w_signed)   # [N, r]
             wsel = ((uwc[j][n_idx] >> p_idx.view(-1, 1)) & 1).to(torch.float32).t()  # [r, S]
         macs += rows.numel() * r * p_idx.numel()
-        base = (p_idx * M1).view(1, -1)
+        thr = mmin[ci][p_idx]                                        # [S]
         rb = max(1, _BLOCK_ELEMS // max(1, p_idx.numel()))          # bound the [rows, S] working set
         for r0 in range(0, rows.numel(), rb):
             rws = rows[r0:r0 + rb]
-            m = (dig[rws].to(torch.float32) @ wsel).round().to(torch.int64)   # exact: values <= r * L_c
-            corr = flat_tab[ci][base + m.clamp_max(M1 - 1)]                    # [R, S]
-            nz = corr != 0
-            if not bool(nz.any()):
+            m = dig[rws] @ wsel                                      # [R, S], exact: values <= r * L_c
+            ri, si = torch.nonzero(m >= thr, as_tuple=True)          # only these can have S(m) != 0
+            if ri.numel() == 0:
                 continue
-            ri, si = torch.nonzero(nz, as_tuple=True)
-            out.index_add_(0, rws[ri] * N + n_idx[si], corr[ri, si])
+            mv = m[ri, si].round().to(torch.int64).clamp_max(M1 - 1)
+            corr = flat_tab[ci][p_idx[si] * M1 + mv]
+            keep = corr != 0
+            ri, si, corr = ri[keep], si[keep], corr[keep]
+            out.index_add_(0, rws[ri] * N + n_idx[si], corr)
     if stats is not None:
         stats["macs_exact"] = stats.get("macs_exact", 0) + macs
     return out.view(T, N).to(q_x.device)
 
+
+
+def _mmin(plan: dict) -> torch.Tensor:
+    """Smallest MAC value m with a non-zero table entry, per (cycle, plane): float32 [C, P] (M1 if none).
+    Conversions below it contribute nothing and are skipped by both paths."""
+    mmin = plan.get("mmin")
+    if mmin is None:
+        M1, flat_tab = plan["M1"], plan["flat_tab"]
+        nzt = flat_tab.view(flat_tab.shape[0], -1, M1) != 0
+        first = torch.where(nzt.any(dim=2), nzt.to(torch.int8).argmax(dim=2), torch.full(nzt.shape[:2], M1))
+        mmin = plan["mmin"] = first.to(torch.float32)
+    return mmin
 
 
 def _batched(plan: dict, ux: torch.Tensor, cfg: CIMConfig, cycles, T: int, N: int, K: int,
@@ -312,6 +331,8 @@ def _batched(plan: dict, ux: torch.Tensor, cfg: CIMConfig, cycles, T: int, N: in
         D = torch.zeros(J, C, T, r_max)
         for j, (k0, k1) in enumerate(chunk_list):
             D[j, :, :, :k1 - k0] = digs[:, :, k0:k1]
+    Dsum = D.sum(dim=3) if want_macs else None                                 # [J, C, T], exact integers
+    mmin = _mmin(plan)
     macs = 0
     for bk in plan["buckets"]:
         E, smax = bk["wb"].shape[0], bk["smax"]
@@ -321,16 +342,20 @@ def _batched(plan: dict, ux: torch.Tensor, cfg: CIMConfig, cycles, T: int, N: in
             ej, ec = bk["ej"][sl], bk["ec"][sl]
             Dsel = D[ej, ec]                                                    # [e, T, r_max]
             wsel = bk["wb"][sl].to(torch.float32)                               # [e, r_max, smax]
-            m = torch.bmm(Dsel, wsel).round().to(torch.int64)                   # [e, T, smax]
-            e = m.shape[0]
+            m = torch.bmm(Dsel, wsel)                                           # [e, T, smax], exact integers
             if want_macs:
-                rows = (Dsel.sum(dim=2) >= bk["tmin"][sl].view(-1, 1)).sum(dim=1)        # [e]
+                rows = (Dsum[ej, ec] >= bk["tmin"][sl].view(-1, 1)).sum(dim=1)            # [e]
                 macs += int((rows * bk["r"][sl] * bk["S"][sl]).sum())
-            idx = bk["p"][sl].mul(M1).unsqueeze(1) + m.clamp_max(M1 - 1)         # [e, T, smax]
-            corr = flat_tab[ec.view(e, 1, 1), idx]                              # [e, T, smax]
-            nz = corr != 0
-            if not bool(nz.any()):
+            # only conversions with m >= the smallest m that has a non-zero table entry can contribute;
+            # the others give corr = 0 and are skipped (same set of non-zero additions, same order)
+            pe = bk["p"][sl]                                                    # [e, smax]
+            hit = m >= mmin[ec.view(-1, 1), pe].unsqueeze(1)                    # [e, T, smax]
+            ei, ti, si = torch.nonzero(hit, as_tuple=True)
+            if ei.numel() == 0:
                 continue
-            ei, ti, si = torch.nonzero(nz, as_tuple=True)
-            out.index_add_(0, ti * N + bk["n"][sl][ei, si], corr[ei, ti, si])
+            mv = m[ei, ti, si].round().to(torch.int64).clamp_max(M1 - 1)
+            corr = flat_tab[ec[ei], pe[ei, si] * M1 + mv]
+            keep = corr != 0
+            ei, ti, si, corr = ei[keep], ti[keep], si[keep], corr[keep]
+            out.index_add_(0, ti * N + bk["n"][sl][ei, si], corr)
     return macs
