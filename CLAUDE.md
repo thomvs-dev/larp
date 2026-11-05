@@ -154,7 +154,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 - [x] Layer swapping for HuggingFace models (OPT, GPT-2, Llama-family, Qwen): Qwen2 added to the tiny-model tests (q/k/v biases, tied LM head kept digital), statistical mode with calibration runs on tiny Llama / Qwen2; quantized weight codes cached as int8 (memory for 1.5B models). Real-model check: Qwen2.5-0.5B statistical vs bit-accurate 11.994 vs 11.993 (+0.009 %, 4,096 tokens, `results/a3g_qwen05b_adc6cal/`). (`tests/test_swap.py`, `cimsim/core/layers.py`)
 - [x] Per-layer mapping policy in config: which of Q/K/V/O, FFN up/gate/down run on analog CIM, DCIM, or digital. `macro: acim | dcim | digital` per layer; YAML `policy:` maps roles qkv / o / up_gate / down (same across OPT, GPT-2, Llama, Qwen2) to a macro; `layers:` globs override. dcim / digital compute exactly and count `dcim_column_ops` / `digital_macs` instead of ADC conversions. (`cimsim/config.py` ROLE_PATTERNS, `cimsim/events.py`, `config/experiments/a4_policy_example.yaml`, `tests/test_swap.py`)
-- [x] `CIMMatMul` for dynamic operands (QKᵀ, S·V) with write events counted (KV written into arrays). HF attention interface `cim` (OPT, GPT-2, Llama, Qwen2), YAML `attention: true`, roles `qk` / `sv`; keys per channel / values per token by default (`kv_gran`, F10); events only for causal pairs, `kv_bits_written` per new token. Qwen2.5-0.5B (sandbox, 512-token windows): attention on analog CIM statistical = bit-accurate (17.596), full model on CIM incl. attention 17.620 vs W8A8 linear 17.895. 242 tests. (`cimsim/core/attention.py`, `tests/test_attention.py`, `results/a4_attention_summary.md`)
+- [x] `CIMMatMul` for dynamic operands (QKᵀ, S·V) with write events counted (KV written into arrays). HF attention interface `cim` (OPT, GPT-2, Llama, Qwen2), YAML `attention: true`, roles `qk` / `sv`; keys per channel / values per token by default (`kv_gran`, F10); events only for causal pairs, `kv_bits_written` per new token. Qwen2.5-0.5B (sandbox, 512-token windows): attention on analog CIM statistical = bit-accurate (17.596), full model on CIM incl. attention 17.620 vs W8A8 linear 17.895. Thomas's machine, 2,048-token windows: 0.5B statistical = bit-accurate 12.043; 1.5B 8k tokens analog full model 10.378 vs ideal 8-bit attention 10.413 vs W8A8 linear 10.338. 242 tests. (`cimsim/core/attention.py`, `tests/test_attention.py`, `results/a4_attention_summary.md`)
 - [ ] Eval: WikiText-2 perplexity + small zero-shot set (e.g. ARC-e, PIQA, HellaSwag via lm-eval-harness).
 - [ ] Run on TinyLlama-1.1B and Qwen-0.5B in statistical mode (CPU); record runtime.
 
@@ -259,8 +259,8 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - Current milestone: **A4** (LLM integration)
 - Next tasks, in order:
   1. Done 2026-11-05: attention-on-CIM runs at 2,048-token windows (0.5B statistical = bit-accurate 12.043; 1.5B 8k analog full model 10.378 vs ideal 8-bit attention 10.413).
-  2. Agent: evaluate; zero-shot eval wrapper; TinyLlama-1.1B.
-  3. Agent: zero-shot eval wrapper (lm-eval-harness) for statistical mode.
+  2. Agent: zero-shot eval wrapper (lm-eval-harness) for statistical mode (started 2026-11-05).
+  3. Agent, then Thomas: TinyLlama-1.1B and Qwen-0.5B statistical runs with runtime.
   4. Agent (parallel, sandbox): Part B B0 — verify M1–M4 specs from the papers, start `cimsim/circuits/` with cited per-action costs (`docs/part_b_plan.md` §3). Open questions for Thomas in §4 of that file (process node, all-analog vs hybrid, macro vs system TOPS/W).
   5. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
