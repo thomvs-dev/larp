@@ -36,7 +36,17 @@ Fast vs reference executor on one 768×3072 layer: 2.4–3.4× faster noise-free
 
 Zero-shot requests are short (about 30–150 tokens per forward call). Statistical mode has a per-call cost (Python loop over row chunks and input cycles in the exact saturation term), so per token it is slower on short calls than on 2,048-token windows: random-weight Qwen2-0.5B-shaped model, 2 threads, 16.9 ms/token at 64 tokens vs 5.3 at 2,048 (`results/bench_short_calls_sandbox/`; 31.5 before the per-layer saturation plan cache, `results/bench_short_calls_sandbox_before/`). Batching requests (default 8 when attention is not on CIM) brings calls back to a few hundred tokens.
 
-Approximate model tokens per task (0-shot, lm-eval prompts): ARC-e ~140 per document (4 choices), PIQA ~100 (2 choices), HellaSwag ~380 (4 choices). With `--limit 1000` a run is ~0.6M model tokens; full HellaSwag alone is ~3.8M. Use `--limit` on the laptop.
+Measured model tokens per document (0-shot, lm-eval prompts, Qwen2.5-0.5B tokenizer): ARC-e 109 (4 choices), PIQA 70 (2 choices), HellaSwag 170 (4 choices); `--limit 1000` on all three tasks is 0.35M model tokens. Full HellaSwag alone is about 1.7M.
+
+Measured on the i7-12700H (14 threads, batch 8, Qwen2.5-0.5B, `--limit 1000`, `results/zs_qwen05b_*/`):
+
+| Config | ms/token (ARC-e / PIQA / HellaSwag) | Total |
+|---|---|---|
+| FP32 | 3.6 / 3.7 / 5.9 | 27 min |
+| W8A8 fake-quant | 8.4 / 8.3 / 7.6 | 46 min |
+| Statistical, ADC 6 b calibrated | 72 / 73 / 51 | 6.0 h + 14 min calibration |
+
+The 20-document smoke runs gave 32–42 ms/token for statistical mode; the full runs were 1.7× slower and the cause is not identified. Plan with the full-run numbers: Qwen2.5-1.5B would be about 3.5× slower per token (~24 h per 1,000 documents per task set) until the short-call loop is vectorised (A4 sub-task). Use `--limit` on the laptop.
 
 ## Practical settings
 

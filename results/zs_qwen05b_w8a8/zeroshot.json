@@ -1,0 +1,51 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B",
+  "config": "config/experiments/e0_w8a8.yaml",
+  "git": "2ce11a2853fa3bb3ccdee71f41a8f2d1b73ed934",
+  "threads": 14,
+  "dtype": "torch.float32",
+  "replaced_layers": 168,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seq_len": 0,
+  "calib_seconds": 0.0,
+  "load_seconds": 13.2,
+  "batch_size": 8,
+  "limit": 1000,
+  "num_fewshot": 0,
+  "tasks": {
+    "arc_easy": {
+      "acc": 0.624,
+      "acc_norm": 0.585,
+      "n": 1000,
+      "acc_stderr": 0.0153251055088981,
+      "acc_norm_stderr": 0.015589035185604594,
+      "seconds": 914.1,
+      "model_tokens": 109034,
+      "forward_calls": 425,
+      "ms_per_token": 8.38
+    },
+    "piqa": {
+      "acc": 0.713,
+      "acc_norm": 0.702,
+      "n": 1000,
+      "acc_stderr": 0.014312087053810001,
+      "acc_norm_stderr": 0.014470846741134585,
+      "seconds": 586.0,
+      "model_tokens": 70400,
+      "forward_calls": 249,
+      "ms_per_token": 8.32
+    },
+    "hellaswag": {
+      "acc": 0.4,
+      "acc_norm": 0.497,
+      "n": 1000,
+      "acc_stderr": 0.01549968516584257,
+      "acc_norm_stderr": 0.015819015179246818,
+      "seconds": 1286.3,
+      "model_tokens": 169576,
+      "forward_calls": 500,
+      "ms_per_token": 7.59
+    }
+  }
+}
