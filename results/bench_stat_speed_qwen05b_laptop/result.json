@@ -1,0 +1,94 @@
+{
+  "git": "3fa5aa97a9afb9915568bac0920e63e26872696b",
+  "model": "Qwen/Qwen2.5-0.5B",
+  "config": "config/experiments/a4_stat_adc6cal.yaml",
+  "threads": [
+    14,
+    8,
+    6,
+    4
+  ],
+  "calib_tokens": 1024,
+  "calib_seconds": 375.7,
+  "loaded": null,
+  "batch_t_max": 256,
+  "ms_per_token": {
+    "14t_1x64": {
+      "default": 16.08,
+      "loop": 56.39,
+      "batched": 18.26,
+      "fake_quant": 6.73
+    },
+    "14t_8x110": {
+      "default": 12.54,
+      "loop": 12.5,
+      "fake_quant": 3.69
+    },
+    "14t_1x2048": {
+      "default": 10.15,
+      "loop": 10.06,
+      "fake_quant": 4.13
+    },
+    "8t_1x64": {
+      "default": 18.64,
+      "loop": 45.71,
+      "batched": 19.15,
+      "fake_quant": 7.73
+    },
+    "8t_8x110": {
+      "default": 12.08,
+      "loop": 12.19,
+      "fake_quant": 4.58
+    },
+    "8t_1x2048": {
+      "default": 10.72,
+      "loop": 10.86,
+      "fake_quant": 5.23
+    },
+    "6t_1x64": {
+      "default": 17.69,
+      "loop": 40.74,
+      "batched": 17.97,
+      "fake_quant": 7.86
+    },
+    "6t_8x110": {
+      "default": 11.65,
+      "loop": 11.35,
+      "fake_quant": 4.42
+    },
+    "6t_1x2048": {
+      "default": 10.21,
+      "loop": 10.09,
+      "fake_quant": 4.97
+    },
+    "4t_1x64": {
+      "default": 16.38,
+      "loop": 36.7,
+      "batched": 16.07,
+      "fake_quant": 7.02
+    },
+    "4t_8x110": {
+      "default": 10.51,
+      "loop": 21.33,
+      "fake_quant": 9.74
+    },
+    "4t_1x2048": {
+      "default": 20.65,
+      "loop": 20.29,
+      "fake_quant": 10.7
+    }
+  },
+  "paths_identical": {
+    "14t_1x64": true,
+    "8t_1x64": true,
+    "6t_1x64": true,
+    "4t_1x64": true
+  },
+  "plans": {
+    "layers_with_plan": 168,
+    "layers": 168,
+    "cached": 168,
+    "entries": 13641,
+    "cache_MB": 106.8
+  }
+}
