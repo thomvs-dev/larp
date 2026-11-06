@@ -1,0 +1,40 @@
+{
+  "git": "fa06edfe1d46f4b46d0269ef87813f51ba503430",
+  "model": "/home/claude/hf_local/qwen2.5-0.5b",
+  "config": "config/experiments/a4_stat_adc6cal.yaml",
+  "threads": [
+    2
+  ],
+  "calib_tokens": 1024,
+  "calib_seconds": null,
+  "loaded": "/tmp/qwen05b_cal.pt",
+  "batch_t_max": 256,
+  "ms_per_token": {
+    "2t_1x64": {
+      "default": 28.48,
+      "loop": 47.98,
+      "batched": 28.09,
+      "fake_quant": 11.13
+    },
+    "2t_8x110": {
+      "default": 15.56,
+      "loop": 15.91,
+      "fake_quant": 5.44
+    },
+    "2t_1x2048": {
+      "default": 15.47,
+      "loop": 15.28,
+      "fake_quant": 5.8
+    }
+  },
+  "paths_identical": {
+    "2t_1x64": true
+  },
+  "plans": {
+    "layers_with_plan": 168,
+    "layers": 168,
+    "cached": 168,
+    "entries": 13541,
+    "cache_MB": 106.5
+  }
+}
