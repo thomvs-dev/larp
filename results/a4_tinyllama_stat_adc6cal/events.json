@@ -1,0 +1,10 @@
+{
+  "macs": 329389631864832,
+  "adc_conversions": 164694815932416,
+  "adc_conversions_analog": 164694815932416,
+  "array_cycles": 8376811520,
+  "weight_bits_written": 7751073792,
+  "dcim_column_ops": 0,
+  "digital_macs": 0,
+  "kv_bits_written": 0
+}
