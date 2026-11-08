@@ -1,0 +1,29 @@
+{
+  "model": "TinyLlama/TinyLlama_v1.1",
+  "config": "config\\experiments\\diag_fp_swapped.yaml",
+  "git": "0a37d8009f80ed09912cd2ac2a8eb427fc1b4bb2",
+  "threads": 6,
+  "dtype": "torch.float32",
+  "replaced_layers": 154,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seq_len": 0,
+  "calib_seconds": 0.0,
+  "load_seconds": 11.5,
+  "batch_size": 1,
+  "limit": 200,
+  "num_fewshot": 0,
+  "tasks": {
+    "arc_easy": {
+      "acc": 0.45,
+      "acc_norm": 0.44,
+      "n": 200,
+      "acc_stderr": 0.03526639466921483,
+      "acc_norm_stderr": 0.035187937631720755,
+      "seconds": 254.7,
+      "model_tokens": 28080,
+      "forward_calls": 756,
+      "ms_per_token": 9.07
+    }
+  }
+}
