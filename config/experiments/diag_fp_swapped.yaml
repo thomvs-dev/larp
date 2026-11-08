@@ -1,0 +1,3 @@
+# Diagnostic: every Linear swapped for CIMLinear in mode fp (float compute through the swapped code path).
+default:
+  mode: fp

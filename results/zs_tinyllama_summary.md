@@ -18,8 +18,7 @@ Reference: `results/zs_tinyllama_w8a8`. Δ = run − reference on the same docum
 **FP32 rows are not trusted.** FP32 is 8.4 pp below W8A8 on ARC-e (p = 1e-10) and below it on every task, spread evenly over the
 1,000 documents, while TinyLlama FP32 perplexity on the same laptop is lower than W8A8 (7.707 vs 7.793,
 `results/a4_ppl_full_summary.md`). Quantization does not add 8 pp of accuracy, so the FP32 zero-shot run is suspected faulty. Cause not found:
-a right-padded batch of 8 gives the same logits as single requests on a small random Llama (GQA, SDPA) in the sandbox. Diagnostic rerun at
-batch 1 pending. The analog − W8A8 rows compare two runs through the same swapped-model path and are not affected.
+a right-padded batch of 8 gives the same logits as single requests on a small random Llama (GQA, SDPA) in the sandbox. Batch 1 ruled out (2026-11-08, git 1f4ff48, `results/zs_tinyllama_fp32_b1_diag/`): FP32 at batch 1 on the first 200 ARC-e documents gives acc 45.0 / acc_norm 44.0, identical to the batch-8 FP32 run on the same documents (W8A8 52.5 / 51.0, analog 52.0 / 50.5). Next diagnostic: all layers swapped in `mode: fp` (`config/experiments/diag_fp_swapped.yaml`; equals the unswapped model to 0.0 on a random Llama in the sandbox). The analog − W8A8 rows compare two runs through the same swapped-model path and are not affected.
 
 Runtime (Thomas's laptop, git f5560a1, 6 threads, batch 8): FP32 11.5–12.7 ms/token (84 min), W8A8 9.8–10.3 (70 min),
 analog statistical 33.9–39.6 (4.2 h) + calibration 38.5 min.
