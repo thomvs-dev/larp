@@ -15,6 +15,8 @@ Reference: `results/zs_tinyllama_w8a8`. Δ = run − reference on the same docum
 | piqa | acc_norm | `zs_tinyllama_fp32` | 1000 | 70.40 | 71.60 | -1.20 | -2.72 … +0.32 | 0.155 |
 | piqa | acc_norm | `zs_tinyllama_stat_adc6cal` | 1000 | 70.60 | 71.60 | -1.00 | -1.96 … -0.04 | 0.0639 |
 
+**Superseded (2026-11-08):** all runs in this table put a BOS token `<s>` at the start of every request (lm-eval 0.4.13 default). That is the cause of the FP32 gap: without `<s>`, FP32 and W8A8 both score 58.0 on the first 200 ARC-e docs (findings F11, `results/diag_zs_tokens_tinyllama/`). The three configs are rerun without BOS.
+
 **FP32 rows are not trusted.** FP32 is 8.4 pp below W8A8 on ARC-e (p = 1e-10) and below it on every task, spread evenly over the
 1,000 documents, while TinyLlama FP32 perplexity on the same laptop is lower than W8A8 (7.707 vs 7.793,
 `results/a4_ppl_full_summary.md`). Quantization does not add 8 pp of accuracy, so the FP32 zero-shot run is suspected faulty. Cause not found:

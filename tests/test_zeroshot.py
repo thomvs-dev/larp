@@ -120,6 +120,35 @@ def test_resume_skips_finished_task(tmp_path, task_dir):
     assert again["tiny_mc"]["seconds"] == first["tiny_mc"]["seconds"]      # read back, not rerun
 
 
+def bos_char_tokenizer():
+    """Character tokenizer whose encode() prepends <s> (id 34), like the Llama tokenizers in transformers 5."""
+    from tokenizers import processors
+    tok = char_tokenizer()
+    tok.add_special_tokens({"bos_token": "<s>"})
+    tok.backend_tokenizer.post_processor = processors.TemplateProcessing(
+        single="<s> $A", special_tokens=[("<s>", tok.bos_token_id)])
+    assert tok.encode("ab")[0] == tok.bos_token_id
+    return tok
+
+
+@pytest.mark.parametrize("add_bos", [False, True])
+def test_bos_setting_reaches_model_inputs(tmp_path, task_dir, add_bos):
+    """Default: no BOS in any request even if the tokenizer adds one (diag_zs_tokens_tinyllama);
+    add_bos_token=True: every request starts with BOS."""
+    model = tiny("llama").eval()
+    tok = bos_char_tokenizer()
+    firsts = []
+    h = model.register_forward_pre_hook(lambda m, a, k: firsts.extend((a[0] if a else k["input_ids"])[:, 0].tolist()),
+                                        with_kwargs=True)
+    kw = {"add_bos_token": True} if add_bos else {}
+    s = evaluate_tasks(model, tok, ["tiny_mc"], tmp_path, limit=4, include_path=str(task_dir), resume=False, **kw)
+    h.remove()
+    assert s["tiny_mc"]["n"] == 4 and len(firsts) == 12
+    assert all((f == tok.bos_token_id) == add_bos for f in firsts)
+    rec = json.loads((tmp_path / "zs_tiny_mc.json").read_text())
+    assert rec["add_bos_token"] is add_bos
+
+
 def test_paired_compare_and_mcnemar():
     a = [{"doc_id": i, "acc": int(i % 2 == 0)} for i in range(10)]
     b = [{"doc_id": i, "acc": int(i % 2 == 0 or i == 1)} for i in range(10)]

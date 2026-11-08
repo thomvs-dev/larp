@@ -14,6 +14,12 @@ Settings:
 - `limit` takes the first N documents of the task split (lm-eval does not shuffle), so runs with the
   same limit are paired: every config sees the same questions. paired_compare() uses that.
 - One task per lm-eval call, so events and runtime are recorded per task.
+- No BOS token by default (`add_bos_token=False`). lm-eval 0.4.0–0.4.8 (checked) encode causal-LM
+  requests without special tokens unless add_bos_token is set; 0.4.13 (used here) keeps the tokenizer
+  default when add_bos_token is None, and Llama tokenizers then prepend `<s>` to every request.
+  TinyLlama v1.1 is much worse with `<s>` (ARC-e, first 200 docs: FP32 45.0 with vs 58.0 without), and
+  FP32 more than W8A8, which produced a false FP32-below-W8A8 result (`results/diag_zs_tokens_tinyllama/`).
+  Tokenizers without a BOS token (Qwen2.5) give the same tokens either way.
 
 Per task the caller gets: lm-eval metrics (acc, acc_norm, stderr), per-document correctness
 (for paired tests), events, seconds, and the number of tokens run through the model.
@@ -63,7 +69,7 @@ def _task_file(out_dir: Path, task: str) -> Path:
 
 def evaluate_tasks(model, tok, tasks, out_dir: Path, counter=None, limit: int | None = None,
                    num_fewshot: int = 0, include_path: str | None = None, run_info: dict | None = None,
-                   resume: bool = True, batch_size: int = 1) -> dict:
+                   resume: bool = True, batch_size: int = 1, add_bos_token: bool = False) -> dict:
     """Runs each task and writes out_dir/zs_<task>.json (summary + per-document scores) and
     out_dir/events_<task>.json. A task whose file exists with the same limit / num_fewshot is skipped
     (resume after an interrupted run). Returns {task: summary}."""
@@ -76,14 +82,15 @@ def evaluate_tasks(model, tok, tasks, out_dir: Path, counter=None, limit: int | 
     if batch_size > 1 and has_cim_attention(model):
         raise ValueError("batch_size > 1 is not allowed with attention on CIM (padding would enter the "
                          "per-channel key scales); use batch_size 1")
-    lm = HFLM(pretrained=model, tokenizer=tok, batch_size=batch_size)
+    lm = HFLM(pretrained=model, tokenizer=tok, batch_size=batch_size, add_bos_token=add_bos_token)
     tm = TaskManager(include_path=include_path) if include_path else TaskManager()
     summaries = {}
     for task in tasks:
         f = _task_file(out_dir, task)
         if resume and f.exists():
             old = json.loads(f.read_text(encoding="utf-8"))
-            if old.get("limit") == limit and old.get("num_fewshot") == num_fewshot:
+            if (old.get("limit") == limit and old.get("num_fewshot") == num_fewshot
+                    and old.get("add_bos_token", None) == add_bos_token):
                 print(f"[{task}] already done ({f.name}), skipped", flush=True)
                 summaries[task] = old["summary"]
                 continue
@@ -102,7 +109,8 @@ def evaluate_tasks(model, tok, tasks, out_dir: Path, counter=None, limit: int | 
         summary, docs = _extract(res, task)
         summary.update({"seconds": round(secs, 1), "model_tokens": tc.tokens, "forward_calls": tc.calls,
                         "ms_per_token": round(1000 * secs / max(tc.tokens, 1), 2)})
-        rec = {"task": task, "limit": limit, "num_fewshot": num_fewshot, "batch_size": batch_size, "summary": summary,
+        rec = {"task": task, "limit": limit, "num_fewshot": num_fewshot, "batch_size": batch_size,
+               "add_bos_token": add_bos_token, "summary": summary,
                "lm_eval_version": getattr(lm_eval, "__version__", "unknown"),
                "task_version": res.get("versions", {}).get(task), "docs": docs, **(run_info or {})}
         f.write_text(json.dumps(rec, indent=1), encoding="utf-8")

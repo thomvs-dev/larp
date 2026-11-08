@@ -130,6 +130,21 @@ Observations from runs that affect the design or the paper. Each entry: what was
   channel in hardware when keys are written incrementally during decode — the simulation computes them
   from the current keys (to check against a calibrated static scale in A5).
 
+## F11 — A BOS token at the start of zero-shot requests costs TinyLlama v1.1 13 pp on ARC-e (FP32), less after 8-bit quantization
+
+- Seen: TinyLlama-1.1B v1.1 FP32 zero-shot was below its own W8A8 version on every task (ARC-e 47.5 vs 55.9, first 1,000 docs, p = 1e-10) while FP32 perplexity was better, and all TinyLlama configs were below published ARC-e (~55–62).
+- Evidence (`results/diag_zs_tokens_tinyllama/`, first 200 ARC-e docs, batch 8, lm-eval 0.4.13, transformers 5.22.1): the tokenization is correct apart from BOS (no EOS, clean context / continuation split, `tokens.json`). acc / acc_norm:
+
+  | Config | with `<s>` (lm-eval 0.4.13 default) | without `<s>` |
+  |---|---|---|
+  | FP32 | 45.0 / 44.0 | 58.0 / 55.5 |
+  | W8A8 | 52.5 / 51.0 | 58.0 / 56.0 |
+
+  Without `<s>`, FP32 and W8A8 agree (4 vs 4 discordant docs; same chosen answer on 191 / 200) and match published figures. With `<s>`, FP32 loses 13.0 pp (p = 5e-4), W8A8 5.5 pp (p = 0.10).
+- Cause: lm-eval 0.4.0–0.4.8 encode causal-LM requests with `add_special_tokens=False` unless `add_bos_token` is set (checked in the released packages); 0.4.13 passes `add_bos_token=None`, which keeps the tokenizer default, and the transformers 5 Llama tokenizer prepends `<s>` (its `add_bos_token` attribute reads False, the post-processor adds it anyway). Why `<s>` hurts this model, and why quantization reduces the damage, is not measured. Untested hypothesis: TinyLlama v1.1 seldom saw `<s>` at a document start in pre-training, the `<s>` position carries very large activations, and per-token 8-bit activation quantization changes that position.
+- Not affected: perplexity (windows are slices of one token stream, almost all without `<s>`); Qwen2.5 (no BOS token; tokenizer post-processor adds nothing, so inputs are identical either way).
+- Consequence: zero-shot requests carry no BOS by default (`eval/zeroshot.py`, `add_bos_token=False`, setting saved in each result file). TinyLlama zero-shot runs made before the fix are invalid for FP32 vs W8A8 and are rerun. Lesson for A5–A6: a quantization config that "improves" over FP32 is a sign of an evaluation fault, not a result.
+
 ## Machine / speed notes
 
 - Thomas's machine: Intel Core i7-12700H (6 P-cores + 8 E-cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads.

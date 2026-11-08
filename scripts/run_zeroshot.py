@@ -49,6 +49,8 @@ def main() -> None:
                     help="calibration window; default = model context, capped at 2048 (as run_ppl.py)")
     ap.add_argument("--batch-size", type=int, default=None,
                     help="default: 1 if attention runs on CIM, else 8 (see eval/zeroshot.py)")
+    ap.add_argument("--add-bos", action="store_true",
+                    help="prepend the tokenizer's BOS token to every request (default: no BOS, see eval/zeroshot.py)")
     ap.add_argument("--no-resume", action="store_true", help="rerun tasks that already have results")
     args = ap.parse_args()
 
@@ -76,10 +78,12 @@ def main() -> None:
     info = {"model": args.model, "config": args.config, "git": git_hash(), "threads": torch.get_num_threads(),
             "dtype": str(dtype), "replaced_layers": len(replaced), "calibrated_layers": len(calibrated),
             "calib_tokens": args.calib_tokens if calibrated else 0, "calib_seq_len": cal_len if calibrated else 0,
-            "calib_seconds": calib_s, "load_seconds": load_s, "batch_size": bs}
+            "calib_seconds": calib_s, "load_seconds": load_s, "batch_size": bs,
+            "add_bos_token": args.add_bos}
     summaries = evaluate_tasks(model, tok, tasks, out, counter=counter, limit=args.limit,
                                num_fewshot=args.num_fewshot, include_path=args.include_path,
-                               run_info=info, resume=not args.no_resume, batch_size=bs)
+                               run_info=info, resume=not args.no_resume, batch_size=bs,
+                               add_bos_token=args.add_bos)
     res = {**info, "limit": args.limit, "num_fewshot": args.num_fewshot, "tasks": summaries}
     (out / "zeroshot.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     print(json.dumps(res, indent=2))
