@@ -1,0 +1,43 @@
+{
+  "limit": 200,
+  "batch_size": 8,
+  "git": "8e4db86c2c654c1cf14e78ce2f2e44f21301a36e",
+  "grid": {
+    "fp32_bosdefault": {
+      "acc": 0.45,
+      "acc_norm": 0.44,
+      "n": 200,
+      "seconds": 227.2
+    },
+    "fp32_boson": {
+      "acc": 0.45,
+      "acc_norm": 0.44,
+      "n": 200,
+      "seconds": 292.2
+    },
+    "fp32_bosoff": {
+      "acc": 0.58,
+      "acc_norm": 0.555,
+      "n": 200,
+      "seconds": 284.1
+    },
+    "w8a8_bosdefault": {
+      "acc": 0.525,
+      "acc_norm": 0.51,
+      "n": 200,
+      "seconds": 396.2
+    },
+    "w8a8_boson": {
+      "acc": 0.525,
+      "acc_norm": 0.51,
+      "n": 200,
+      "seconds": 439.8
+    },
+    "w8a8_bosoff": {
+      "acc": 0.58,
+      "acc_norm": 0.56,
+      "n": 200,
+      "seconds": 309.5
+    }
+  }
+}
