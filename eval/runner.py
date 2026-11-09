@@ -59,9 +59,15 @@ def context_len(model) -> int:
     return getattr(model.config, "max_position_embeddings", None) or getattr(model.config, "n_positions", 2048)
 
 
-def calibrate_if_needed(model, tok, seq_len: int, calib_tokens: int, device: str) -> tuple[list[str], float]:
+_DEFAULT = object()
+
+
+def calibrate_if_needed(model, tok, seq_len: int, calib_tokens: int, device: str, cache_dir=_DEFAULT,
+                        info: dict | None = None) -> tuple[list[str], float]:
     """Calibrate the ADC range on the first `calib_tokens` WikiText-2 train tokens if any layer uses
-    adc_range: calibrated. Returns (calibrated layer names, seconds)."""
+    adc_range: calibrated. Returns (calibrated layer names, seconds). MAC histograms are cached in
+    cache_dir (default: cimsim.calib_cache.default_cache_dir(); None = no cache). info, if given,
+    receives the cache report (hit / partial / miss / off)."""
     if not any(getattr(m, "cfg", None) is not None and needs_calibration(m.cfg) for m in model.modules()):
         return [], 0.0
     tc = time.time()
@@ -73,8 +79,16 @@ def calibrate_if_needed(model, tok, seq_len: int, calib_tokens: int, device: str
             for i in range(0, train_ids.numel() - cal_len + 1, cal_len):
                 model(train_ids[i:i + cal_len].unsqueeze(0).to(device))
 
+    from cimsim.calib_cache import default_cache_dir, tensor_key
+    if cache_dir is _DEFAULT:
+        cache_dir = default_cache_dir()
+    data_key = f"wikitext2-train:{tensor_key(train_ids)}:{cal_len}"
+    report = {}
     print(f"calibrating (ADC range / statistical error model) on {calib_tokens} train tokens ...", flush=True)
-    calibrated = calibrate_adc_range(model, run_calib)
+    calibrated = calibrate_adc_range(model, run_calib, cache_dir=cache_dir, data_key=data_key, report=report)
     secs = round(time.time() - tc, 1)
-    print(f"calibrated {len(calibrated)} layers in {secs} s", flush=True)
+    print(f"calibrated {len(calibrated)} layers in {secs} s (histogram cache: {report.get('cache')}, "
+          f"{report.get('hits', 0)} layers from cache)", flush=True)
+    if info is not None:
+        info.update(report)
     return calibrated, secs

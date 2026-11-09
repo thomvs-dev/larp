@@ -59,6 +59,7 @@ class _CIMBase(nn.Module):
         self._det_hist: torch.Tensor | None = None   # calibration histogram kept for the T(m) table choice
         self._flips: list = []                       # discrete code-flip distributions (stat_noise 'auto', F9)
         self._cal_colmax: torch.Tensor | None = None  # [C, P, N] largest calibration MAC per column
+        self._want_colmax = False                    # record column maxima in any mode (calibration cache)
         self.register_buffer("sat_cols", None)       # [C, P, N] bool: columns checked for saturation
         self.sat_stats: dict = {}                    # exact-saturation work: macs_exact / macs_total
         self._dynamic_operand = False                # True for CIMMatMul: the "weight" changes every call
@@ -157,7 +158,8 @@ class _CIMBase(nn.Module):
         """qx [T, K], qw [N, K] -> y_int [T, N] (float32), before zero-point correction."""
         cfg = self.cfg
         if self._calibrating:
-            want_max = cfg.mode == "statistical" and cfg.stat_saturation == "exact" and not self._dynamic_operand
+            want_max = ((self._want_colmax or (cfg.mode == "statistical" and cfg.stat_saturation == "exact"))
+                        and not self._dynamic_operand)
             h = mac_histogram(qx.cpu(), qw.cpu(), cfg, self._chunks(), col_max=want_max)
             if want_max:
                 h, cm = h

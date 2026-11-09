@@ -41,6 +41,8 @@ def main() -> None:
     ap.add_argument("--dtype", default="float32", choices=["float16", "bfloat16", "float32"],
                     help="model dtype; float16 is switched to float32 on CPU")
     ap.add_argument("--threads", type=int, default=None, help="CPU threads (default: torch default)")
+    ap.add_argument("--no-calib-cache", action="store_true",
+                    help="do not read or write the calibration histogram cache (cimsim/calib_cache.py)")
     ap.add_argument("--calib-tokens", type=int, default=2048,
                     help="tokens from the WikiText-2 *train* split used for ADC range calibration "
                          "(only if a layer has adc_range: calibrated)")
@@ -60,7 +62,10 @@ def main() -> None:
     if args.max_tokens is not None:
         max_windows = max(1, args.max_tokens // seq_len)
 
-    calibrated, calib_s = calibrate_if_needed(model, tok, seq_len, args.calib_tokens, args.device)
+    cal_cache = {}
+    calibrated, calib_s = calibrate_if_needed(model, tok, seq_len, args.calib_tokens, args.device,
+                                              **({"cache_dir": None} if args.no_calib_cache else {}),
+                                              info=cal_cache)
     counter.reset_compute()              # events.json: evaluated tokens only (calibration pass excluded)
     t0 = time.time()
     res = perplexity(model, ids, seq_len, max_windows, args.device)
@@ -69,7 +74,7 @@ def main() -> None:
         "device": args.device, "threads": torch.get_num_threads(), "max_windows": max_windows, "max_tokens": args.max_tokens,
         "replaced_layers": len(replaced), "seconds": round(time.time() - t0, 1),
         "calibrated_layers": len(calibrated), "calib_tokens": args.calib_tokens if calibrated else 0,
-        "calib_seconds": calib_s,
+        "calib_seconds": calib_s, "calib_cache": cal_cache.get("cache", "off"),
         "git": git_hash(),
     })
 

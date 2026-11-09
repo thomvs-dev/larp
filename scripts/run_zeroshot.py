@@ -43,6 +43,8 @@ def main() -> None:
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--dtype", default="float32", choices=["float16", "bfloat16", "float32"])
     ap.add_argument("--threads", type=int, default=None)
+    ap.add_argument("--no-calib-cache", action="store_true",
+                    help="do not read or write the calibration histogram cache (cimsim/calib_cache.py)")
     ap.add_argument("--calib-tokens", type=int, default=2048,
                     help="WikiText-2 train tokens for ADC range calibration (only if needed)")
     ap.add_argument("--calib-seq-len", type=int, default=None,
@@ -65,7 +67,10 @@ def main() -> None:
     cfg_dict, replaced = swap_from_config(model, args.config, counter)
     ctx = context_len(model)
     cal_len = min(ctx, 2048) if args.calib_seq_len is None else min(args.calib_seq_len, ctx)
-    calibrated, calib_s = calibrate_if_needed(model, tok, cal_len, args.calib_tokens, args.device)
+    cal_cache = {}
+    calibrated, calib_s = calibrate_if_needed(model, tok, cal_len, args.calib_tokens, args.device,
+                                              **({"cache_dir": None} if args.no_calib_cache else {}),
+                                              info=cal_cache)
     load_s = round(time.time() - t_load - calib_s, 1)
 
     out.mkdir(parents=True, exist_ok=True)
@@ -78,7 +83,7 @@ def main() -> None:
     info = {"model": args.model, "config": args.config, "git": git_hash(), "threads": torch.get_num_threads(),
             "dtype": str(dtype), "replaced_layers": len(replaced), "calibrated_layers": len(calibrated),
             "calib_tokens": args.calib_tokens if calibrated else 0, "calib_seq_len": cal_len if calibrated else 0,
-            "calib_seconds": calib_s, "load_seconds": load_s, "batch_size": bs,
+            "calib_seconds": calib_s, "calib_cache": cal_cache.get("cache", "off"), "load_seconds": load_s, "batch_size": bs,
             "add_bos_token": args.add_bos}
     summaries = evaluate_tasks(model, tok, tasks, out, counter=counter, limit=args.limit,
                                num_fewshot=args.num_fewshot, include_path=args.include_path,
