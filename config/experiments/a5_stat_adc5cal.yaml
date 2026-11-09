@@ -1,0 +1,13 @@
+# A5: as a4_stat_adc6cal.yaml but ADC 5 b (MSE-calibrated full scale per layer). Used by the
+# calibration-cache check: the MAC histogram is the same as for ADC 6 b, so the cache is reused.
+default:
+  mode: statistical
+  macro: acim
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 5
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: layer
+  rand_noise_sigma: 0.0
