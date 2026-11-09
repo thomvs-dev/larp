@@ -60,6 +60,8 @@ The laptop ran the old code at 51–73 ms/token on zero-shot, 2.3–3× slower t
 
 ## Practical settings
 
+- Calibration histograms are cached in `calib_cache/` (git-ignored, cimsim/calib_cache.py). A config that differs from an earlier run only in ADC bits, ADC range method / granularity, noise, hybrid levels or seed skips the calibration forward pass (OPT-125M: 273 s → 10 s). The cache for Qwen2.5-1.5B will be a few hundred MB. Delete the folder to force recalibration, or pass `--no-calib-cache`.
+
 - `token_block: 128` (default) keeps the per-layer working set to a few hundred MB. Lower it to 64 if memory is tight.
 - `--threads N` in `scripts/run_ppl.py`: set to the number of **physical** cores.
 - Model RAM in float32: OPT-125M / GPT-2 ≈ 0.5 GB, Qwen2.5-0.5B ≈ 2 GB, TinyLlama-1.1B ≈ 4.5 GB, plus activations.

@@ -1,0 +1,25 @@
+{
+  "ppl": 12194.752612606095,
+  "nll": 9.408761024475098,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    9.514286041259766,
+    9.30323600769043
+  ],
+  "model": "/mnt/user-data/uploads/japan/hf_local/opt-125m",
+  "config": "config/experiments/a5_stat_adc5cal.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 2,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 191.0,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 10.2,
+  "calib_cache": "hit",
+  "git": "35f7427e19f3e71baa3c5842eeaf0e67358eebd5"
+}
