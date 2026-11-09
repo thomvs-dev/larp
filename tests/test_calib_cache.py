@@ -150,3 +150,11 @@ def test_cache_off_without_data_key(tmp_path):
     rep = {}
     calibrate_adc_range(m, lambda: m(IDS), cache_dir=tmp_path, report=rep)
     assert rep["cache"] == "off" and not any(tmp_path.iterdir())
+
+
+def test_source_change_misses(tmp_path, monkeypatch):
+    import cimsim.calib_cache as cc
+    calibrate(build({"default": BASE}), tmp_path)
+    monkeypatch.setattr(cc, "source_fingerprint", lambda: "changed-code")
+    r = calibrate(build({"default": BASE}), tmp_path)
+    assert r["cache"] == "miss"

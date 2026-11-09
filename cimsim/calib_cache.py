@@ -14,6 +14,8 @@ What a layer's histogram depends on, and therefore what the cache key holds:
   transformers versions, and, for every CIM layer, the settings that change its ideal output (fp or
   quantized, bit widths, granularities, signedness, weight format, KV granularity). In ideal mode a
   layer outputs q_x · q_wᵀ, which does not depend on nrow or encoding, so those are per-layer only.
+- code: hash of the source files that compute quantization, ideal outputs and histograms
+  (HIST_SOURCES); any edit there starts a new cache.
 - per-layer key (file): layer name, every config field except the ones listed in HIST_INDEPENDENT,
   mode reduced to fp / quantized, row chunks (conv layers), weight shape.
 
@@ -36,6 +38,12 @@ import torch
 import torch.nn as nn
 
 FORMAT_VERSION = 1
+
+# source files whose code decides the ideal outputs or the histograms; a change in any of them
+# invalidates the cache (a bug fix in quantization must not be hidden by old histograms)
+HIST_SOURCES = ("cimsim/config.py", "cimsim/quant.py", "cimsim/core/bitplanes.py", "cimsim/core/calib.py",
+                "cimsim/core/layers.py", "cimsim/core/attention.py", "cimsim/models/swap.py",
+                "cimsim/calibrate.py", "cimsim/calib_cache.py")
 
 # config fields that do not change the calibration histogram of a layer
 HIST_INDEPENDENT = {
@@ -66,6 +74,14 @@ def tensor_key(t: torch.Tensor) -> str:
     return hashlib.sha256(t.detach().cpu().contiguous().numpy().tobytes()).hexdigest()[:16]
 
 
+def source_fingerprint() -> str:
+    h = hashlib.sha256()
+    for rel in HIST_SOURCES:
+        h.update(rel.encode())
+        h.update((_REPO / rel).read_bytes().replace(b"\r\n", b"\n"))   # same hash on Windows checkouts
+    return h.hexdigest()[:16]
+
+
 def weight_fingerprint(model: nn.Module) -> list:
     out = []
     with torch.no_grad():
@@ -86,7 +102,7 @@ def model_key(model: nn.Module, cim_layers: list, data_key: str, needs_calibrati
     for m in cim_layers:
         d = _cfg_dict(m.cfg)
         layers.append([m.name, type(m).__name__, d["mode"] == "fp"] + [d[f] for f in IDEAL_OUTPUT_FIELDS])
-    return {"format": FORMAT_VERSION, "data": data_key, "torch": torch.__version__,
+    return {"format": FORMAT_VERSION, "source": source_fingerprint(), "data": data_key, "torch": torch.__version__,
             "transformers": transformers.__version__, "weights": _sha(weight_fingerprint(model)),
             "layers": layers}
 
