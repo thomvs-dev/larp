@@ -1,0 +1,39 @@
+{
+  "model": "/mnt/user-data/uploads/japan/hf_local/opt-125m",
+  "config": "config/experiments/a5v_adc6cal_n64.yaml",
+  "tokens": 4096,
+  "seq_len": 2048,
+  "calib_tokens": 2048,
+  "calib_seconds": 528.1,
+  "threads": 2,
+  "git": "f59892f4b2f1a67e295b02a4e5246ea8ca32eb46",
+  "adc_fs_hash": "83899f5e9a2f8473e8620c54978b007c",
+  "bit_accurate": {
+    "fast_seed0": {
+      "ppl": 25.38072918110019,
+      "seconds": 423.3,
+      "ms_per_token": 103.35
+    }
+  },
+  "statistical": {
+    "seed0": {
+      "ppl": 25.38072918110019,
+      "seconds": 6.4,
+      "ms_per_token": 1.57,
+      "sat_work_fraction": 0.0
+    }
+  },
+  "bit_accurate_git": "f59892f4b2f1a67e295b02a4e5246ea8ca32eb46",
+  "fake_quant": {
+    "ppl": 25.38072918110019,
+    "seconds": 6.1,
+    "ms_per_token": 1.48
+  },
+  "ref": "first",
+  "ref_ppl": 25.38072918110019,
+  "spread": 0.0,
+  "rel_diff": 0.0,
+  "tolerance": 0.02,
+  "pass": true,
+  "speedup": 65.828025477707
+}

@@ -1,0 +1,39 @@
+{
+  "model": "/mnt/user-data/uploads/japan/hf_local/opt-125m",
+  "config": "config/experiments/a5_stat_adc5cal.yaml",
+  "tokens": 4096,
+  "seq_len": 2048,
+  "calib_tokens": 2048,
+  "calib_seconds": 307.0,
+  "threads": 2,
+  "git": "f59892f4b2f1a67e295b02a4e5246ea8ca32eb46",
+  "adc_fs_hash": "378881847972bac79e54f4caa0f7d1fb",
+  "bit_accurate": {
+    "fast_seed0": {
+      "ppl": 10265.863207099152,
+      "seconds": 279.0,
+      "ms_per_token": 68.12
+    }
+  },
+  "statistical": {
+    "seed0": {
+      "ppl": 12194.752612606095,
+      "seconds": 215.1,
+      "ms_per_token": 52.51,
+      "sat_work_fraction": 0.4347726530510426
+    }
+  },
+  "bit_accurate_git": "f59892f4b2f1a67e295b02a4e5246ea8ca32eb46",
+  "fake_quant": {
+    "ppl": 25.38072918110019,
+    "seconds": 5.8,
+    "ms_per_token": 1.42
+  },
+  "ref": "first",
+  "ref_ppl": 10265.863207099152,
+  "spread": 0.0,
+  "rel_diff": 0.1878935425686423,
+  "tolerance": 0.02,
+  "pass": false,
+  "speedup": 1.297276709198248
+}
