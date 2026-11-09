@@ -1,0 +1,40 @@
+{
+  "git": "0d321e5354c11456e4230b5319740a6b8ae8e0c9",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "config": "config/experiments/a4_stat_adc6cal.yaml",
+  "threads": [
+    6
+  ],
+  "calib_tokens": 1024,
+  "calib_seconds": 1350.3,
+  "loaded": null,
+  "batch_t_max": 256,
+  "ms_per_token": {
+    "6t_1x64": {
+      "default": 39.9,
+      "loop": 72.87,
+      "batched": 39.38,
+      "fake_quant": 16.85
+    },
+    "6t_8x110": {
+      "default": 23.04,
+      "loop": 23.08,
+      "fake_quant": 10.19
+    },
+    "6t_1x2048": {
+      "default": 20.71,
+      "loop": 20.82,
+      "fake_quant": 10.65
+    }
+  },
+  "paths_identical": {
+    "6t_1x64": true
+  },
+  "plans": {
+    "layers_with_plan": 196,
+    "layers": 196,
+    "cached": 196,
+    "entries": 27885,
+    "cache_MB": 519.0
+  }
+}
