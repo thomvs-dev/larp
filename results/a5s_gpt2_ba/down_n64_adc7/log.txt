@@ -1,0 +1,46 @@
+W1111 00:33:55.233000 16008 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  11%|#1        | 17/148 [00:00<00:00, 165.68it/s]Loading weights:  23%|##2       | 34/148 [00:00<00:00, 124.39it/s]Loading weights: 100%|##########| 148/148 [00:00<00:00, 557.81it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (287644 > 1024). Running this sequence through the model will result in indexing errors
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 48 layers in 9.8 s (histogram cache: hit, 48 layers from cache)
+[transformers] `loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+  window 1/8  running ppl 17.099  elapsed 1.3 min  eta 9.1 min
+  window 2/8  running ppl 25.146  elapsed 2.6 min  eta 7.8 min
+  window 3/8  running ppl 26.886  elapsed 3.9 min  eta 6.5 min
+  window 4/8  running ppl 28.796  elapsed 5.2 min  eta 5.2 min
+  window 5/8  running ppl 31.546  elapsed 6.5 min  eta 3.9 min
+  window 6/8  running ppl 32.532  elapsed 7.8 min  eta 2.6 min
+  window 7/8  running ppl 34.258  elapsed 9.1 min  eta 1.3 min
+  window 8/8  running ppl 34.373  elapsed 10.4 min  eta 0.0 min
+{
+  "ppl": 34.3732010552689,
+  "nll": 3.5372772216796875,
+  "tokens": 8184,
+  "windows": 8,
+  "nll_per_window": [
+    2.8390307426452637,
+    3.6103363037109375,
+    3.4254720211029053,
+    3.5660440921783447,
+    3.8164069652557373,
+    3.636113405227661,
+    3.8439724445343018,
+    3.5608417987823486
+  ],
+  "model": "gpt2",
+  "config": "D:\\japan\\results\\a5s_gpt2_ba\\configs\\down_n64_adc7.yaml",
+  "seq_len": 1024,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 8,
+  "max_tokens": 8192,
+  "replaced_layers": 48,
+  "seconds": 623.8,
+  "calibrated_layers": 48,
+  "calib_tokens": 2048,
+  "calib_seconds": 9.8,
+  "calib_cache": "hit",
+  "git": "be810d22150ad1ace216fde7c24be60492c1cb2e"
+}

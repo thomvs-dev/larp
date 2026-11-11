@@ -1,0 +1,27 @@
+{
+  "ppl": 30.4298377403454,
+  "nll": 3.415423631668091,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    3.0481910705566406,
+    3.414170742034912,
+    3.7066962718963623,
+    3.4926364421844482
+  ],
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a5s_opt125m_ba\\configs\\qkv_n128_adc8.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 746.7,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 19.6,
+  "calib_cache": "hit",
+  "git": "be810d22150ad1ace216fde7c24be60492c1cb2e"
+}

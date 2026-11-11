@@ -1,0 +1,15 @@
+default:
+  mode: bit_accurate
+  macro: acim
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 6
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: layer
+  rand_noise_sigma: 0.0
+policy:
+  down:
+    nrow: 64
+    adc_bits: 6
