@@ -36,14 +36,15 @@ energy is modelled per toggle (density-dependent) or per activation (constant).
 
 Candidates chosen because CiMLoop modelled and validated them with open models (lets B5 compare directly)
 and because they span the architecture choices this simulator models. **All numbers must be checked
-against the original papers before use** (status column).
+against the original papers before use** (status column; details and open items in
+`validation/macro_calibration.md`).
 
 | ID | Paper | Node | Type | Precision | Array | ADC | Status |
 |---|---|---|---|---|---|---|---|
-| M1 | Jia et al., "A programmable heterogeneous microprocessor based on bit-scalable in-memory computing", IEEE JSSC 2020 | 65 nm | analog SRAM, charge-domain, bit-serial input | 1–8 b in / 1–8 b w | 768×768 | 8 b | to verify from paper |
-| M2 | Sinangil et al., "A 7-nm compute-in-memory SRAM macro supporting multi-bit input, weight and output and achieving 351 TOPS/W and 372.4 GOPS", IEEE JSSC 2021 | 7 nm | analog SRAM | 4 b / 4 b | 64×64 | 4 b | 351 TOPS/W from title; conditions to verify |
-| M3 | Wang et al., "A charge domain SRAM compute-in-memory macro with C-2C ladder-based 8-bit MAC unit …", IEEE JSSC 2023 (VLSI 2022 companion) | 22 nm | analog SRAM, charge-domain | 8 b / 8 b | 512×128 (64×128 active) | 8 b | to verify |
-| M4 | Chih et al., "An 89TOPS/W and 16.3TOPS/mm² all-digital SRAM-based full-precision compute-in-memory macro in 22nm for machine-learning edge applications", ISSCC 2021 | 22 nm | digital SRAM (DCIM, adder tree) | 4–8 b | 256 inputs, 16 slices | none | 89 TOPS/W, 16.3 TOPS/mm² from title; conditions to verify |
+| M1 | Jia et al., "A programmable heterogeneous microprocessor based on bit-scalable in-memory computing", IEEE JSSC 2020 | 65 nm | analog SRAM, charge-domain, bit-serial input | 1–8 b in / 1–8 b w | 768×768 (590 kb) | 8 b (unverified) | abstract checked 2026-11-11: 192/400 1b-TOPS/W, 0.60/0.24 1b-TOPS/mm² at 1.2/0.85 V; ADC, density open |
+| M2 | Sinangil et al., "A 7-nm compute-in-memory SRAM macro supporting multi-bit input, weight and output and achieving 351 TOPS/W and 372.4 GOPS", IEEE JSSC 2021 | 7 nm | analog SRAM | 4 b / 4 b | 1024 4b×4b MACs (64×64 unverified) | 4 b flash | abstract checked: 351 TOPS/W, 372.4 GOPS (= 1024 MAC × 2 / 5.5 ns at 0.8 V); VDD of 351 TOPS/W and area open |
+| M3 | Wang et al., "A charge domain SRAM compute-in-memory macro with C-2C ladder-based 8-bit MAC unit …", IEEE JSSC 2023 (VLSI 2022 companion) | 22 nm | analog SRAM, charge-domain | 8 b / 8 b | 64×16 8-b MVM per cycle, 64 kb, 8 sub-banks | open | abstract/text checked: 32.2 TOPS/W peak at 0.7 V no sparsity, 4.0 TOPS/mm² at 1.1 V, 200 MHz; macro area, ADC open |
+| M4 | Chih et al., "An 89TOPS/W and 16.3TOPS/mm² all-digital SRAM-based full-precision compute-in-memory macro in 22nm for machine-learning edge applications", ISSCC 2021 | 22 nm | digital SRAM (DCIM, adder tree) | 4–8 b | 256 inputs, 16 slices | none | title/TSMC page checked: in 1–8 b, w 4/8/12/16 b; precision, VDD, toggle rate of 89 TOPS/W open |
 
 Source for M1–M3 being CiMLoop's validation set: CiMLoop (arXiv 2405.07259) Section V, Table III; CiMLoop
 reports 7 % energy-efficiency error on supply-voltage sweeps and 8 % average area-breakdown error. A

@@ -1,0 +1,17 @@
+# ADC energy parameters for cimsim.circuits.ADCSpec.
+# These are survey reference lines, not a fitted or best-in-class model.
+# GATE B1 calibration replaces them per macro. Sources: docs/assumptions.md, Part B, B-1 / B-2.
+
+bound_survey_lines:
+  arch: bound
+  bits: 6
+  fom_walden: 10.0e-15        # J/conv-step: Walden reference line on the 2005-2012 ISSCC/VLSI survey plot
+  fom_schreier_db: 170.0      # dB: Schreier reference line on the same plot
+  source: "Murmann, 'Energy Limits in A/D Converters', talk, Aug 2012 (survey plot lines)"
+
+bound_best_sar:
+  arch: bound
+  bits: 6
+  fom_walden: 0.4e-15         # J/conv-step: best reported SAR Walden FOM (survey, 2022)
+  fom_schreier_db: 180.0      # dB: placeholder upper bound so the Walden term dominates at 4-8 b; not a cited value
+  source: "Tang et al., IEEE TCAS-I 69(6):2249, 2022, Fig. 1 (FoM_W ~3 pJ/step in 2000 -> 0.4 fJ/step)"

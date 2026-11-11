@@ -20,3 +20,17 @@ Every assumption about circuits, published macros or simulator semantics goes he
 | 12 | Asymmetric weights (`w_quant: asymmetric`): unsigned weight planes, zero-point term z·Σx subtracted digitally and exactly | Option beyond ASiM; Σx per row assumed available digitally (input buffer) |
 | 13 | Conv layers: unfolded rows grouped by whole input channels, floor(nrow / (kh·kw)) channels per array activation; all groups computed | ASiM `asim_conv.py` grouping, without its group-skipping issue (findings F4) |
 | 14 | Conv activation scale: `per_tensor` = whole input batch (ASiM), `per_token` = per image | ASiM uses the batch max |
+
+## Part B — cost model (B0)
+
+Every per-action cost parameter used by `cimsim/circuits/` is listed here with its source. Values marked
+"reference line" are survey envelopes, used until GATE B1 calibrates each macro.
+
+| # | Assumption | Source / reason |
+|---|---|---|
+| B-1 | ADC energy per conversion (`arch: bound`) = max(Walden, Schreier) with FOM_W · 2^ENOB and ½ · 10^((SNDR − FOM_S)/10), SNDR = 6.02 ENOB + 1.76 | Walden, IEEE JSAC 1999 (FOM_W); Schreier & Temes 2005 (FOM_S); use of the two as energy bounds: Murmann, "Energy Limits in A/D Converters" (talk, 2012), also the basis of the CiMLoop ADC plug-in (Andrulis et al., arXiv 2404.06553) |
+| B-2 | Reference values FOM_W = 10 fJ/conv-step, FOM_S = 170 dB (`config/circuits/adc_survey_lines.yaml`) | Reference lines drawn on the ISSCC/VLSI 1997–2012 survey plot in Murmann 2012 (above). Not best-in-class: the best SAR FOM_W reported by 2022 is ~0.4 fJ/conv-step (Tang et al., IEEE TCAS-I 69(6), 2022) |
+| B-3 | Throughput per ADC not modelled; bound model valid below the survey's speed corner (~100–300 MHz) | Murmann 2012. CiMLoop's plug-in adds throughput-dependent bounds; to add when the mapper (B2) fixes ADC rates |
+| B-4 | Flash ADC energy = (2^b − 1) comparator decisions + fixed term; `e_comparator` has no default and must be cited per macro | Comparator count of a flash ADC; M2 (Sinangil JSSC 2021) uses a 4-b flash |
+| B-5 | ADC energy is charged on `adc_conversions` (all input cycles), not `adc_conversions_analog` | Hybrid (digital) cycles are still ADC-quantized (#6) |
+| B-6 | 1 MAC = 2 ops in all TOPS/W and TOPS figures | Common convention; confirmed for M2 by 1024 MAC × 2 / 5.5 ns = 372.4 GOPS (`validation/macro_calibration.md`) |
