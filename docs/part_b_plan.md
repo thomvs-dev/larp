@@ -76,9 +76,28 @@ Then B2 (mapper: Qwen2.5-1.5B does not fit in one macro; tiling, macro count, we
 (prefill/decode, DRAM, KV cache), B4 (Qwen2.5-1.5B results: PPL vs energy/token Pareto), B5 (CiMLoop /
 NeuroSim comparison on M1–M3).
 
-## 4. Open questions for Thomas
+## 4. Decisions (2026-11-11, Thomas: "go with your decision"; deadline tight)
 
-- Process node for the Qwen2.5-1.5B results (22 nm and 28 nm have the most published SRAM CIM data).
-- Whether the result system is "all analog CIM", "hybrid (sensitive layers digital)", or both.
-- Target: macro-level TOPS/W only, or system-level (incl. DRAM and digital units) — system-level is the
-  honest LLM number and is usually several times lower than macro TOPS/W.
+- Process node: **22 nm** (M4 and M3 are 22 nm; M1 65 nm and M2 7 nm bracket it).
+- Result system: **all-analog baseline**, hybrid (per-role DCIM) as a sweep axis in B4.
+- Headline metric: **system-level energy / token** (macro + digital units + DRAM), prefill and decode
+  separately. Macro TOPS/W is reported only for GATE B1.
+
+## 5. Reduced scope (tight deadline)
+
+Order of work, minimum needed for a paper section:
+
+1. Analog array / driver / shift-add cost models; calibrate **M2** (4-b flash, all conditions known).
+   With M4 this gives one analog and one digital macro.
+2. `cimsim/ppa/`: event counts × costs → `ppa_report.json` per run (energy per layer / phase, latency, area).
+3. B2 simplified: analytic tiling (arrays per layer from shapes, nrow, columns), fixed on-chip SRAM budget;
+   whatever does not fit streams from DRAM. No mapping search.
+4. B3 simplified: one cited DRAM pJ/bit and bandwidth; prefill vs decode from token counts; KV cache in a
+   separate SRAM buffer (KV-in-array as an option only if time allows); sequence lengths 128 / 512 / 2048.
+5. B4: Qwen2.5-1.5B and one other result model, sweep ADC bits × nrow × policy (all-analog / hybrid),
+   PPL vs energy/token. Event counts come from statistical runs that exist or are cheap to rerun.
+6. Optional if time: M3 (needs Wang JSSC 2023 PDF), M1, CiMLoop comparison (B5), ADC sharing / pipelining.
+
+GATE B1 under this scope: M4 + M2 within 30 %, plus M3 if the PDF arrives. Fewer than three macros
+does not meet the Part B exit criterion (≥ 3); that criterion stays and is reported as not met if M3 / M1
+are not done.
