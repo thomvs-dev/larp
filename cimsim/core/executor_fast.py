@@ -42,20 +42,21 @@ def _codes(q: torch.Tensor, bits: int, signed: bool) -> torch.Tensor:
 
 
 @lru_cache(maxsize=8192)
-def _ref_codes(full_scale: int, adc_bits: int) -> torch.Tensor:
-    """Reference ADC code k(m) for m = 0..FS (float64 formula from executor.py)."""
-    m = torch.arange(full_scale + 1, dtype=torch.float64)
+def _ref_codes(full_scale: float, adc_bits: int) -> torch.Tensor:
+    """Reference ADC code k(m) for integer m = 0..ceil(FS) (float64 formula from executor.py);
+    every m above ceil(FS) has the top code."""
+    m = torch.arange(math.ceil(full_scale - 1e-9) + 1, dtype=torch.float64)
     L = float(2 ** adc_bits - 1)
     return torch.round(torch.clamp(m / full_scale, 0.0, 1.0) * L)
 
 
 @lru_cache(maxsize=8192)
-def _adc_scale(full_scale: int, adc_bits: int) -> float | None:
-    """float32 a such that round(float32(m) * a) == reference code for all m,
+def _adc_scale(full_scale: float, adc_bits: int) -> float | None:
+    """float32 a such that min(round(float32(m) * a), L) == reference code for all m = 0..ceil(FS),
     or None if no candidate near L/FS works."""
     L = 2 ** adc_bits - 1
     ref = _ref_codes(full_scale, adc_bits).float()
-    m = torch.arange(full_scale + 1, dtype=torch.float32)
+    m = torch.arange(ref.numel(), dtype=torch.float32)
     a0 = torch.tensor(L / full_scale, dtype=torch.float32)
     cands = [a0]
     up, dn = a0.clone(), a0.clone()
@@ -64,7 +65,7 @@ def _adc_scale(full_scale: int, adc_bits: int) -> float | None:
         dn = torch.nextafter(dn, torch.tensor(float("-inf")))
         cands += [up.clone(), dn.clone()]
     for a in cands:
-        if torch.equal(torch.round(m * a), ref):
+        if torch.equal(torch.clamp(torch.round(m * a), max=float(L)), ref):
             return float(a)
     return None
 
@@ -91,7 +92,8 @@ def cim_matmul_int_fast(
     chunks: list[tuple[int, int]] | None = None,
 ) -> torch.Tensor:
     """Same contract as executor.cim_matmul_int (including full_scale and
-    chunks). full_scale values must be integers. Returns float64 [T, N]."""
+    chunks). full_scale values must be >= 1 (integers or fractions such as (2^b - 1) / n).
+    Returns float64 [T, N]."""
     T, K = q_x.shape
     N = q_w.shape[0]
     dev = q_x.device
@@ -105,8 +107,8 @@ def cim_matmul_int_fast(
         fs_cp = fs_nom.view(C, 1).expand(C, P).clone()
     else:
         fs_cp = full_scale.detach().to("cpu", torch.float64).reshape(C, P).clone()
-        if not torch.equal(fs_cp, torch.round(fs_cp)) or bool((fs_cp < 1).any()):
-            raise ValueError("fast executor needs integer full_scale >= 1")
+        if bool((fs_cp < 1).any()):
+            raise ValueError("fast executor needs full_scale >= 1")
     calibrated = not torch.equal(fs_cp, fs_nom.view(C, 1).expand(C, P))
 
     if not calibrated and readout_is_lossless(cfg, cycles):
@@ -132,7 +134,7 @@ def cim_matmul_int_fast(
     if not noisy and adc is not None:
         for ci in range(C):
             for p in range(P):
-                fs = int(fs_cp[ci, p])
+                fs = float(fs_cp[ci, p])
                 a = _adc_scale(fs, adc)
                 if a is None:
                     lut_cp[(ci, p)] = _ref_codes(fs, adc).float().to(dev)

@@ -18,8 +18,11 @@ Granularity:
   cycle        one fraction per input cycle
   cycle_plane  one fraction per (input cycle, weight plane)
 
-Full scale values are integers in [1, nrow * L_c] (MAC units). Values of m
-above the full scale saturate at the top ADC code.
+Candidate full scales (MAC units, at most the nominal nrow * L_c): every integer 1 .. nrow * L_c,
+and every (2^b - 1) / n >= 1 for integer n (ADC step of exactly 1/n MAC unit, so every integer MAC
+up to the full scale is read exactly). The second set matters when 2^b - 1 > nrow * L_c: e.g. a 7-bit
+ADC at nrow 64 reads every MAC 0..63 exactly at full scale 63.5 (step 1/2), while no integer full
+scale <= 64 does (A5 sweep, findings F12). Values of m above the full scale saturate at the top code.
 """
 
 from __future__ import annotations
@@ -113,17 +116,28 @@ def _readout(m: torch.Tensor, F: torch.Tensor, adc_bits: int | None) -> torch.Te
     return v * F
 
 
-def _error_table(hist: torch.Tensor, fsn: int, adc_bits: int | None) -> torch.Tensor:
-    """Squared readout error for every candidate FS = 1..fsn: [fsn] (index FS-1)."""
-    M1 = hist.numel()
-    m = torch.arange(M1, dtype=torch.float64).view(1, -1)
-    F = torch.arange(1, fsn + 1, dtype=torch.float64).view(-1, 1)
-    err = (m - _readout(m, F, adc_bits)) ** 2                  # [fsn, M+1]
+def candidate_full_scales(fsn: int, adc_bits: int | None) -> torch.Tensor:
+    """Sorted candidate full scales in [1, fsn]: integers, plus (2^b - 1) / n (exact 1/n MAC steps)."""
+    vals = set(range(1, fsn + 1))
+    if adc_bits is not None:
+        L = 2 ** adc_bits - 1
+        n = 1
+        while L / n >= 1.0:
+            if L / n <= fsn:
+                vals.add(L / n)
+            n += 1
+    return torch.tensor(sorted(vals), dtype=torch.float64)
+
+
+def _error_values(hist: torch.Tensor, F: torch.Tensor, adc_bits: int | None) -> torch.Tensor:
+    """Squared readout error sum_m h(m) (m - Q_F(m))^2 for every full scale in F: [len(F)]."""
+    m = torch.arange(hist.numel(), dtype=torch.float64).view(1, -1)
+    err = (m - _readout(m, F.view(-1, 1), adc_bits)) ** 2       # [nF, M+1]
     return err @ hist.double()
 
 
 def full_scale_from_histogram(hist: torch.Tensor, cfg: CIMConfig) -> torch.Tensor:
-    """Calibrated full scale [C, P] (float64, integer values) from mac_histogram output."""
+    """Calibrated full scale [C, P] (float64; integer or (2^b - 1) / n values) from mac_histogram output."""
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)
     C, P = hist.shape[0], hist.shape[1]
     fs_nom = [cfg.nrow * c.levels for c in cycles]
@@ -143,29 +157,27 @@ def full_scale_from_histogram(hist: torch.Tensor, cfg: CIMConfig) -> torch.Tenso
                 fs[c, p] = min(fs_nom[c], max(1.0, math.ceil(frac * fs_nom[c] - 1e-9)))
         return fs
 
-    # mse: per (c, p) error tables, combined per group with significance weights
-    tables = {}
-    for c in range(C):
-        for p in range(P):
-            tables[(c, p)] = _error_table(hist[c, p], fs_nom[c], cfg.adc_bits)
+    # mse: candidates as fractions of the largest nominal full scale in the group; a (c, p) whose
+    # nominal full scale differs uses the same fraction, rounded up to an integer MAC value
     for g in groups:
-        if len(g) == 1:
-            c, p = g[0]
-            e = tables[(c, p)]
-            best = e.min()
-            ok = torch.nonzero(e <= best * (1 + 1e-12) + 1e-12).flatten()
-            fs[c, p] = float(ok.max() + 1)                      # largest FS among the minima
-            continue
         fmax = max(fs_nom[c] for c, _ in g)
-        fracs = torch.arange(1, fmax + 1, dtype=torch.float64) / fmax
-        total = torch.zeros(fmax, dtype=torch.float64)
+        cand = candidate_full_scales(fmax, cfg.adc_bits)                 # [nF]
+        fracs = cand / fmax
+        total = torch.zeros(len(cand), dtype=torch.float64)
+        per_cp = {}
         for c, p in g:
-            cyc = cycles[c]
-            w = float(2.0 ** (cyc.shift + p)) ** 2              # squared shift-add weight
-            idx = torch.clamp(torch.ceil(fracs * fs_nom[c] - 1e-9), 1, fs_nom[c]).long() - 1
-            total += w * tables[(c, p)][idx]
+            if fs_nom[c] == fmax:
+                F = cand.clone()
+            else:
+                F = torch.clamp(torch.ceil(fracs * fs_nom[c] - 1e-9), 1, fs_nom[c])
+            per_cp[(c, p)] = F
+            e = _error_values(hist[c, p], F, cfg.adc_bits)
+            if len(g) > 1:
+                cyc = cycles[c]
+                e = e * float(2.0 ** (cyc.shift + p)) ** 2          # squared shift-add weight
+            total += e
         best = total.min()
-        k = int(torch.nonzero(total <= best * (1 + 1e-12) + 1e-12).flatten().max())
+        k = int(torch.nonzero(total <= best * (1 + 1e-12) + 1e-12).flatten().max())   # largest FS among minima
         for c, p in g:
-            fs[c, p] = float(min(fs_nom[c], max(1, math.ceil(fracs[k].item() * fs_nom[c] - 1e-9))))
+            fs[c, p] = float(per_cp[(c, p)][k])
     return fs
