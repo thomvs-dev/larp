@@ -94,7 +94,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 ### Part A exit criteria
 
-- [ ] All A milestones ticked, all GATEs passed.
+- [ ] All A milestones ticked, all GATEs passed. (Deferred items, marked in A5–A7, are excluded from this criterion for the deadline paper; Thomas 2026-11-11.)
 - [ ] Results for at least 2 development models and 2 result models (Section 1 scope).
 - [ ] Reproducible: one command per figure, from config to plot.
 - [ ] Short write-up in `docs/part_a_results.md`.
@@ -171,23 +171,25 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
   - [ ] Step 1 rerun with fractional full scales and the lossless base (others at ADC 8 b): `a5s2_opt125m_ba`, `a5s2_gpt2_ba`.
   - [ ] Step 2: statistical mode at 5–8 boundary points from step 1 (pass = 2 % rule).
   - [ ] Step 3: result models (statistical) at validated points.
-- [ ] Per-layer noise sensitivity (inject noise one layer at a time).
-- [ ] Activation outlier statistics per layer (max/std, channel outliers) and correlation with sensitivity.
-- [ ] Bit-serial vs bit-parallel on LLMs, compared with ASiM's CNN/ViT findings.
-- [ ] Input encoding study (F3): two's complement vs sign-magnitude vs offset-binary inputs, and skipping sign-extension planes — perplexity vs ADC bits at equal ADC conversions. Needs new encoding options in both executors (reference first, then fast, tested against each other).
-- [ ] ADC level alignment (F3): report error vs ADC bits for nrow aligned (2^b − 1 multiple of nrow) and not aligned, separately from ADC precision.
-- [ ] Statistical-mode speed before large sweeps (started under A4, see sub-task there): vectorise the exact saturation / rounding loop (noise-free speed-up now 6–15×; aim ≥ 30×), tested against the current implementation.
+- [ ] Per-layer noise sensitivity (inject noise one layer at a time). Reduced: per role (qkv / o / up_gate / down), 2 noise levels, statistical mode, OPT-125M + Qwen2.5-1.5B.
+- [ ] Activation outlier statistics per layer (max/std, channel outliers) and correlation with sensitivity. Kept (one forward pass per model; explains the GPT-2 `mlp.c_proj` collapse, F12).
+- [ ] Bit-serial vs bit-parallel on LLMs, compared with ASiM's CNN/ViT findings. **Deferred 2026-11-11 (deadline trim, §8).**
+- [ ] Input encoding study (F3): two's complement vs sign-magnitude vs offset-binary inputs, and skipping sign-extension planes — perplexity vs ADC bits at equal ADC conversions. Needs new encoding options in both executors (reference first, then fast, tested against each other). **Deferred 2026-11-11 (deadline trim, §8).**
+- [ ] ADC level alignment (F3): report error vs ADC bits for nrow aligned (2^b − 1 multiple of nrow) and not aligned, separately from ADC precision. Reduced: analysis of the step-1 sweep data only, no new runs.
+- [ ] Statistical-mode speed before large sweeps (started under A4, see sub-task there): vectorise the exact saturation / rounding loop (noise-free speed-up now 6–15×; aim ≥ 30×), tested against the current implementation. **Deferred 2026-11-11 (deadline trim, §8).** Current speed is enough for the kept sweeps.
 - [x] Cache calibration histograms per (model, calibration tokens, nrow, bit widths, encoding, quantization): the MAC histogram is taken with all layers ideal, so it does not depend on ADC bits, ADC range method or noise; sweeps over those reuse one calibration (Qwen2.5-1.5B: 53 min each otherwise). Per-layer cache in `calib_cache/` (git-ignored), on by default (`--no-calib-cache`, `CIMSIM_CALIB_CACHE=off`). OPT-125M: calibration 273 s → 10 s on a hit, bit-identical PPL and full scales; ADC 5 b config hits the ADC 6 b histograms (`results/a5_calib_cache_check.md`). (`cimsim/calib_cache.py`, `tests/test_calib_cache.py`)
-- [ ] ADC range calibration study (F5): full vs MSE-calibrated (layer / cycle_plane) at ADC 4–8 b, nrow 64–256, on OPT-125M and GPT-2 (bit-accurate, 8k tokens), then result models via A3.
+- [ ] ADC range calibration study (F5): full vs MSE-calibrated (layer / cycle_plane) at ADC 4–8 b, nrow 64–256, on OPT-125M and GPT-2 (bit-accurate, 8k tokens), then result models via A3. Reduced: full-range vs MSE-calibrated at the step-1 boundary points (OPT-125M, GPT-2), layer granularity only; F5 data reused.
 
 ### A6 — Outlier mitigation at equal cost
 
-- [ ] Hybrid: outlier channels in digital, rest analog.
-- [ ] SmoothQuant-style scaling and rotation-based (Hadamard) preprocessing.
-- [ ] Noise-aware fine-tuning (short, LoRA-based if needed).
+- [ ] Hybrid: outlier channels in digital, rest analog. Kept; role- or layer-level first (policy exists), channel-level only if time allows.
+- [ ] SmoothQuant-style scaling and rotation-based (Hadamard) preprocessing. Reduced: Hadamard rotation only (offline weight transform, no executor change); SmoothQuant deferred.
+- [ ] Noise-aware fine-tuning (short, LoRA-based if needed). **Deferred 2026-11-11 (deadline trim, §8).** Training on CPU does not fit the deadline.
 - [ ] Compare all at equal ADC-conversion count (from event counter) — Pareto plot: perplexity vs conversions.
 
 ### A7 — Circuit-derived noise (stretch, can run in parallel with B0)
+
+**Deferred 2026-11-11 (deadline trim, §8).**
 
 - [ ] Model capacitor mismatch (Pelgrom), kT/C, charge injection, comparator offset, ADC INL/DNL.
 - [ ] Map circuit parameters (cap size, node, ADC type) → error sigma / distribution.
@@ -279,6 +281,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
   2. Done 2026-11-06: zero-shot wrapper and Qwen2.5-0.5B runs (FP32 / W8A8 / statistical, 1,000 docs per task); analog = W8A8 within 0.4 pp, no significant difference.
   3. Done 2026-11-11: A5 step 1 first pass (F12); fractional full scales fixed and checked. Next, Thomas: step-1 rerun `a5s2_opt125m_ba`, then `a5s2_gpt2_ba` (~10–12 h each). Then agent: boundary points for statistical validation (step 2).
   4. Agent (parallel, sandbox): Part B B0 — started 2026-11-11: M1–M4 abstracts checked (`validation/macro_calibration.md`), ADC energy model in `cimsim/circuits/`. M4 (DCIM) calibrated 2026-11-11 (`results/b1_m4_chih/`). Next: Wang C-2C PDF (M3; wrong PDF supplied); analog array / driver / shift-add costs, then M2 (4-b flash, simplest analog macro), then M1. Part B decisions taken 2026-11-11 (§8): 22 nm, all-analog baseline + hybrid in sweeps, system-level headline; reduced scope for a tight deadline (`docs/part_b_plan.md` §4–5). Target venue / date still needed from Thomas.
+  4b. Deadline plan (2026-11-11, §8): Part A main paper; A5/A6 trimmed; A7 deferred. Agent next in A: outlier statistics script, Hadamard rotation, per-role noise configs (sandbox), ready for the laptop when the `a5s2_*` sweeps finish.
   5. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
@@ -396,6 +399,7 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-11 — Result system: all-analog CIM as the baseline, hybrid (per-role `macro: dcim`) as a B4 sweep axis — Part A shows all-analog at calibrated ADC 6 b equals W8A8 on all three result models, so hybrid is an energy / accuracy trade-off, not an accuracy fix. DCIM energy for post-ReLU layers (toggle ≈ 0.025) is outside M4's calibrated range and is reported as such.
 - 2026-11-11 — Headline metric: system-level energy / token (macro + digital units + DRAM), prefill and decode separately; macro TOPS/W only as the GATE B1 calibration target — a 1.5B model does not fit on chip, so decode is likely dominated by weight streaming, which macro TOPS/W hides.
 - 2026-11-11 — Reduced Part B scope for a tight deadline (Thomas): GATE B1 on M4 + M2 (+ M3 only if the right PDF arrives; M1 optional); B2 mapper = analytic tile / macro count with a fixed on-chip SRAM budget, no mapping search; B3 DRAM = one cited pJ/bit constant + bandwidth limit; B5 limited to one CiMLoop case or dropped to a discussion paragraph (to confirm). Tasks are simplified, not removed.
+- 2026-11-11 — Part A trimmed for a tight deadline (Thomas: "yes trim a5/a6 items"); Part A is the main paper, Part B a shorter section. Kept: ADC bits × nrow per role (steps 1–3), activation outlier statistics, per-role noise sensitivity (reduced), ADC alignment and full-range vs calibrated range as analyses of existing / step-1 data, hybrid (role / layer level), Hadamard rotation, equal-conversion Pareto plot. Deferred: bit-serial vs bit-parallel, input encoding study, statistical speed ≥ 30×, SmoothQuant, noise-aware fine-tuning, all of A7. Reason: the kept items need no new executor features except Hadamard (weight transform), and run on statistical mode or existing data; the deferred ones need new executor options, training, or circuit models.
 - 2026-11-03 — Calibration macros: CiMLoop's validated SRAM set (Jia JSSC 2020, Sinangil JSSC 2021, Wang JSSC 2023) plus one digital CIM (Chih ISSCC 2021) — open CiMLoop models allow a direct B5 comparison, and the set covers bit-serial charge-domain, multi-bit analog and DCIM.
 
 ---
