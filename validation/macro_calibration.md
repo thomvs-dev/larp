@@ -4,9 +4,9 @@ Calibration macros for the Part B cost model, their reported numbers, and the co
 number was measured. GATE B1: the model reproduces each macro's TOPS/W and area within the stated error
 (target ≤ 20–30 %). The error table (section 3) stays empty until `cimsim/ppa/` exists.
 
-Status: 2026-11-11. Headline numbers checked against the papers' abstracts and publisher/author pages
-(sources per row). Full-text conditions (figure numbers, data patterns, the voltage of the headline number
-where the abstract does not give it) are still open; listed per macro under "Open".
+Status: 2026-11-11. Headline numbers first checked against abstracts and publisher/author pages, then against
+the full texts of M1, M2 and M4 (PDFs from Thomas, `D:\japan\hf_local\papers\`). The PDF supplied for M3 is a
+different paper (see M3). **M4 is calibrated** (section 3, `results/b1_m4_chih/`).
 
 Convention used in this file: **1 MAC = 2 ops**, unless a row says otherwise. TOPS/W and TOPS/mm² are quoted
 exactly as the paper states them; the "8b-equivalent" values are derived, not reported.
@@ -32,9 +32,10 @@ exactly as the paper states them; the "8b-equivalent" values are derived, not re
 
 Derived (not reported): 8 b × 8 b equivalent = 1b figure / 64 → 3.0 / 6.25 TOPS/W, 0.0094 / 0.0038 TOPS/mm².
 
+Full text (JSSC 2020): column ADC is an 8-b SAR; ADC precision chosen for N = 2304 rows; the 8-b ADC costs
+15 % area and 18 % energy overhead; M-BC bit cell 1.8 µm² (80 % over a logic-rule 6T).
+
 Open:
-- ADC type and bits (plan table says 8 b; abstract only says "area- and energy-efficient analog-to-digital
-  conversion").
 - Whether "1b-TOPS" counts 2 ops per 1-b MAC.
 - What "MAC hardware" includes, and why the preprint (152 / 297) is lower than the JSSC (192 / 400). Possibly a
   different scope (the whole accelerator vs the MAC hardware only).
@@ -59,15 +60,16 @@ Open:
 | Energy efficiency | 351 TOPS/W (4 b × 4 b) | JSSC title / abstract |
 | Throughput | 372.4 GOPS | JSSC title / abstract |
 
-Derived check: 1024 MAC × 2 ops / 5.5 ns = 372.4 GOPS. The throughput is the 0.8 V number and uses 1 MAC =
-2 ops.
+Full text (JSSC 2021, Sec. IV, Fig. 11–13, Table I):
+- 4-kb unit macro, 4-b inputs / weights / outputs, 0.65–1 V. Macro area 0.0032 mm²: ~25 % original 8T macro,
+  ~53 % CIM circuits (ADC, capacitors, row circuitry, reference decap), ~22 % test / reconfiguration.
+- **351 TOPS/W at 0.8 V** (5.5 ns, 372.4 GOPS) and **321 TOPS/W at 1.0 V** (4.5 ns, 455.1 GOPS). The paper
+  states the ops convention: 1024 MACs/cycle × 2 ops/MAC.
+- Energy grows with the MAC result (more RWL pulses, deeper RBL discharge; Fig. 13a).
+- Derived: 372.4 GOPS / 0.0032 mm² = 116 TOPS/mm² at 0.8 V (whole macro incl. test circuits).
 
 Open:
-- Supply voltage of the 351 TOPS/W point. It may not be 0.8 V; efficiency is usually quoted at a lower
-  voltage than throughput.
-- Data pattern used for the 351 TOPS/W measurement. One citing paper calls it an "average" efficiency at INT4.
-- Macro area. Not in the abstract, so TOPS/mm² cannot be computed yet.
-- Array organisation (the plan table's 64 × 64 is unverified).
+- Data pattern behind the 351 / 321 TOPS/W (Fig. 13a gives energy vs MAC result; to digitise).
 
 ### M3 — Wang et al., IEEE JSSC 2023 (Intel Labs; VLSI 2022 companion pp. 36–37, doi 10.1109/VLSITechnologyandCir46769.2022.9830322)
 
@@ -91,6 +93,11 @@ Edge Inference".
 Derived check: 64 × 16 = 1,024 MACs per cycle, which is half of the abstract's 2k. Either two cores run in
 parallel or the 2k counts something else. Open.
 
+**PDF problem (2026-11-11):** the file supplied as M3 is a different paper, "A Charge Domain SRAM
+Computing-in-Memory Macro With Quantized Interval-Optimized ADC and Input Bit-Level Sparsity-Optimized P2O-DAC for
+8-b MAC Operation" (TSMC 40 nm, 16 kb, 0.22 mm², 16.8 TOPS/W from **post-layout simulation**). It has no silicon
+measurement, so it is not suitable as a calibration macro. The Wang et al. C-2C PDF is still needed.
+
 Open:
 - Analog core / macro area. The 1.5 mm² is the whole chip; the 4.0 TOPS/mm² figure implies a smaller area.
 - Clock frequency at 1.1 V.
@@ -113,11 +120,16 @@ Machine-Learning Edge Applications" (TSMC).
 | FOM | TOPS/W × TOPS/mm² = 1450 | TSMC page |
 | Data dependence | TOPS/W depends on input toggle rate; the paper's plot assumes 50 % ones in the weights | SemiWiki summary |
 
-Open:
-- Precision and supply voltage of the 89 TOPS/W and 16.3 TOPS/mm² points (likely 4 b × 4 b at different
-  voltages; unverified).
-- Input toggle rate used for the headline number.
-- Macro capacity (kb).
+Full text (ISSCC 2021, text and Fig. 16.4.5–16.4.7):
+- 6T bit cell 0.379 µm² + 4T NOR per weight bit; 256 inputs × 64 columns × 4-b weights = 64 kb; macro size
+  **0.202 mm²**. Per column: 256 4-b weights, 256 × 4 bit-wise multipliers, adder tree, partial-sum accumulator.
+- Bit-serial inputs, MSB first; 4-b input needs 4 + 1 cycles (one extra cycle for the accumulator).
+  Cycle time 10 ns (4b/4b) → 2 ns per input-bit cycle; 18 ns (8b/8b, estimated).
+- **89 TOPS/W at 0.72 V, 4b/4b, "sparse pattern": 18 % input toggle rate, 50 % ones in weights; 52 TOPS/W
+  for the "dense pattern": 50 % toggle rate**, 25 °C, measured. 3.3 TOPS at 0.72 V → 16.3 TOPS/mm².
+- 8b/8b (authors' estimate): 917 GOPS, 24.7 TOPS/W. Simulated 97 TOPS/W at 0.68 V.
+- Energy depends on weight sparsity and input toggle rate and comes mainly from the first adder-tree stages.
+- Fig. 16.4.5: TOPS/W vs VDD (0.52–0.92 V) for 6.25 / 12.5 / 25 / 50 % toggle rate.
 
 ## 2. Normalisation rules (applied when the model is compared with a macro)
 
@@ -138,7 +150,19 @@ Open:
 | M1 | | | | | | | |
 | M2 | | | | | | | |
 | M3 | | | | | | | |
-| M4 | | | | | | | |
+| M4 | 4b/4b, 0.72 V, 18 % toggle | 89 | 89.0 (fit) | 0 % | 0.202 mm² | 0.202 (input) | 0 % |
+| M4 | 4b/4b, 0.72 V, 50 % toggle | 52 | 52.0 (fit) | 0 % | | | |
+| M4 | 8b/8b, 0.72 V, 18 % toggle (paper estimate) | 24.7 | 22.3 | −9.9 % | | | |
+| M4 | 4b/4b, 0.72 V, 6.25 / 12.5 / 25 % toggle (Fig. 16.4.5, digitised ±5) | 138 / 95 / 70 | 120.5 / 101.4 / 77.0 | −12.7 / +6.7 / +10.0 % | | | |
+
+M4 model (`cimsim/circuits/dcim.py`, `config/macros/m4_chih_isscc21.yaml`, `validation/b1_m4_dcim.py`, results in
+`results/b1_m4_chih/`): energy per 1b × 1b product e = e0 + e1 · toggle, fitted to the two measured points:
+e0 = 0.842 fJ, e1 = 3.123 fJ (0.72 V, 22 nm, 50 % weight ones). Area per weight bit 3.08 µm² (macro area / 64 kb).
+Throughput 2 · 256 · (64 / ⌈w_bits / 4⌉) / ((x_bits + 1) · 2 ns): 3277 GOPS at 4b/4b (paper 3300), 910 at 8b/8b
+(paper estimate 917). Area and throughput only check internal consistency (macro area is an input); the
+independent checks are the 8b/8b estimate and the toggle-rate curve, all within ±13 %. The fitted line is too
+flat at very low toggle rates (−12.7 % at 6.25 %), which matters for post-ReLU layers (OPT fc2 toggles 2.5 %,
+`results/b1_toggle_opt125m_sandbox/`).
 
 ## 4. What is needed from the full texts
 

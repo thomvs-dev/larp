@@ -1,0 +1,136 @@
+{
+  "macro": "m4_chih_isscc21",
+  "git": "901f8e3",
+  "config": {
+    "macro": "m4_chih_isscc21",
+    "type": "dcim",
+    "node_nm": 22,
+    "vdd": 0.72,
+    "rows": 256,
+    "cols": 64,
+    "col_wbits": 4,
+    "t_cycle": 2e-09,
+    "pipeline_cycles": 1,
+    "macro_area_mm2": 0.202,
+    "calib_points": [
+      {
+        "toggle": 0.18,
+        "tops_w": 89.0
+      },
+      {
+        "toggle": 0.5,
+        "tops_w": 52.0
+      }
+    ],
+    "check_points": {
+      "throughput_4b4b_gops": 3300,
+      "area_eff_tops_mm2": 16.3,
+      "tops_w_8b8b_est": 24.7,
+      "throughput_8b8b_gops_est": 917,
+      "cycle_time_8b8b_ns_est": 18,
+      "toggle_curve_0p72v": [
+        {
+          "toggle": 0.0625,
+          "tops_w": 138
+        },
+        {
+          "toggle": 0.125,
+          "tops_w": 95
+        },
+        {
+          "toggle": 0.25,
+          "tops_w": 70
+        },
+        {
+          "toggle": 0.5,
+          "tops_w": 52
+        }
+      ]
+    }
+  },
+  "fitted": {
+    "e_bitop_base_fJ": 0.8423590103716504,
+    "e_bitop_toggle_fJ": 3.1229742869490065,
+    "area_per_weight_bit_um2": 3.082275390625,
+    "mac_energy_4b4b_fJ_toggle018": 22.47191011235954
+  },
+  "checks": [
+    {
+      "check": "TOPS/W 4b/4b toggle 0.18",
+      "kind": "fit",
+      "model": 89.00000000000003,
+      "paper": 89.0,
+      "err_pct": 3.193450497798203e-14
+    },
+    {
+      "check": "TOPS/W 4b/4b toggle 0.50",
+      "kind": "fit",
+      "model": 52.00000000000001,
+      "paper": 52.0,
+      "err_pct": 1.3664283380001927e-14
+    },
+    {
+      "check": "throughput 4b/4b (GOPS)",
+      "kind": "held-out",
+      "model": 3276.8,
+      "paper": 3300,
+      "err_pct": -0.7030303030302976
+    },
+    {
+      "check": "area efficiency 4b/4b (TOPS/mm2)",
+      "kind": "held-out",
+      "model": 16.221782178217822,
+      "paper": 16.3,
+      "err_pct": -0.4798639373139799
+    },
+    {
+      "check": "TOPS/W 8b/8b toggle 0.18",
+      "kind": "held-out (paper estimate)",
+      "model": 22.250000000000007,
+      "paper": 24.7,
+      "err_pct": -9.91902834008094
+    },
+    {
+      "check": "throughput 8b/8b (GOPS)",
+      "kind": "held-out (paper estimate)",
+      "model": 910.2222222222221,
+      "paper": 917,
+      "err_pct": -0.7391251666061005
+    },
+    {
+      "check": "cycle time 8b/8b (ns)",
+      "kind": "held-out (paper estimate)",
+      "model": 18.000000000000004,
+      "paper": 18,
+      "err_pct": 1.9737298215558338e-14
+    },
+    {
+      "check": "TOPS/W 4b/4b toggle 0.0625 (Fig. 16.4.5)",
+      "kind": "held-out (digitised curve)",
+      "model": 120.47671344315644,
+      "paper": 138,
+      "err_pct": -12.69803373684316
+    },
+    {
+      "check": "TOPS/W 4b/4b toggle 0.1250 (Fig. 16.4.5)",
+      "kind": "held-out (digitised curve)",
+      "model": 101.40089010612807,
+      "paper": 95,
+      "err_pct": 6.737779059082183
+    },
+    {
+      "check": "TOPS/W 4b/4b toggle 0.2500 (Fig. 16.4.5)",
+      "kind": "held-out (digitised curve)",
+      "model": 77.01300052002082,
+      "paper": 70,
+      "err_pct": 10.01857217145832
+    },
+    {
+      "check": "TOPS/W 4b/4b toggle 0.5000 (Fig. 16.4.5)",
+      "kind": "held-out (digitised curve)",
+      "model": 52.00000000000001,
+      "paper": 52,
+      "err_pct": 1.3664283380001927e-14
+    }
+  ]
+}

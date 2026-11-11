@@ -34,3 +34,7 @@ Every per-action cost parameter used by `cimsim/circuits/` is listed here with i
 | B-4 | Flash ADC energy = (2^b − 1) comparator decisions + fixed term; `e_comparator` has no default and must be cited per macro | Comparator count of a flash ADC; M2 (Sinangil JSSC 2021) uses a 4-b flash |
 | B-5 | ADC energy is charged on `adc_conversions` (all input cycles), not `adc_conversions_analog` | Hybrid (digital) cycles are still ADC-quantized (#6) |
 | B-6 | 1 MAC = 2 ops in all TOPS/W and TOPS figures | Common convention; confirmed for M2 by 1024 MAC × 2 / 5.5 ns = 372.4 GOPS (`validation/macro_calibration.md`) |
+| B-7 | DCIM energy per 1b × 1b product = e0 + e1 · input toggle rate; weight-ones fraction fixed at the calibration value (50 %) | Structure: Chih ISSCC 2021 (energy depends on toggle rate and weight sparsity, mostly first adder-tree stages). e0, e1 fitted to its 89 / 52 TOPS/W at 18 / 50 % toggle (`results/b1_m4_chih/`) |
+| B-8 | DCIM pass time = (x_bits + 1) · t_cycle; a w_bits weight occupies ⌈w_bits / 4⌉ 4-b columns | Chih ISSCC 2021 text (extra accumulator cycle) and Fig. 16.4.6 (10 ns at 4b, 18 ns at 8b; 3300 / 917 GOPS) |
+| B-9 | Input toggle rate = fraction of bit transitions per input line, inputs streamed bit-serially MSB first, token after token | Chih ISSCC 2021 (MSB-first bit-serial input); measured on per-token 8-b activations by `scripts/b1_toggle_rates.py` |
+| B-10 | No supply-voltage or node scaling: each fitted spec is valid only at its calibration VDD and node | Not yet modelled (B0 task "technology node scaling") |

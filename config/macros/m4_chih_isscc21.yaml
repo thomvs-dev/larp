@@ -1,0 +1,32 @@
+# M4: Chih et al., "An 89TOPS/W and 16.3TOPS/mm2 All-Digital SRAM-Based Full-Precision
+# Compute-In Memory Macro in 22nm for Machine-Learning Edge Applications", ISSCC 2021, 16.4.
+# Numbers below are the paper's (text, Fig. 16.4.5-16.4.7); fitted values come from
+# validation/b1_m4_dcim.py and are written to results/b1_m4_chih/.
+macro: m4_chih_isscc21
+type: dcim
+node_nm: 22
+vdd: 0.72
+rows: 256                # 256 inputs per column (text)
+cols: 64                 # 64 partial-sum outputs (text)
+col_wbits: 4             # 256 x 64 4-b weights, 64 kb (text, Fig. 16.4.7)
+t_cycle: 2.0e-9          # 10 ns cycle time for a 4b-input MAC (Fig. 16.4.6) / 5 cycles (4 input bits + 1 accumulate, text)
+pipeline_cycles: 1       # "an extra cycle is required to complete the accumulation" (text)
+macro_area_mm2: 0.202    # Fig. 16.4.6 "Macro size"
+# Calibration points (measured, 4b input / 4b weight, 0.72 V, 25 C, 50 % ones in weights; text):
+calib_points:
+  - {toggle: 0.18, tops_w: 89.0}   # "sparse pattern"
+  - {toggle: 0.50, tops_w: 52.0}   # "dense pattern"
+# Held-out checks:
+check_points:
+  throughput_4b4b_gops: 3300       # Fig. 16.4.6 (text: 3.3 TOPS at 0.72 V)
+  area_eff_tops_mm2: 16.3          # title, Fig. 16.4.7
+  tops_w_8b8b_est: 24.7            # Fig. 16.4.6, marked "estimation" by the authors
+  throughput_8b8b_gops_est: 917    # Fig. 16.4.6, "estimation"
+  cycle_time_8b8b_ns_est: 18       # Fig. 16.4.6, "estimation"
+  # Fig. 16.4.5 (bottom right) TOPS/W vs toggle rate at 0.72 V, digitised by eye (+/- 5 TOPS/W);
+  # the figure does not say measured or simulated, and its curves give ~82 at 18 % vs the measured 89.
+  toggle_curve_0p72v:
+    - {toggle: 0.0625, tops_w: 138}
+    - {toggle: 0.125, tops_w: 95}
+    - {toggle: 0.25, tops_w: 70}
+    - {toggle: 0.50, tops_w: 52}
