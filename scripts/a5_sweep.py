@@ -77,10 +77,16 @@ def run_point(args, out: Path, name: str, cfg: dict | None) -> dict:
         cmd += ["--threads", str(args.threads)]
     t0 = time.time()
     print(f"--- {name} ...", flush=True)
-    with open(d / "log.txt", "w", encoding="utf-8") as log:
-        r = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, cwd=ROOT)
-    if r.returncode != 0 or not res_file.exists():
-        raise SystemExit(f"{name} failed (exit {r.returncode}); see {d / 'log.txt'}")
+    for attempt in range(1, args.attempts + 1):
+        log_path = d / ("log.txt" if attempt == 1 else f"log_attempt{attempt}.txt")
+        with open(log_path, "w", encoding="utf-8") as log:
+            r = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, cwd=ROOT)
+        if r.returncode == 0 and res_file.exists():
+            break
+        print(f"    attempt {attempt} failed (exit {r.returncode}); see {log_path}", flush=True)
+    else:
+        (d / "failed.txt").write_text(f"exit {r.returncode} after {args.attempts} attempts\n", encoding="utf-8")
+        return None
     res = json.loads(res_file.read_text(encoding="utf-8"))
     print(f"    PPL {res['ppl']:.3f}  ({(time.time() - t0) / 60:.1f} min, calibration cache "
           f"{res.get('calib_cache')})", flush=True)
@@ -154,6 +160,7 @@ def main() -> None:
     ap.add_argument("--tokens", type=int, default=8192)
     ap.add_argument("--collapse", type=float, default=2.0, help="PPL / fake-quant PPL above which lower bits are skipped")
     ap.add_argument("--threads", type=int, default=None)
+    ap.add_argument("--attempts", type=int, default=2, help="runs per point before it is marked failed and skipped")
     ap.add_argument("--all-bits", action="store_true", help="do not skip redundant high-bit points")
     ap.add_argument("--plan", action="store_true", help="print the points (descent order) and exit")
     ap.add_argument("--table", action="store_true", help="rebuild summary.{json,md} from finished points")
@@ -183,11 +190,16 @@ def main() -> None:
 
     fq = point_config(base, "fake_quant", "all", base.get("default", {}).get("nrow", 128),
                       base.get("default", {}).get("adc_bits", 6))
+    head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
+    print(f"git {head}, base {Path(args.base).name}", flush=True)
     ref = run_point(args, out, "fake_quant", fq)
+    if ref is None:
+        raise SystemExit("fake-quant reference failed; see results/<name>/fake_quant/")
     limit = args.collapse * ref["ppl"]
     if args.points:
         for role, n, b in parse_points(args.points):
-            run_point(args, out, point_name(role, n, b), point_config(base, args.mode, role, n, b))
+            if run_point(args, out, point_name(role, n, b), point_config(base, args.mode, role, n, b)) is None:
+                print(f"    {point_name(role, n, b)} skipped after {args.attempts} failed attempts")
     else:
         for n in nrows:
             for role in roles:
@@ -195,6 +207,9 @@ def main() -> None:
                     if not args.all_bits and redundant(n, b):
                         continue
                     res = run_point(args, out, point_name(role, n, b), point_config(base, args.mode, role, n, b))
+                    if res is None:
+                        print(f"    {point_name(role, n, b)} skipped after {args.attempts} failed attempts; descent continues")
+                        continue
                     if res["ppl"] > limit:
                         print(f"    collapsed (> {args.collapse} x fake-quant); lower bits skipped for {role}, nrow {n}")
                         break
