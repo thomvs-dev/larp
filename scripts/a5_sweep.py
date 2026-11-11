@@ -1,13 +1,19 @@
 """A5 sweep: perplexity vs ADC bits and nrow, per layer type (one role changed at a time, or all layers).
 
 Each point is one run of scripts/run_ppl.py with a generated config: the base config (default
-config/experiments/a4_stat_adc6cal.yaml: W8A8 bit-serial, nrow 128, MSE-calibrated ADC 6 b on every
-layer) with `nrow` and `adc_bits` changed for one role (qkv, o, up_gate, down) or for all layers.
+config/experiments/a5_base_adc8cal.yaml: W8A8 bit-serial, nrow 128, MSE-calibrated ADC 8 b on every
+layer, which reads every MAC up to 127 exactly) with `nrow` and `adc_bits` changed for one role
+(qkv, o, up_gate, down) or for all layers. (The first pass used a4_stat_adc6cal.yaml as base; on
+GPT-2 that base alone collapses, so per-role points were not informative.)
 A fake-quant run on the same tokens is the reference.
 
 Descent per (role, nrow): ADC bits from high to low; after the first point whose PPL is above
 --collapse × the fake-quant PPL, lower bits are skipped and reported as "not run (below a collapsed
 point)". Assumption: with an MSE-calibrated ADC, fewer bits never give a lower error.
+
+Redundant points are skipped: ADC bits b with 2^b - 1 > 2 * nrow (bit-serial) read every MAC exactly
+already at b - 1 bits (full scale (2^(b-1) - 1) / 1 or / 2 >= nrow - 1), e.g. 8 b at nrow 64.
+--all-bits runs them anyway.
 
 Resumable: a point whose result.json exists is not rerun (delete the folder to rerun it).
 Calibration histograms come from the cache (cimsim/calib_cache.py); a new nrow for one role
@@ -81,6 +87,10 @@ def run_point(args, out: Path, name: str, cfg: dict | None) -> dict:
     return res
 
 
+def redundant(nrow: int, bits: int) -> bool:
+    return 2 ** bits - 1 > 2 * nrow
+
+
 def parse_points(s: str) -> list[tuple[str, int, int]]:
     pts = []
     for p in s.split(","):
@@ -135,7 +145,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--name", required=True, help="results/<name>/ holds every point")
-    ap.add_argument("--base", default=str(ROOT / "config/experiments/a4_stat_adc6cal.yaml"))
+    ap.add_argument("--base", default=str(ROOT / "config/experiments/a5_base_adc8cal.yaml"))
     ap.add_argument("--mode", default="bit_accurate", choices=["bit_accurate", "statistical"])
     ap.add_argument("--roles", default="all,qkv,o,up_gate,down")
     ap.add_argument("--nrows", default="128,64,256")
@@ -144,6 +154,7 @@ def main() -> None:
     ap.add_argument("--tokens", type=int, default=8192)
     ap.add_argument("--collapse", type=float, default=2.0, help="PPL / fake-quant PPL above which lower bits are skipped")
     ap.add_argument("--threads", type=int, default=None)
+    ap.add_argument("--all-bits", action="store_true", help="do not skip redundant high-bit points")
     ap.add_argument("--plan", action="store_true", help="print the points (descent order) and exit")
     ap.add_argument("--table", action="store_true", help="rebuild summary.{json,md} from finished points")
     args = ap.parse_args()
@@ -162,7 +173,8 @@ def main() -> None:
         summary(args, out, json.loads(ref_file.read_text()) if ref_file.exists() else None)
         return
     if args.plan:
-        pts = parse_points(args.points) if args.points else [(r, n, b) for n in nrows for r in roles for b in bits]
+        pts = parse_points(args.points) if args.points else [(r, n, b) for n in nrows for r in roles for b in bits
+                                                             if args.all_bits or not redundant(n, b)]
         print(f"{len(pts)} points at most (descent stops per (role, nrow) after a collapse), + fake-quant reference")
         for p in pts:
             done = (out / point_name(*p) / "result.json").exists()
@@ -180,6 +192,8 @@ def main() -> None:
         for n in nrows:
             for role in roles:
                 for b in bits:
+                    if not args.all_bits and redundant(n, b):
+                        continue
                     res = run_point(args, out, point_name(role, n, b), point_config(base, args.mode, role, n, b))
                     if res["ppl"] > limit:
                         print(f"    collapsed (> {args.collapse} x fake-quant); lower bits skipped for {role}, nrow {n}")

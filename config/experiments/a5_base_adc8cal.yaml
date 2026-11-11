@@ -1,0 +1,14 @@
+# A5 sweep base: every layer W8A8 bit-serial, nrow 128, ADC 8 b with MSE-calibrated full scale per layer.
+# With fractional full scales (findings F12) calibration picks 127.5 (step 1/2 MAC unit), so every MAC
+# up to 127 is read exactly: the base adds (almost) no error and one layer type can be measured alone.
+default:
+  mode: statistical
+  macro: acim
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 8
+  adc_range: calibrated
+  adc_range_method: mse
+  adc_range_gran: layer
+  rand_noise_sigma: 0.0

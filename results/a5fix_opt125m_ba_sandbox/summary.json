@@ -1,0 +1,45 @@
+{
+  "model": "/mnt/user-data/uploads/japan/hf_local/opt-125m",
+  "mode": "bit_accurate",
+  "tokens": 4096,
+  "collapse_factor": 2.0,
+  "fake_quant_ppl": 25.38072918110019,
+  "points": [
+    {
+      "point": "all_n128_adc8",
+      "role": "all",
+      "nrow": 128,
+      "adc_bits": 8,
+      "ppl": 25.38072918110019,
+      "ratio_to_fake_quant": 1.0,
+      "adc_conversions": 173946175488,
+      "seconds": 270.2,
+      "calib_cache": "miss",
+      "git": "88386129fe10b85674fbdec37dc1c4a31cd64688"
+    },
+    {
+      "point": "all_n64_adc7",
+      "role": "all",
+      "nrow": 64,
+      "adc_bits": 7,
+      "ppl": 25.38072918110019,
+      "ratio_to_fake_quant": 1.0,
+      "adc_conversions": 347892350976,
+      "seconds": 422.6,
+      "calib_cache": "miss",
+      "git": "88386129fe10b85674fbdec37dc1c4a31cd64688"
+    },
+    {
+      "point": "all_n64_adc8",
+      "role": "all",
+      "nrow": 64,
+      "adc_bits": 8,
+      "ppl": 25.38072918110019,
+      "ratio_to_fake_quant": 1.0,
+      "adc_conversions": 347892350976,
+      "seconds": 376.5,
+      "calib_cache": "hit",
+      "git": "88386129fe10b85674fbdec37dc1c4a31cd64688"
+    }
+  ]
+}

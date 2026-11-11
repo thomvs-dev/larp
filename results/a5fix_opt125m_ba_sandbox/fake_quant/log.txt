@@ -1,0 +1,28 @@
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s]Loading weights:   1%|          | 1/196 [00:00<01:31,  2.14it/s]Loading weights:   1%|          | 2/196 [00:01<03:23,  1.05s/it]Loading weights:  34%|███▎      | 66/196 [00:02<00:02, 45.05it/s]Loading weights:  41%|████▏     | 81/196 [00:02<00:02, 50.88it/s]Loading weights:  48%|████▊     | 94/196 [00:02<00:02, 39.10it/s]Loading weights:  53%|█████▎    | 103/196 [00:03<00:02, 32.90it/s]Loading weights:  60%|██████    | 118/196 [00:03<00:02, 36.18it/s]Loading weights:  65%|██████▌   | 128/196 [00:03<00:01, 40.36it/s]Loading weights:  69%|██████▉   | 135/196 [00:04<00:01, 34.01it/s]Loading weights:  71%|███████▏  | 140/196 [00:04<00:02, 26.94it/s]Loading weights:  77%|███████▋  | 150/196 [00:04<00:01, 33.11it/s]Loading weights:  80%|███████▉  | 156/196 [00:04<00:01, 34.46it/s]Loading weights:  83%|████████▎ | 162/196 [00:04<00:00, 37.00it/s]Loading weights:  85%|████████▌ | 167/196 [00:05<00:00, 30.43it/s]Loading weights:  89%|████████▉ | 174/196 [00:05<00:00, 34.30it/s]Loading weights:  93%|█████████▎| 182/196 [00:05<00:00, 36.88it/s]Loading weights: 100%|██████████| 196/196 [00:05<00:00, 35.09it/s]
+  window 1/2  running ppl 21.080  elapsed 0.0 min  eta 0.0 min
+  window 2/2  running ppl 25.381  elapsed 0.1 min  eta 0.0 min
+{
+  "ppl": 25.38072918110019,
+  "nll": 3.23399019241333,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    3.0483343601226807,
+    3.4196460247039795
+  ],
+  "model": "/mnt/user-data/uploads/japan/hf_local/opt-125m",
+  "config": "/home/claude/larp/results/a5fix_opt125m_ba_sandbox/configs/fake_quant.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 2,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 5.8,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "calib_cache": "off",
+  "git": "88386129fe10b85674fbdec37dc1c4a31cd64688"
+}

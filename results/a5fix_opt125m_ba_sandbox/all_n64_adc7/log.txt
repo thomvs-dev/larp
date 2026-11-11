@@ -1,0 +1,30 @@
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s]Loading weights: 100%|██████████| 196/196 [00:00<00:00, 1970.42it/s]
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 72 layers in 487.3 s (histogram cache: miss, 0 layers from cache)
+  window 1/2  running ppl 21.080  elapsed 3.4 min  eta 3.4 min
+  window 2/2  running ppl 25.381  elapsed 7.0 min  eta 0.0 min
+{
+  "ppl": 25.38072918110019,
+  "nll": 3.23399019241333,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    3.0483343601226807,
+    3.4196460247039795
+  ],
+  "model": "/mnt/user-data/uploads/japan/hf_local/opt-125m",
+  "config": "/home/claude/larp/results/a5fix_opt125m_ba_sandbox/configs/all_n64_adc7.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 2,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 422.6,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 487.3,
+  "calib_cache": "miss",
+  "git": "88386129fe10b85674fbdec37dc1c4a31cd64688"
+}
