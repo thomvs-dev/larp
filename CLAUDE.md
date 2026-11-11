@@ -281,7 +281,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
   2. Done 2026-11-06: zero-shot wrapper and Qwen2.5-0.5B runs (FP32 / W8A8 / statistical, 1,000 docs per task); analog = W8A8 within 0.4 pp, no significant difference.
   3. Done 2026-11-11: A5 step 1 first pass (F12); fractional full scales fixed and checked. Next, Thomas: step-1 rerun `a5s2_opt125m_ba`, then `a5s2_gpt2_ba` (~10–12 h each). Then agent: boundary points for statistical validation (step 2).
   4. Agent (parallel, sandbox): Part B B0 — started 2026-11-11: M1–M4 abstracts checked (`validation/macro_calibration.md`), ADC energy model in `cimsim/circuits/`. M4 (DCIM) calibrated 2026-11-11 (`results/b1_m4_chih/`). Next: Wang C-2C PDF (M3; wrong PDF supplied); analog array / driver / shift-add costs, then M2 (4-b flash, simplest analog macro), then M1. Part B decisions taken 2026-11-11 (§8): 22 nm, all-analog baseline + hybrid in sweeps, system-level headline; reduced scope for a tight deadline (`docs/part_b_plan.md` §4–5). Target venue / date still needed from Thomas.
-  4b. Deadline plan (2026-11-11, §8): Part A main paper; A5/A6 trimmed; A7 deferred. Agent next in A: outlier statistics script, Hadamard rotation, per-role noise configs (sandbox), ready for the laptop when the `a5s2_*` sweeps finish.
+  4b. Deadline plan (2026-11-11, §8; submission next week): Part A main paper; A5/A6 trimmed; A7 deferred. Day plan: Thu–Fri laptop runs `a5s2_*`; Sat step 2 + step 3 + noise per role; Sun hybrid / Hadamard / Pareto runs; Mon–Tue writing; Wed buffer. Part B in the paper only if M2 calibrates by Sun, otherwise M4 + cost-model paragraph. Agent next in A: outlier statistics script, Hadamard rotation, per-role noise configs (sandbox), ready for the laptop when the `a5s2_*` sweeps finish.
   5. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
@@ -408,7 +408,7 @@ Format: `YYYY-MM-DD — decision — reason`
 
 - Machine: Intel Core i7-12700H (6P + 8E cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads by default. Bit-accurate OPT-125M ≈ 74 ms/token.
 - Process node to assume for PPA: 22 nm (decided 2026-11-11, §8)
-- Target venue / deadline: deadline tight (Thomas, 2026-11-11); venue and date _TBD_
+- Target venue / deadline: submission next week (Thomas, 2026-11-11, week of 2026-11-16); exact date, venue and page limit _TBD_
 - ASiM licence terms: Apache 2.0 (checked 2026-11-02)
 - Cloud sandbox: CPU only, 2 cores, no HuggingFace access. Model downloads and long runs happen on Thomas's machine (CPU). Local copies for sandbox checks: Thomas saves models / datasets into `D:\japan\hf_local\` (git-ignored), the agent stages them and sets `CIMSIM_WIKITEXT_DIR` to the parquet folder. Available so far: OPT-125M, Qwen2.5-0.5B (bf16, `/home/claude/hf_local/qwen2.5-0.5b`), WikiText-2 raw (train/test parquet).
 - Git: https://github.com/thomvs-dev/larp, branch `main`. Agents push from the cloud sandbox; Thomas pulls into `D:\japan`. Results produced on Thomas's machine are committed by him (or staged into the sandbox and committed by the agent).
