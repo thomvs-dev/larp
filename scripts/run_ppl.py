@@ -28,6 +28,25 @@ from eval.perplexity import load_wikitext2_ids, perplexity  # noqa: E402
 from eval.runner import calibrate_if_needed, context_len, git_hash, load_model, swap_from_config  # noqa: E402
 
 
+def free_saturation_plans(model) -> int:
+    """Statistical mode keeps one saturation plan per layer (candidate (plane, column) index lists per chunk
+    and cycle, plus a weight-bit cache). When most columns can saturate these reach ~0.1 GB per layer; on
+    Qwen2.5-1.5B (196 layers) the process ran out of memory. This drops the plan after every layer call and
+    switches the weight-bit cache off. Outputs are unchanged (the plan is rebuilt from the weights)."""
+    import cimsim.stat.saturation as sat
+    sat.PLAN_CACHE_MB = 0.0
+
+    def _drop(mod, _inp, _out):
+        mod._sat_plan = None
+
+    n = 0
+    for m in model.modules():
+        if hasattr(m, "_sat_plan"):
+            m.register_forward_hook(_drop)
+            n += 1
+    return n
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
@@ -44,6 +63,10 @@ def main() -> None:
     ap.add_argument("--threads", type=int, default=None, help="CPU threads (default: torch default)")
     ap.add_argument("--no-calib-cache", action="store_true",
                     help="do not read or write the calibration histogram cache (cimsim/calib_cache.py)")
+    ap.add_argument("--free-sat-plans", action="store_true",
+                    help="statistical mode: drop each layer's saturation plan after its forward call and do not "
+                         "cache weight bits. Same outputs, slower per window; needed when most columns saturate "
+                         "on a large model (plans of all layers together do not fit in memory)")
     ap.add_argument("--calib-tokens", type=int, default=2048,
                     help="tokens from the WikiText-2 *train* split used for ADC range calibration "
                          "(only if a layer has adc_range: calibrated)")
@@ -67,6 +90,8 @@ def main() -> None:
     calibrated, calib_s = calibrate_if_needed(model, tok, seq_len, args.calib_tokens, args.device,
                                               **({"cache_dir": None} if args.no_calib_cache else {}),
                                               info=cal_cache)
+    if args.free_sat_plans:
+        free_saturation_plans(model)
     counter.reset_compute()              # events.json: evaluated tokens only (calibration pass excluded)
     t0 = time.time()
     res = perplexity(model, ids, seq_len, max_windows, args.device)

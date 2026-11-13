@@ -286,3 +286,24 @@ def test_fractional_step_is_overestimated(monkeypatch, fs):
     y_id = CIMLinear(ba.weight, ba.bias, ba.cfg.replace(mode="fake_quant"), name="F")(x).double()
     r = float((st(x).double() - y_id).norm() / (ba(x).double() - y_id).norm())
     assert r > 1.5, r
+
+
+def test_free_saturation_plans_same_output(monkeypatch):
+    """run_ppl.py --free-sat-plans: plan dropped after every call, no weight-bit cache, same output."""
+    import importlib.util
+    import pathlib
+    import cimsim.stat.saturation as sat
+    spec = importlib.util.spec_from_file_location(
+        "run_ppl", pathlib.Path(__file__).resolve().parents[1] / "scripts" / "run_ppl.py")
+    run_ppl = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run_ppl)
+    st, _ = _pair(monkeypatch, dict(adc_bits=5, adc_range="calibrated"), 31)
+    x = _x(300, 512, 3)                                   # > BATCH_T_MAX: loop path, as in perplexity windows
+    y0 = st(x).double()
+    assert st._sat_plan is not None
+    monkeypatch.setattr(sat, "PLAN_CACHE_MB", sat.PLAN_CACHE_MB)      # restored after the test
+    assert run_ppl.free_saturation_plans(torch.nn.Sequential(st)) == 1
+    y1 = st(x).double()
+    assert st._sat_plan is None
+    assert torch.equal(y0, y1) or float((y0 - y1).abs().max() / y0.abs().max()) < 1e-12
+    assert st(_x(64, 512, 4)).shape == (64, 64)           # short call without cached bits falls back to the loop

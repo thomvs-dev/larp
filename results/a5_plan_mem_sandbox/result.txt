@@ -1,0 +1,5 @@
+git d5a2332 + working tree, sandbox 2 threads, synthetic Gaussian weights / inputs, nrow 128, forced full scale 63 / 31
+K 1536 N 8960 adc 6: entries 96 index 0 MB, bit cache 1 MB, cached True, sat_cols 0.003, 64 tok 0.6s
+K 1536 N 8960 adc 5: entries 96 index 110 MB, bit cache 0 MB, cached False, sat_cols 1.000, 64 tok 16.1s
+K 8960 N 1536 adc 5: entries 560 index 110 MB, bit cache 0 MB, cached False, sat_cols 1.000, 64 tok 12.1s
+K 1536 N 1536 adc 5: entries 96 index 19 MB, bit cache 0 MB, cached False, sat_cols 1.000, 64 tok 2.3s
