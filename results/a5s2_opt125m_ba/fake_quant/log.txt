@@ -1,0 +1,34 @@
+W1112 01:01:31.021000 22716 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights:   1%|          | 1/197 [00:00<00:41,  4.74it/s]Loading weights: 100%|##########| 197/197 [00:00<00:00, 668.89it/s]
+  window 1/4  running ppl 21.123  elapsed 0.1 min  eta 0.2 min
+  window 2/4  running ppl 25.336  elapsed 0.1 min  eta 0.1 min
+  window 3/4  running ppl 29.674  elapsed 0.2 min  eta 0.1 min
+  window 4/4  running ppl 30.449  elapsed 0.3 min  eta 0.0 min
+{
+  "ppl": 30.449439910723726,
+  "nll": 3.416067600250244,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    3.0503766536712646,
+    3.414079427719116,
+    3.7063276767730713,
+    3.4934866428375244
+  ],
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a5s2_opt125m_ba\\configs\\fake_quant.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 7,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 16.4,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "calib_cache": "off",
+  "git": "695e2ba59a1413374e28556f4cc8159f72268232"
+}

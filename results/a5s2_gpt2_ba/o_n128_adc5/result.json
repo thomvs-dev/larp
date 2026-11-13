@@ -1,0 +1,31 @@
+{
+  "ppl": 963.7081642666722,
+  "nll": 6.870788514614105,
+  "tokens": 8184,
+  "windows": 8,
+  "nll_per_window": [
+    6.666043758392334,
+    6.794763088226318,
+    6.884909152984619,
+    6.991896629333496,
+    6.904272079467773,
+    6.925448894500732,
+    7.0073161125183105,
+    6.791658401489258
+  ],
+  "model": "gpt2",
+  "config": "D:\\japan\\results\\a5s2_gpt2_ba\\configs\\o_n128_adc5.yaml",
+  "seq_len": 1024,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 8,
+  "max_tokens": 8192,
+  "replaced_layers": 48,
+  "seconds": 574.8,
+  "calibrated_layers": 48,
+  "calib_tokens": 2048,
+  "calib_seconds": 10.1,
+  "calib_cache": "hit",
+  "git": "695e2ba59a1413374e28556f4cc8159f72268232"
+}

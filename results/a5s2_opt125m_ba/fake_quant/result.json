@@ -1,0 +1,27 @@
+{
+  "ppl": 30.449439910723726,
+  "nll": 3.416067600250244,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    3.0503766536712646,
+    3.414079427719116,
+    3.7063276767730713,
+    3.4934866428375244
+  ],
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a5s2_opt125m_ba\\configs\\fake_quant.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 7,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 16.4,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "calib_cache": "off",
+  "git": "695e2ba59a1413374e28556f4cc8159f72268232"
+}

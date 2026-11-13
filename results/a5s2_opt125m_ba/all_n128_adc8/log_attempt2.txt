@@ -1,0 +1,5 @@
+W1112 01:02:47.246000 25804 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|##########| 197/197 [00:00<00:00, 2154.17it/s]
+memory allocation of 268435456 bytes failed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

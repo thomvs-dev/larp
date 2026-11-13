@@ -1,0 +1,8 @@
+W1112 01:02:41.758000 14660 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  20%|#9        | 29/148 [00:00<00:00, 242.50it/s]Loading weights:  40%|###9      | 59/148 [00:00<00:00, 265.40it/s]Loading weights:  64%|######3   | 94/148 [00:00<00:00, 298.18it/s]Loading weights:  84%|########4 | 125/148 [00:00<00:00, 200.54it/s]Loading weights: 100%|##########| 148/148 [00:00<00:00, 262.48it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (287644 > 1024). Running this sequence through the model will result in indexing errors
+[transformers] `loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+  window 1/8  running ppl 16.873  elapsed 0.0 min  eta 0.3 min
+  window 2/8  running ppl 24.653  elapsed 0.1 min  eta 0.3 min
+  window 3/8  running ppl 26.395  elapsed 0.1 min  eta 0.2 min

@@ -1,0 +1,46 @@
+W1112 23:11:07.493000 20248 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  41%|####1     | 61/148 [00:00<00:00, 476.06it/s]Loading weights:  74%|#######3  | 109/148 [00:00<00:00, 333.14it/s]Loading weights:  98%|#########7| 145/148 [00:00<00:00, 269.23it/s]Loading weights: 100%|##########| 148/148 [00:00<00:00, 301.94it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (287644 > 1024). Running this sequence through the model will result in indexing errors
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 48 layers in 19.3 s (histogram cache: hit, 48 layers from cache)
+[transformers] `loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+  window 1/8  running ppl 16.848  elapsed 1.7 min  eta 11.9 min
+  window 2/8  running ppl 24.957  elapsed 3.2 min  eta 9.6 min
+  window 3/8  running ppl 26.589  elapsed 4.7 min  eta 7.8 min
+  window 4/8  running ppl 28.452  elapsed 6.2 min  eta 6.2 min
+  window 5/8  running ppl 31.218  elapsed 7.7 min  eta 4.6 min
+  window 6/8  running ppl 32.255  elapsed 9.2 min  eta 3.1 min
+  window 7/8  running ppl 34.058  elapsed 10.6 min  eta 1.5 min
+  window 8/8  running ppl 34.230  elapsed 12.1 min  eta 0.0 min
+{
+  "ppl": 34.22984902786252,
+  "nll": 3.533098042011261,
+  "tokens": 8184,
+  "windows": 8,
+  "nll_per_window": [
+    2.8242154121398926,
+    3.610112190246582,
+    3.4071292877197266,
+    3.5514326095581055,
+    3.812126398086548,
+    3.6370444297790527,
+    3.8544483184814453,
+    3.5682756900787354
+  ],
+  "model": "gpt2",
+  "config": "D:\\japan\\results\\a5s2_gpt2_ba\\configs\\up_gate_n64_adc5.yaml",
+  "seq_len": 1024,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 8,
+  "max_tokens": 8192,
+  "replaced_layers": 48,
+  "seconds": 727.8,
+  "calibrated_layers": 48,
+  "calib_tokens": 2048,
+  "calib_seconds": 19.3,
+  "calib_cache": "hit",
+  "git": "695e2ba59a1413374e28556f4cc8159f72268232"
+}
