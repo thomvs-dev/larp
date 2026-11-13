@@ -48,6 +48,19 @@ def _codes(q: torch.Tensor, bits: int, signed: bool) -> torch.Tensor:
     return qi
 
 
+def rounding_exact(cfg: CIMConfig, full_scale: torch.Tensor | None) -> bool:
+    """True if statistical mode reproduces the noise-free rounding of a calibrated ADC exactly: every
+    (cycle, plane) has an ADC step of 1/n MAC unit (n = 1, 2, ...), so integer MAC values below the full
+    scale are read without error and only saturation remains (computed exactly). With any other step the
+    rounding error goes to the analytic model, which treats conversions as independent and overestimates
+    it (findings F13). Full-range ADCs (full_scale None) use the linear-gain tables checked in GATE A3
+    and are not judged here."""
+    if cfg.adc_bits is None or full_scale is None:
+        return True
+    r = float(2 ** cfg.adc_bits - 1) / full_scale.double().flatten()
+    return bool(((r - r.round()).abs() < 1e-9).all() and (r.round() >= 1).all())
+
+
 def saturation_tables(cfg: CIMConfig, full_scale: torch.Tensor | None, max_mac: int) -> torch.Tensor:
     """S(m) for m = 0..max_mac per (cycle, plane): float64 [C, P, max_mac + 1]."""
     cycles = input_cycles(None, cfg.x_bits, cfg.signed_act, cfg.act_enc)

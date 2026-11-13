@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from cimsim.events import EventCounter  # noqa: E402
+from cimsim.stat.saturation import rounding_exact  # noqa: E402
 from eval.perplexity import load_wikitext2_ids, perplexity  # noqa: E402
 from eval.runner import calibrate_if_needed, context_len, git_hash, load_model, swap_from_config  # noqa: E402
 
@@ -77,6 +78,19 @@ def main() -> None:
         "calib_seconds": calib_s, "calib_cache": cal_cache.get("cache", "off"),
         "git": git_hash(),
     })
+
+    # statistical mode is validated only where every layer's calibrated ADC step is 1/n MAC unit (F13).
+    # Checked here, not in layers.py: an edit there would invalidate the calibration cache (HIST_SOURCES).
+    stat = [m for m in model.modules() if getattr(getattr(m, "cfg", None), "mode", None) == "statistical"
+            and getattr(m.cfg, "macro", "acim") == "acim" and getattr(m.cfg, "adc_range", None) == "calibrated"
+            and getattr(m, "adc_fs", None) is not None]
+    if stat:
+        inexact = [m.name for m in stat if not rounding_exact(m.cfg, m.adc_fs)]
+        res["stat_inexact_layers"] = len(inexact)
+        res["stat_inexact_names"] = inexact[:20]
+        if inexact:
+            print(f"WARNING: {len(inexact)} statistical layers have an ADC step that is not 1/n MAC unit; "
+                  f"statistical mode overestimates their rounding error (findings F13): {inexact[:5]}", flush=True)
 
     out = ROOT / "results" / args.name
     out.mkdir(parents=True, exist_ok=True)

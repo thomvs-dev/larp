@@ -90,6 +90,9 @@ def run_point(args, out: Path, name: str, cfg: dict | None) -> dict:
     res = json.loads(res_file.read_text(encoding="utf-8"))
     print(f"    PPL {res['ppl']:.3f}  ({(time.time() - t0) / 60:.1f} min, calibration cache "
           f"{res.get('calib_cache')})", flush=True)
+    if res.get("stat_inexact_layers"):
+        print(f"    NOT VALID in statistical mode: {res['stat_inexact_layers']} layers with an ADC step "
+              f"that is not 1/n MAC unit (findings F13)", flush=True)
     return res
 
 
@@ -119,7 +122,8 @@ def summary(args, out: Path, ref: dict | None) -> None:
         rows.append({"point": d.name, "role": role, "nrow": n, "adc_bits": b, "ppl": res["ppl"],
                      "ratio_to_fake_quant": res["ppl"] / ref["ppl"] if ref else None,
                      "adc_conversions": ev.get("adc_conversions"), "seconds": res.get("seconds"),
-                     "calib_cache": res.get("calib_cache"), "git": res.get("git")})
+                     "calib_cache": res.get("calib_cache"), "git": res.get("git"),
+                     "stat_inexact_layers": res.get("stat_inexact_layers")})
     s = {"model": args.model, "mode": args.mode, "tokens": args.tokens, "collapse_factor": args.collapse,
          "fake_quant_ppl": ref["ppl"] if ref else None, "points": rows}
     (out / "summary.json").write_text(json.dumps(s, indent=2), encoding="utf-8")
@@ -127,7 +131,8 @@ def summary(args, out: Path, ref: dict | None) -> None:
              f"{args.model}, {args.mode}, first {args.tokens} WikiText-2 test tokens. Base: other layers "
              f"as `{Path(args.base).name}`. Fake-quant PPL on the same tokens: "
              f"{ref['ppl']:.3f}." if ref else "", "",
-             "Cells: PPL (ratio to fake-quant). `—` = not run.", ""]
+             "Cells: PPL (ratio to fake-quant). `—` = not run. `*` = statistical mode not valid at this "
+             "point (ADC step not 1/n MAC unit on some layers, findings F13).", ""]
     bits_all = sorted({r["adc_bits"] for r in rows}, reverse=True)
     for role in ROLES:
         rr = [r for r in rows if r["role"] == role]
@@ -139,8 +144,9 @@ def summary(args, out: Path, ref: dict | None) -> None:
             cells = []
             for b in bits_all:
                 m = [r for r in rr if r["nrow"] == n and r["adc_bits"] == b]
-                cells.append(f"{m[0]['ppl']:.2f} ({m[0]['ratio_to_fake_quant']:.3f})" if m and ref else
-                             (f"{m[0]['ppl']:.2f}" if m else "—"))
+                star = "*" if m and m[0].get("stat_inexact_layers") else ""
+                cells.append(f"{m[0]['ppl']:.2f} ({m[0]['ratio_to_fake_quant']:.3f}){star}" if m and ref else
+                             (f"{m[0]['ppl']:.2f}{star}" if m else "—"))
             lines.append(f"| {n} | " + " | ".join(cells) + " |")
         lines.append("")
     (out / "summary.md").write_text("\n".join(lines), encoding="utf-8")

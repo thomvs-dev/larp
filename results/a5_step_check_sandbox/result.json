@@ -1,0 +1,108 @@
+{
+  "git": "4d08bc700d664a901956b6b53df3027ca02d6754",
+  "seed": 0,
+  "layer": "768x256 synthetic",
+  "tokens": 256,
+  "points": [
+    {
+      "nrow": 256,
+      "adc_bits": 6,
+      "full_scale": 63,
+      "step_mac": 1.0,
+      "rounding_exact": true,
+      "err_over_signal_ba": 0.5240774681625142,
+      "err_over_signal_stat": 0.5240774681625142,
+      "stat_minus_ba_over_signal": 0.0
+    },
+    {
+      "nrow": 256,
+      "adc_bits": 6,
+      "full_scale": 81,
+      "step_mac": 1.2857142857142858,
+      "rounding_exact": false,
+      "err_over_signal_ba": 0.5114886268602526,
+      "err_over_signal_stat": 1.0206429662715355,
+      "stat_minus_ba_over_signal": 1.1414852850087436
+    },
+    {
+      "nrow": 256,
+      "adc_bits": 6,
+      "full_scale": 83,
+      "step_mac": 1.3174603174603174,
+      "rounding_exact": false,
+      "err_over_signal_ba": 0.5312570887404408,
+      "err_over_signal_stat": 1.0538363086971452,
+      "stat_minus_ba_over_signal": 1.1769813198840673
+    },
+    {
+      "nrow": 256,
+      "adc_bits": 6,
+      "full_scale": 126,
+      "step_mac": 2.0,
+      "rounding_exact": false,
+      "err_over_signal_ba": 1.0052324292955386,
+      "err_over_signal_stat": 1.3838072640668058,
+      "stat_minus_ba_over_signal": 1.7024668886545657
+    },
+    {
+      "nrow": 256,
+      "adc_bits": 7,
+      "full_scale": 127,
+      "step_mac": 1.0,
+      "rounding_exact": true,
+      "err_over_signal_ba": 0.0,
+      "err_over_signal_stat": 0.0,
+      "stat_minus_ba_over_signal": 0.0
+    },
+    {
+      "nrow": 256,
+      "adc_bits": 7,
+      "full_scale": 132,
+      "step_mac": 1.0393700787401574,
+      "rounding_exact": false,
+      "err_over_signal_ba": 0.15316103083351795,
+      "err_over_signal_stat": 0.6642149071156078,
+      "stat_minus_ba_over_signal": 0.6805077464016486
+    },
+    {
+      "nrow": 256,
+      "adc_bits": 7,
+      "full_scale": 152,
+      "step_mac": 1.1968503937007875,
+      "rounding_exact": false,
+      "err_over_signal_ba": 0.43767974467683013,
+      "err_over_signal_stat": 0.9435388059637825,
+      "stat_minus_ba_over_signal": 1.0365250440663258
+    },
+    {
+      "nrow": 128,
+      "adc_bits": 6,
+      "full_scale": 63,
+      "step_mac": 1.0,
+      "rounding_exact": true,
+      "err_over_signal_ba": 0.0,
+      "err_over_signal_stat": 0.0,
+      "stat_minus_ba_over_signal": 0.0
+    },
+    {
+      "nrow": 128,
+      "adc_bits": 6,
+      "full_scale": 70,
+      "step_mac": 1.1111111111111112,
+      "rounding_exact": false,
+      "err_over_signal_ba": 0.3319505590874997,
+      "err_over_signal_stat": 1.250662579315279,
+      "stat_minus_ba_over_signal": 1.2946172555739226
+    },
+    {
+      "nrow": 64,
+      "adc_bits": 6,
+      "full_scale": 21,
+      "step_mac": 0.3333333333333333,
+      "rounding_exact": true,
+      "err_over_signal_ba": 0.20240861527780377,
+      "err_over_signal_stat": 0.20240848842862819,
+      "stat_minus_ba_over_signal": 1.9217307747969273e-06
+    }
+  ]
+}

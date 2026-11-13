@@ -261,3 +261,28 @@ def test_exact_matmul_float32_path_equals_float64():
     qx2 = torch.full((4, 4864), 127.0)
     st._qw_norm = None
     assert torch.equal(st._exact_matmul(qx2, qw2), qx2.double() @ qw2.double().t())
+
+
+def test_rounding_exact_flag():
+    """Step of 1/n MAC unit -> exact; any other calibrated step -> not exact (findings F13)."""
+    from cimsim.stat.saturation import rounding_exact
+    cfg6 = CIMConfig(mode="statistical", adc_bits=6, adc_range="calibrated", **BASE)
+    for fs, ok in ((63.0, True), (31.5, True), (21.0, True), (81.0, False), (126.0, False), (70.0, False)):
+        assert rounding_exact(cfg6, torch.full((8, 8), fs)) is ok, fs
+    mixed = torch.full((8, 8), 63.0)
+    mixed[3, 2] = 64.0
+    assert rounding_exact(cfg6, mixed) is False
+    assert rounding_exact(cfg6, None) is True                                   # full-range ADC: not judged here
+    assert rounding_exact(cfg6.replace(adc_bits=8), torch.full((8, 8), 127.5)) is True
+
+
+@pytest.mark.parametrize("fs", [81, 70])
+def test_fractional_step_is_overestimated(monkeypatch, fs):
+    """Documents the limit behind the flag (F13): with an ADC step that is not 1/n MAC unit the statistical
+    error is well above the bit-accurate one. If this test fails because the two agree, the rounding
+    model was fixed: update rounding_exact and F13."""
+    st, ba = _pair(monkeypatch, dict(adc_bits=6, adc_range="calibrated", nrow=256 if fs == 81 else 128), fs, K=768)
+    x = _x(192, 768, 2)
+    y_id = CIMLinear(ba.weight, ba.bias, ba.cfg.replace(mode="fake_quant"), name="F")(x).double()
+    r = float((st(x).double() - y_id).norm() / (ba(x).double() - y_id).norm())
+    assert r > 1.5, r
