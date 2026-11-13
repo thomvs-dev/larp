@@ -1,0 +1,57 @@
+{
+  "model": "gpt2",
+  "mode": "statistical",
+  "tokens": 8192,
+  "collapse_factor": 2.0,
+  "fake_quant_ppl": 33.77557872831794,
+  "points": [
+    {
+      "point": "all_n256_adc7",
+      "role": "all",
+      "nrow": 256,
+      "adc_bits": 7,
+      "ppl": 212640.92210932652,
+      "ratio_to_fake_quant": 6295.700328919761,
+      "adc_conversions": 173946175488,
+      "seconds": 61.2,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    },
+    {
+      "point": "down_n256_adc7",
+      "role": "down",
+      "nrow": 256,
+      "adc_bits": 7,
+      "ppl": 214821.3736207038,
+      "ratio_to_fake_quant": 6360.257372602602,
+      "adc_conversions": 289910292480,
+      "seconds": 55.4,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    },
+    {
+      "point": "o_n64_adc5",
+      "role": "o",
+      "nrow": 64,
+      "adc_bits": 5,
+      "ppl": 33.82238941898318,
+      "ratio_to_fake_quant": 1.0013859330447532,
+      "adc_conversions": 376883380224,
+      "seconds": 32.8,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    },
+    {
+      "point": "up_gate_n64_adc5",
+      "role": "up_gate",
+      "nrow": 64,
+      "adc_bits": 5,
+      "ppl": 34.22984902786252,
+      "ratio_to_fake_quant": 1.013449667382419,
+      "adc_conversions": 463856467968,
+      "seconds": 94.2,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    }
+  ]
+}

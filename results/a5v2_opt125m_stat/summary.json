@@ -1,0 +1,57 @@
+{
+  "model": "facebook/opt-125m",
+  "mode": "statistical",
+  "tokens": 8192,
+  "collapse_factor": 2.0,
+  "fake_quant_ppl": 30.45979220479355,
+  "points": [
+    {
+      "point": "all_n64_adc5",
+      "role": "all",
+      "nrow": 64,
+      "adc_bits": 5,
+      "ppl": 31.935712931264618,
+      "ratio_to_fake_quant": 1.0484547207856132,
+      "adc_conversions": 695784701952,
+      "seconds": 249.8,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    },
+    {
+      "point": "o_n256_adc6",
+      "role": "o",
+      "nrow": 256,
+      "adc_bits": 6,
+      "ppl": 324.64444866937583,
+      "ratio_to_fake_quant": 10.658130774059764,
+      "adc_conversions": 333396836352,
+      "seconds": 90.6,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    },
+    {
+      "point": "qkv_n128_adc6",
+      "role": "qkv",
+      "nrow": 128,
+      "adc_bits": 6,
+      "ppl": 30.970529435386045,
+      "ratio_to_fake_quant": 1.016767587485778,
+      "adc_conversions": 347892350976,
+      "seconds": 33.6,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    },
+    {
+      "point": "qkv_n64_adc5",
+      "role": "qkv",
+      "nrow": 64,
+      "adc_bits": 5,
+      "ppl": 31.72376797470918,
+      "ratio_to_fake_quant": 1.0414965329184587,
+      "adc_conversions": 434865438720,
+      "seconds": 118.6,
+      "calib_cache": "hit",
+      "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+    }
+  ]
+}

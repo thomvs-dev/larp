@@ -1,0 +1,46 @@
+W1113 12:15:27.801000 16932 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  22%|##2       | 33/148 [00:00<00:00, 320.17it/s]Loading weights:  45%|####4     | 66/148 [00:00<00:00, 202.42it/s]Loading weights: 100%|##########| 148/148 [00:00<00:00, 477.53it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (287644 > 1024). Running this sequence through the model will result in indexing errors
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 48 layers in 11.7 s (histogram cache: hit, 48 layers from cache)
+[transformers] `loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+  window 1/8  running ppl 293879.535  elapsed 0.1 min  eta 0.9 min
+  window 2/8  running ppl 242842.282  elapsed 0.2 min  eta 0.7 min
+  window 3/8  running ppl 217421.966  elapsed 0.3 min  eta 0.6 min
+  window 4/8  running ppl 220385.641  elapsed 0.5 min  eta 0.5 min
+  window 5/8  running ppl 224402.406  elapsed 0.6 min  eta 0.3 min
+  window 6/8  running ppl 217330.164  elapsed 0.7 min  eta 0.2 min
+  window 7/8  running ppl 219006.572  elapsed 0.8 min  eta 0.1 min
+  window 8/8  running ppl 214821.374  elapsed 0.9 min  eta 0.0 min
+{
+  "ppl": 214821.3736207038,
+  "nll": 12.277562141418457,
+  "tokens": 8184,
+  "windows": 8,
+  "nll_per_window": [
+    12.590925216674805,
+    12.209409713745117,
+    12.068450927734375,
+    12.343750953674316,
+    12.393444061279297,
+    12.129056930541992,
+    12.342961311340332,
+    12.142498016357422
+  ],
+  "model": "gpt2",
+  "config": "D:\\japan\\results\\a5v2_gpt2_stat\\configs\\down_n256_adc7.yaml",
+  "seq_len": 1024,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 8,
+  "max_tokens": 8192,
+  "replaced_layers": 48,
+  "seconds": 55.4,
+  "calibrated_layers": 48,
+  "calib_tokens": 2048,
+  "calib_seconds": 11.7,
+  "calib_cache": "hit",
+  "git": "b5f6e16cdbe9f7784aff5fdd4869b5ed131f52e4"
+}
