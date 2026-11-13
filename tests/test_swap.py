@@ -229,3 +229,14 @@ def test_perplexity_window_checkpoint(tmp_path):
     assert abs(again["ppl"] - full["ppl"]) < 1e-9 * full["ppl"]
     other = perplexity(model, torch.randint(0, 100, (4 * 16,)), 16, None, progress=False, checkpoint=str(ck))
     assert other["resumed_windows"] == 0                              # different tokens: checkpoint ignored
+
+
+def test_perplexity_runs_without_grad():
+    """perplexity() must not build an autograd graph (on a 1.5B model that exhausts memory; 2026-11-14)."""
+    from eval.perplexity import perplexity
+    model = tiny("llama").eval()
+    seen = []
+    h = model.register_forward_hook(lambda m, i, o: seen.append(torch.is_grad_enabled()))
+    perplexity(model, torch.randint(0, 100, (2 * 16,)), 16, None, progress=False)
+    h.remove()
+    assert seen and not any(seen)

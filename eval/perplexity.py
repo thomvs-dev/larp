@@ -32,7 +32,6 @@ def load_wikitext2_ids(tokenizer, split: str = "test") -> torch.Tensor:
     return tokenizer(text, return_tensors="pt").input_ids[0]
 
 
-@torch.no_grad()
 def _rss_gb() -> float | None:
     try:
         import psutil
@@ -41,6 +40,7 @@ def _rss_gb() -> float | None:
         return None
 
 
+@torch.no_grad()
 def perplexity(model, ids: torch.Tensor, seq_len: int, max_windows: int | None = None,
                device: str = "cpu", progress: bool = True, checkpoint=None) -> dict:
     """Windows are taken from the start of the test set, so a run with
