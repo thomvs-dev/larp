@@ -208,3 +208,24 @@ def test_events_exclude_calibration_after_reset_compute():
     with torch.no_grad():
         m2(ids)
     assert counter.total() == ref.total()
+
+
+def test_perplexity_window_checkpoint(tmp_path):
+    """A run stopped after some windows continues from the saved NLLs and gives the same result."""
+    import json
+    from eval.perplexity import perplexity
+    torch.manual_seed(0)
+    model = tiny("llama").eval()
+    ids = torch.randint(0, 100, (4 * 16,))
+    full = perplexity(model, ids, 16, None, progress=False)
+    ck = tmp_path / "windows.json"
+    first = perplexity(model, ids, 16, None, progress=False, checkpoint=str(ck))
+    assert first["nll_per_window"] == full["nll_per_window"] and first["resumed_windows"] == 0
+    saved = json.loads(ck.read_text())
+    saved["nll_per_window"] = saved["nll_per_window"][:2]             # as if the run died in window 3
+    ck.write_text(json.dumps(saved))
+    again = perplexity(model, ids, 16, None, progress=False, checkpoint=str(ck))
+    assert again["resumed_windows"] == 2 and again["nll_per_window"] == full["nll_per_window"]
+    assert abs(again["ppl"] - full["ppl"]) < 1e-9 * full["ppl"]
+    other = perplexity(model, torch.randint(0, 100, (4 * 16,)), 16, None, progress=False, checkpoint=str(ck))
+    assert other["resumed_windows"] == 0                              # different tokens: checkpoint ignored

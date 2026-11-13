@@ -11,6 +11,7 @@ The unmodified model (no CIM swap) is selected with --config none.
 from __future__ import annotations
 
 import argparse
+import faulthandler
 import json
 import sys
 import time
@@ -48,6 +49,7 @@ def free_saturation_plans(model) -> int:
 
 
 def main() -> None:
+    faulthandler.enable()                # Python stack of every thread on a native crash (access violation)
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--config", required=True, help="YAML path, or 'none' for the unmodified model")
@@ -67,6 +69,10 @@ def main() -> None:
                     help="statistical mode: drop each layer's saturation plan after its forward call and do not "
                          "cache weight bits. Same outputs, slower per window; needed when most columns saturate "
                          "on a large model (plans of all layers together do not fit in memory)")
+    ap.add_argument("--window-checkpoint", action="store_true",
+                    help="save per-window NLLs in results/<name>/windows.json and continue from them after a "
+                         "crash. Noise-free configs only. events.json then covers only the windows of the last "
+                         "process (result.json: resumed_windows)")
     ap.add_argument("--calib-tokens", type=int, default=2048,
                     help="tokens from the WikiText-2 *train* split used for ADC range calibration "
                          "(only if a layer has adc_range: calibrated)")
@@ -94,7 +100,11 @@ def main() -> None:
         free_saturation_plans(model)
     counter.reset_compute()              # events.json: evaluated tokens only (calibration pass excluded)
     t0 = time.time()
-    res = perplexity(model, ids, seq_len, max_windows, args.device)
+    ck = None
+    if args.window_checkpoint:
+        (ROOT / "results" / args.name).mkdir(parents=True, exist_ok=True)
+        ck = str(ROOT / "results" / args.name / "windows.json")
+    res = perplexity(model, ids, seq_len, max_windows, args.device, checkpoint=ck)
     res.update({
         "model": args.model, "config": args.config, "seq_len": seq_len, "dtype": str(dtype),
         "device": args.device, "threads": torch.get_num_threads(), "max_windows": max_windows, "max_tokens": args.max_tokens,

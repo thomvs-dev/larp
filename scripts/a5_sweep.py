@@ -77,6 +77,8 @@ def run_point(args, out: Path, name: str, cfg: dict | None) -> dict:
         cmd += ["--threads", str(args.threads)]
     if args.free_sat_plans and cfg is not None:
         cmd += ["--free-sat-plans"]
+    if args.window_checkpoint and cfg is not None:
+        cmd += ["--window-checkpoint"]
     t0 = time.time()
     print(f"--- {name} ...", flush=True)
     for attempt in range(1, args.attempts + 1):
@@ -169,6 +171,8 @@ def main() -> None:
     ap.add_argument("--collapse", type=float, default=2.0, help="PPL / fake-quant PPL above which lower bits are skipped")
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--free-sat-plans", action="store_true", help="passed to run_ppl.py (memory, see there)")
+    ap.add_argument("--window-checkpoint", action="store_true",
+                    help="passed to run_ppl.py: a retried point continues at the first unfinished window")
     ap.add_argument("--attempts", type=int, default=2, help="runs per point before it is marked failed and skipped")
     ap.add_argument("--all-bits", action="store_true", help="do not skip redundant high-bit points")
     ap.add_argument("--plan", action="store_true", help="print the points (descent order) and exit")
