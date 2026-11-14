@@ -81,28 +81,37 @@ def main() -> None:
     model, tok, _ = load_model(args.model, "cpu")
     model.eval()
     ids = load_wikitext2_ids(tok)[:args.tokens].unsqueeze(0)
-    rows, hooks = {}, []
+    # Forward in windows no longer than the model context (GPT-2: 1024); inputs are pooled per layer.
+    ctx = getattr(model.config, "n_positions", None) or getattr(model.config, "max_position_embeddings", 2048)
+    win = min(int(ctx), 2048)
+    single = ids.shape[1] <= win          # one window: stats in the hook, nothing pooled (memory on 1.5B)
+    acts, rows, hooks = {}, {}, []
     for name, mod in model.named_modules():
-        if isinstance(mod, torch.nn.Linear) and role_of(name):
+        is_lin = isinstance(mod, torch.nn.Linear) or type(mod).__name__ == "Conv1D"   # GPT-2 uses Conv1D
+        if is_lin and role_of(name):
             def hook(m, inp, out, name=name):
-                rows[name] = {"role": role_of(name), **layer_stats(inp[0].reshape(-1, inp[0].shape[-1]))}
-            hooks.append(mod.register_forward_hook(hook))
-        elif type(mod).__name__ == "Conv1D" and role_of(name):     # GPT-2 uses Conv1D for its linears
-            def hook(m, inp, out, name=name):
-                rows[name] = {"role": role_of(name), **layer_stats(inp[0].reshape(-1, inp[0].shape[-1]))}
+                x = inp[0].reshape(-1, inp[0].shape[-1]).detach()
+                if single:
+                    rows[name] = {"role": role_of(name), **layer_stats(x)}
+                else:
+                    acts.setdefault(name, []).append(x)
             hooks.append(mod.register_forward_hook(hook))
     with torch.no_grad():
-        model(ids)
+        for i in range(0, ids.shape[1], win):
+            model(ids[:, i:i + win])
     for h in hooks:
         h.remove()
+    for name, a in acts.items():
+        rows[name] = {"role": role_of(name), **layer_stats(torch.cat(a, 0))}
+    del acts
 
     out = ROOT / "results" / args.name
     out.mkdir(parents=True, exist_ok=True)
     git = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
-    (out / "layers.json").write_text(json.dumps({"model": args.model, "tokens": int(ids.shape[1]), "git": git,
+    (out / "layers.json").write_text(json.dumps({"model": args.model, "tokens": int(ids.shape[1]), "window": win, "git": git,
                                                  "layers": rows}, indent=1), encoding="utf-8")
     lines = [f"# Activation statistics `{args.name}`", "",
-             f"{args.model}, FP32, first {ids.shape[1]} WikiText-2 test tokens, inputs of the CIM layers "
+             f"{args.model}, FP32, first {ids.shape[1]} WikiText-2 test tokens ({win}-token windows), inputs of the CIM layers "
              f"(8-bit per-token codes as in the CIM layers). Per role: median over layers [max].", "",
              "| Role | layers | peak/rms (median tok) | peak/rms (p99 tok) | outlier ch > 6x | top-1 % ch energy "
              "| code = 0 | code < 0 | abs(code) <= 1 | sign-plane density |",

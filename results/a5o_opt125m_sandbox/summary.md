@@ -1,6 +1,6 @@
 # Activation statistics `a5o_opt125m_sandbox`
 
-/home/claude/hf_local/opt-125m, FP32, first 2048 WikiText-2 test tokens, inputs of the CIM layers (8-bit per-token codes as in the CIM layers). Per role: median over layers [max].
+/home/claude/hf_local/opt-125m, FP32, first 2048 WikiText-2 test tokens (2048-token windows), inputs of the CIM layers (8-bit per-token codes as in the CIM layers). Per role: median over layers [max].
 
 | Role | layers | peak/rms (median tok) | peak/rms (p99 tok) | outlier ch > 6x | top-1 % ch energy | code = 0 | code < 0 | abs(code) <= 1 | sign-plane density |
 |---|---|---|---|---|---|---|---|---|---|

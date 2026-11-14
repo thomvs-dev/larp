@@ -1,7 +1,8 @@
 {
  "model": "/home/claude/hf_local/opt-125m",
  "tokens": 2048,
- "git": "78242e906d7d4ae1c26139c00218b630261ecaee",
+ "window": 2048,
+ "git": "60171d472f2afb4693ad7e4c301af8a88f001df0",
  "layers": {
   "model.decoder.layers.0.self_attn.q_proj": {
    "role": "qkv",
