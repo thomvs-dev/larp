@@ -240,3 +240,13 @@ def test_perplexity_runs_without_grad():
     perplexity(model, torch.randint(0, 100, (2 * 16,)), 16, None, progress=False)
     h.remove()
     assert seen and not any(seen)
+
+
+def test_window_nll_matches_hf_loss():
+    from eval.perplexity import _window_nll
+    model = tiny("qwen2").eval()
+    ids = torch.randint(0, 100, (1, 40))
+    with torch.no_grad():
+        ref = model(ids, labels=ids).loss.item()
+        got = _window_nll(model(ids).logits[0], ids[0], block=7)
+    assert abs(got - ref) < 1e-5 * ref

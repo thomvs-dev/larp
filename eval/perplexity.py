@@ -40,6 +40,19 @@ def _rss_gb() -> float | None:
         return None
 
 
+def _window_nll(logits: torch.Tensor, ids: torch.Tensor, block: int = 256) -> float:
+    """Mean NLL over the seq_len - 1 predicted tokens (same quantity as the HF causal-LM loss), computed in
+    blocks of positions. The HF loss upcasts and shifts a copy of the full logits, which for a 2,048-token
+    window and a 152k vocabulary adds about 2.5 GB at the end of every window (Qwen2.5-1.5B crashed there)."""
+    n = ids.numel() - 1
+    total = 0.0
+    for i in range(0, n, block):
+        j = min(i + block, n)
+        total += torch.nn.functional.cross_entropy(logits[i:j].float(), ids[i + 1:j + 1],
+                                                   reduction="sum").double().item()
+    return total / n
+
+
 @torch.no_grad()
 def perplexity(model, ids: torch.Tensor, seq_len: int, max_windows: int | None = None,
                device: str = "cpu", progress: bool = True, checkpoint=None) -> dict:
@@ -70,9 +83,8 @@ def perplexity(model, ids: torch.Tensor, seq_len: int, max_windows: int | None =
     t_start = time.time()
     for w in range(resumed, n_windows):
         chunk = ids[w * seq_len:(w + 1) * seq_len].unsqueeze(0).to(device)
-        out = model(chunk, labels=chunk)
-        # HF loss is the mean over seq_len - 1 predicted tokens
-        nll = out.loss.float().item()
+        out = model(chunk)
+        nll = _window_nll(out.logits[0], chunk[0])
         del out                              # logits of a 2,048-token window are > 1 GB on large vocabularies
         per_window.append(nll)
         if checkpoint is not None:
