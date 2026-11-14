@@ -163,6 +163,14 @@ Observations from runs that affect the design or the paper. Each entry: what was
 - Not affected: every statistical result reported so far for the result models (calibrated ADC 6 b, nrow 128: full scale 63 on all layers of Qwen2.5-0.5B / 1.5B and TinyLlama), GATE A3 calibrated configs (FS 63), full-range ADC 7–8 b (near-linear gain tables, GATE A3).
 - Consequence (Thomas, 2026-11-13): statistical mode is used only where every statistical layer has a step of 1/n MAC unit. `cimsim.stat.saturation.rounding_exact` tests it; `run_ppl.py` writes `stat_inexact_layers` and warns; `a5_sweep.py` marks such points `*`. Partial-clipping points (o-proj, GPT-2 `c_proj` near the boundary) are reported bit-accurate on OPT-125M / GPT-2 only. An exact treatment of fractional-step rounding is future work (it touches most conversions, so the speed advantage shrinks).
 
+## F14 — Analog noise below half an ADC step is absorbed exactly; at the threshold, perplexity is chaotic in both modes
+
+- Setting: all layers nrow 128, calibrated ADC 6 b (step 1 MAC unit), Gaussian noise `rand_noise_sigma` in % of the nominal full scale (128 MAC units for bit-serial inputs), noise on one layer type at a time.
+- Below the threshold: sigma 0.05 % is 0.064 MAC units; a code changes only if |noise| > 0.5 units, probability ~1e-14 per conversion. OPT-125M gives 25.594 (= noise-free) for every layer type and all layers, 3 seeds each (`results/a5n_opt125m/summary.md`). Bit-accurate fc1 layer 1 at 0.001 % and 0.05 %: 25.591 = noise-free (`results/a5n_check_sandbox/`).
+- At the threshold: sigma 0.10 % (0.128 units) gives a flip probability ~9.4e-5 per conversion. PPL then depends strongly on where the rare flips land: OPT-125M with noise on fc1 of layer 1 only gives 52–245 bit-accurate over independent random streams; layers 1 and 2 cause almost all of the damage, layers 0 and 3–5 alone < 2 %. At 0.20 % every layer type collapses on both models except o-proj (OPT 151, Qwen2.5-1.5B 813).
+- Statistical vs bit-accurate at 0.10 %: no difference at layer level (error std, non-zero fraction, kurtosis, per-column and per-token statistics, 60-repeat variance), but pooled PPL on layer 1 gives geometric means 190 (statistical, 5 runs) vs 102 (bit-accurate, 8 runs), p ≈ 0.06. The bit-accurate per-layer generator streams for seeds 0–2 give unusually close PPLs (88.1 / 88.0 / 89.4), not explained.
+- Consequence: design rule "keep analog noise below half an ADC step" (here sigma < ~0.08 % of full scale); no per-layer-type noise ranking is reported (§8, 2026-11-14).
+
 ## Machine / speed notes
 
 - Thomas's machine: Intel Core i7-12700H (6 P-cores + 8 E-cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads.
