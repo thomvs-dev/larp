@@ -1,0 +1,47 @@
+W1115 01:42:06.092000 16552 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  18%|#8        | 27/148 [00:00<00:00, 263.63it/s]Loading weights:  49%|####9     | 73/148 [00:00<00:00, 355.00it/s]Loading weights:  74%|#######3  | 109/148 [00:00<00:00, 291.56it/s]Loading weights:  94%|#########3| 139/148 [00:00<00:00, 237.18it/s]Loading weights: 100%|##########| 148/148 [00:00<00:00, 269.36it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (287644 > 1024). Running this sequence through the model will result in indexing errors
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 48 layers in 215.4 s (histogram cache: miss, 0 layers from cache)
+[transformers] `loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+  window 1/8  running ppl 16.760  elapsed 1.3 min  eta 9.3 min  rss 1.7 GB
+  window 2/8  running ppl 24.576  elapsed 2.7 min  eta 8.0 min  rss 1.7 GB
+  window 3/8  running ppl 26.340  elapsed 4.0 min  eta 6.6 min  rss 1.7 GB
+  window 4/8  running ppl 28.272  elapsed 5.3 min  eta 5.3 min  rss 1.7 GB
+  window 5/8  running ppl 30.969  elapsed 6.7 min  eta 4.0 min  rss 1.7 GB
+  window 6/8  running ppl 31.941  elapsed 8.0 min  eta 2.7 min  rss 1.7 GB
+  window 7/8  running ppl 33.620  elapsed 9.3 min  eta 1.3 min  rss 1.7 GB
+  window 8/8  running ppl 33.722  elapsed 10.6 min  eta 0.0 min  rss 1.7 GB
+{
+  "ppl": 33.72244037377086,
+  "nll": 3.518163502216339,
+  "tokens": 8184,
+  "windows": 8,
+  "nll_per_window": [
+    2.8190081119537354,
+    3.584559917449951,
+    3.4097506999969482,
+    3.5541188716888428,
+    3.7975170612335205,
+    3.618368148803711,
+    3.8225297927856445,
+    3.5394554138183594
+  ],
+  "resumed_windows": 0,
+  "model": "gpt2",
+  "config": "D:\\japan\\results\\a6m_gpt2_ba\\configs\\n256_adc7_had_all.yaml",
+  "seq_len": 1024,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 8,
+  "max_tokens": 8192,
+  "replaced_layers": 48,
+  "seconds": 638.8,
+  "calibrated_layers": 48,
+  "calib_tokens": 2048,
+  "calib_seconds": 215.4,
+  "calib_cache": "miss",
+  "git": "72fc4159e3a2143aa89881355935ba53171bae89"
+}

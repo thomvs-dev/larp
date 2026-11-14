@@ -1,0 +1,17 @@
+{
+ "model": "facebook/opt-125m",
+ "mode": "bit_accurate",
+ "tokens": 8192,
+ "rows": [
+  {
+   "run": "fake_quant",
+   "ppl": 30.45979220479355,
+   "ratio_to_fake_quant": 1.0,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "72fc4159e3a2143aa89881355935ba53171bae89"
+  }
+ ]
+}

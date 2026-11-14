@@ -1,0 +1,6 @@
+{
+ "model": "Qwen/Qwen2.5-1.5B",
+ "mode": "statistical",
+ "tokens": 8192,
+ "rows": []
+}
