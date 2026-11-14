@@ -1,0 +1,28 @@
+{
+  "ppl": 25.024051618969413,
+  "nll": 3.2198374271392822,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    3.035057306289673,
+    3.4046175479888916
+  ],
+  "resumed_windows": 0,
+  "model": "/home/claude/hf_local/opt-125m",
+  "config": "/tmp/a6/a6_had.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 2,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 35.5,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 348.3,
+  "calib_cache": "miss",
+  "git": "afa986a65e001c82aa3489a9392c441425a81993",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}

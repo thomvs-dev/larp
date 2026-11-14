@@ -48,7 +48,16 @@ def swap_from_config(model, config_path: str, counter: EventCounter) -> tuple[di
     with open(config_path, "r", encoding="utf-8") as f:
         cfg_dict = yaml.safe_load(f)
     cfg_map = LayerConfigMap.from_dict(cfg_dict)
+    rot = cfg_dict.get("hadamard")
+    blocks = {}
+    if rot:                                         # A6: W -> W Q before the CIM layers quantize W
+        from cimsim.models.rotate import rotate_weights
+        blocks = rotate_weights(model, rot.get("roles", []), rot.get("block"))
     replaced = swap_linears(model, cfg_map, counter)
+    if blocks:                                      # x -> x Q in front of each rotated layer
+        from cimsim.models.rotate import add_input_rotation
+        add_input_rotation(model, blocks, counter)
+        model._cimsim_rotation = f"hadamard:{sorted(blocks.items())}"
     if cfg_dict.get("attention", False):            # QKᵀ and P·V on CIM arrays (cimsim.core.attention)
         from cimsim.core.attention import swap_attention
         replaced += swap_attention(model, cfg_map, counter)
@@ -83,6 +92,8 @@ def calibrate_if_needed(model, tok, seq_len: int, calib_tokens: int, device: str
     if cache_dir is _DEFAULT:
         cache_dir = default_cache_dir()
     data_key = f"wikitext2-train:{tensor_key(train_ids)}:{cal_len}"
+    if getattr(model, "_cimsim_rotation", None):    # rotated inputs give different histograms
+        data_key += ":" + model._cimsim_rotation
     report = {}
     print(f"calibrating (ADC range / statistical error model) on {calib_tokens} train tokens ...", flush=True)
     calibrated = calibrate_adc_range(model, run_calib, cache_dir=cache_dir, data_key=data_key, report=report)

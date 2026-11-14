@@ -1,0 +1,77 @@
+{
+ "model": "/home/claude/hf_local/opt-125m",
+ "mode": "statistical",
+ "tokens": 4096,
+ "rows": [
+  {
+   "run": "fake_quant",
+   "ppl": 25.38072918110019,
+   "ratio_to_fake_quant": 1.0,
+   "adc_conversions_analog": 86973087744,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "afa986a65e001c82aa3489a9392c441425a81993"
+  },
+  {
+   "run": "fake_quant_had",
+   "ppl": 25.026259209906392,
+   "ratio_to_fake_quant": 0.9860338933265261,
+   "adc_conversions_analog": 86973087744,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 2415919104,
+   "stat_inexact_layers": 0,
+   "git": "afa986a65e001c82aa3489a9392c441425a81993"
+  },
+  {
+   "run": "n128_adc6_base",
+   "ppl": 25.591099141690446,
+   "ratio_to_fake_quant": 1.0082885703987934,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "afa986a65e001c82aa3489a9392c441425a81993"
+  },
+  {
+   "run": "n128_adc6_had_down",
+   "ppl": 25.59247199204921,
+   "ratio_to_fake_quant": 1.008342660663457,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 1509949440,
+   "stat_inexact_layers": 0,
+   "git": "afa986a65e001c82aa3489a9392c441425a81993"
+  },
+  {
+   "run": "n128_adc6_had_all",
+   "ppl": 25.024051618969413,
+   "ratio_to_fake_quant": 0.9859469143070808,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 2415919104,
+   "stat_inexact_layers": 0,
+   "git": "afa986a65e001c82aa3489a9392c441425a81993"
+  },
+  {
+   "run": "n128_adc6_dcim_down",
+   "ppl": 25.591099141690446,
+   "ratio_to_fake_quant": 1.0082885703987934,
+   "adc_conversions_analog": 115964116992,
+   "dcim_column_ops": 57982058496,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "afa986a65e001c82aa3489a9392c441425a81993"
+  },
+  {
+   "run": "n128_adc6_down_bp1",
+   "ppl": 25.591099141690446,
+   "ratio_to_fake_quant": 1.0082885703987934,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "afa986a65e001c82aa3489a9392c441425a81993"
+  }
+ ]
+}
