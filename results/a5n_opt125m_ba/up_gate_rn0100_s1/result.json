@@ -1,0 +1,26 @@
+{
+  "ppl": 134.60431282200986,
+  "nll": 4.902339458465576,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    5.1144843101501465,
+    4.690194606781006
+  ],
+  "resumed_windows": 0,
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a5n_opt125m_ba\\configs\\up_gate_rn0100_s1.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 1096.5,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 19.6,
+  "calib_cache": "hit",
+  "git": "9f852603f93f823697dad3438525787e94d22016"
+}

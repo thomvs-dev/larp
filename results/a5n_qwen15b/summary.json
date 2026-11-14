@@ -20,20 +20,6 @@
       "stat_inexact_layers": 0
     },
     {
-      "role": "qkv",
-      "sigma_pct": 0.2,
-      "seeds": [
-        0
-      ],
-      "ppl": [
-        2138963.4277797635
-      ],
-      "median": 2138963.4277797635,
-      "min": 2138963.4277797635,
-      "max": 2138963.4277797635,
-      "stat_inexact_layers": 0
-    },
-    {
       "role": "o",
       "sigma_pct": 0.1,
       "seeds": [
@@ -45,20 +31,6 @@
       "median": 8.736233069460662,
       "min": 8.736233069460662,
       "max": 8.736233069460662,
-      "stat_inexact_layers": 0
-    },
-    {
-      "role": "o",
-      "sigma_pct": 0.2,
-      "seeds": [
-        0
-      ],
-      "ppl": [
-        813.3438774447894
-      ],
-      "median": 813.3438774447894,
-      "min": 813.3438774447894,
-      "max": 813.3438774447894,
       "stat_inexact_layers": 0
     },
     {
@@ -76,20 +48,6 @@
       "stat_inexact_layers": 0
     },
     {
-      "role": "up_gate",
-      "sigma_pct": 0.2,
-      "seeds": [
-        0
-      ],
-      "ppl": [
-        8472905.101876982
-      ],
-      "median": 8472905.101876982,
-      "min": 8472905.101876982,
-      "max": 8472905.101876982,
-      "stat_inexact_layers": 0
-    },
-    {
       "role": "down",
       "sigma_pct": 0.1,
       "seeds": [
@@ -104,20 +62,6 @@
       "stat_inexact_layers": 0
     },
     {
-      "role": "down",
-      "sigma_pct": 0.2,
-      "seeds": [
-        0
-      ],
-      "ppl": [
-        3235281.2039405913
-      ],
-      "median": 3235281.2039405913,
-      "min": 3235281.2039405913,
-      "max": 3235281.2039405913,
-      "stat_inexact_layers": 0
-    },
-    {
       "role": "all",
       "sigma_pct": 0.1,
       "seeds": [
@@ -129,20 +73,6 @@
       "median": 13.457834845776105,
       "min": 13.457834845776105,
       "max": 13.457834845776105,
-      "stat_inexact_layers": 0
-    },
-    {
-      "role": "all",
-      "sigma_pct": 0.2,
-      "seeds": [
-        0
-      ],
-      "ppl": [
-        25761485.801569466
-      ],
-      "median": 25761485.801569466,
-      "min": 25761485.801569466,
-      "max": 25761485.801569466,
       "stat_inexact_layers": 0
     }
   ]

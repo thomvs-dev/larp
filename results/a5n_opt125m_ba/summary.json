@@ -1,0 +1,27 @@
+{
+  "model": "facebook/opt-125m",
+  "tokens": 4096,
+  "base": "a4_stat_adc6cal.yaml",
+  "fake_quant_ppl": 25.343840440748306,
+  "noise_free_ppl": 25.59551998308197,
+  "rows": [
+    {
+      "role": "up_gate",
+      "sigma_pct": 0.1,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "ppl": [
+        122.07423287321924,
+        134.60431282200986,
+        122.64043629317979
+      ],
+      "median": 122.64043629317979,
+      "min": 122.07423287321924,
+      "max": 134.60431282200986,
+      "stat_inexact_layers": 0
+    }
+  ]
+}

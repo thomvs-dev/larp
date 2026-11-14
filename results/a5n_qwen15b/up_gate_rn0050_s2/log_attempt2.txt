@@ -1,0 +1,55 @@
+Traceback (most recent call last):
+  File "D:\japan\scripts\run_ppl.py", line 143, in <module>
+    main()
+    ~~~~^^
+  File "D:\japan\scripts\run_ppl.py", line 84, in main
+    model, tok, dtype = load_model(args.model, args.device, args.dtype)
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\japan\eval\runner.py", line 31, in load_model
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\__init__.py", line 29, in <module>
+    from . import dependency_versions_check
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\dependency_versions_check.py", line 16, in <module>
+    from .utils.versions import require_version, require_version_core
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\__init__.py", line 22, in <module>
+    from .auto_docstring import (
+    ...<10 lines>...
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\auto_docstring.py", line 33, in <module>
+    from .generic import ModelOutput
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\generic.py", line 39, in <module>
+    from .import_utils import is_mlx_available, is_torch_available, is_torch_fx_proxy, resolve_internal_import
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\import_utils.py", line 52, in <module>
+    PACKAGE_DISTRIBUTION_MAPPING = importlib.metadata.packages_distributions()
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\__init__.py", line 1045, in packages_distributions
+    for pkg in _top_level_declared(dist) or _top_level_inferred(dist):
+                                            ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\__init__.py", line 1088, in _top_level_inferred
+    opt_names = set(map(_get_toplevel_name, always_iterable(dist.files)))
+                                                            ^^^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\__init__.py", line 533, in files
+    return skip_missing_files(
+        make_files(
+    ...<3 lines>...
+        )
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\_functools.py", line 102, in wrapper
+    return func(param, *args, **kwargs)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\__init__.py", line 531, in skip_missing_files
+    return list(filter(lambda path: path.locate().exists(), package_paths))
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\__init__.py", line 531, in <lambda>
+    return list(filter(lambda path: path.locate().exists(), package_paths))
+                                    ~~~~~~~~~~~^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\__init__.py", line 321, in locate
+    return self.dist.locate_file(self)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\importlib\metadata\__init__.py", line 922, in locate_file
+    return self._path.parent / path
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\pathlib\_local.py", line 334, in parent
+    tail = self._tail
+           ^^^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\pathlib\_local.py", line 307, in _tail
+    @property
+    
+KeyboardInterrupt
