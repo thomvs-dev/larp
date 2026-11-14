@@ -8,6 +8,8 @@ fake-quant and the noise-free operating point.
 
     python scripts/a5_noise.py --model facebook/opt-125m --name a5n_opt125m --threads 14
     python scripts/a5_noise.py --model Qwen/Qwen2.5-1.5B --name a5n_qwen15b --threads 14 --seeds 0
+    python scripts/a5_noise.py --model facebook/opt-125m --name a5n_opt125m_ba --mode bit_accurate \
+        --roles up_gate --sigmas 0.10                             # bit-accurate check of one cell
     python scripts/a5_noise.py --model ... --name ... --plan      # list the runs
     python scripts/a5_noise.py --model ... --name ... --table     # rebuild the summary
 
@@ -65,7 +67,7 @@ def summary(args, out: Path) -> None:
     (out / "summary.json").write_text(json.dumps(s, indent=2), encoding="utf-8")
     ref = clean["ppl"] if clean else None
     lines = [f"# A5 noise per layer type `{args.name}`", "",
-             f"{args.model}, statistical, first {args.tokens} WikiText-2 test tokens, base `{Path(args.base).name}`. "
+             f"{args.model}, {args.mode or 'statistical'}, first {args.tokens} WikiText-2 test tokens, base `{Path(args.base).name}`. "
              f"Fake-quant {fq['ppl']:.3f}, noise-free analog {clean['ppl']:.3f}." if fq and clean else "", "",
              "Noise on one layer type, the others noise-free. Cells: median PPL over seeds (ratio to noise-free "
              "analog) [min – max]. `*` = statistical mode not valid (findings F13).", "",
@@ -97,6 +99,8 @@ def main() -> None:
     ap.add_argument("--roles", default="qkv,o,up_gate,down,all")
     ap.add_argument("--sigmas", default="0.10,0.20", help="rand_noise_sigma values, %% of nominal full scale")
     ap.add_argument("--seeds", default="0,1,2")
+    ap.add_argument("--mode", default=None, choices=["statistical", "bit_accurate"],
+                    help="override the base mode (bit_accurate: check of statistical results on small models)")
     ap.add_argument("--tokens", type=int, default=4096)
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--attempts", type=int, default=2)
@@ -114,6 +118,8 @@ def main() -> None:
     out = ROOT / "results" / args.name
     out.mkdir(parents=True, exist_ok=True)
     base = yaml.safe_load(Path(args.base).read_text(encoding="utf-8")) or {}
+    if args.mode:
+        base.setdefault("default", {})["mode"] = args.mode
     runs = [(sigma, role, seed) for sigma in args.sigma_list for role in roles for seed in args.seed_list]
     if args.table:
         summary(args, out)
