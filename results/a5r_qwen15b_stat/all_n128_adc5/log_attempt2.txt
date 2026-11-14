@@ -1,0 +1,151 @@
+W1113 21:43:50.318000 23500 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   3%|3         | 11/338 [00:00<00:03, 91.92it/s]Loading weights:   6%|6         | 21/338 [00:00<00:03, 80.43it/s]Loading weights:  11%|#         | 36/338 [00:00<00:03, 88.63it/s]Loading weights:  13%|#3        | 45/338 [00:00<00:03, 86.44it/s]Loading weights:  17%|#7        | 59/338 [00:00<00:03, 77.86it/s]Loading weights:  21%|##1       | 71/338 [00:00<00:03, 74.90it/s]Loading weights:  24%|##3       | 80/338 [00:01<00:03, 76.65it/s]Loading weights:  28%|##7       | 93/338 [00:01<00:02, 84.17it/s]Loading weights:  30%|###       | 102/338 [00:01<00:02, 81.68it/s]Loading weights:  33%|###2      | 111/338 [00:01<00:03, 74.60it/s]Loading weights:  35%|###5      | 119/338 [00:01<00:03, 66.16it/s]Loading weights:  39%|###9      | 132/338 [00:01<00:02, 70.90it/s]Loading weights:  42%|####1     | 141/338 [00:01<00:02, 66.57it/s]Loading weights:  45%|####4     | 152/338 [00:02<00:02, 65.79it/s]Loading weights:  49%|####8     | 165/338 [00:02<00:02, 69.74it/s]Loading weights:  53%|#####3    | 180/338 [00:02<00:01, 82.42it/s]Loading weights:  56%|#####5    | 189/338 [00:02<00:02, 67.51it/s]Loading weights:  60%|######    | 204/338 [00:02<00:01, 78.75it/s]Loading weights:  64%|######3   | 215/338 [00:02<00:01, 69.16it/s]Loading weights:  67%|######6   | 225/338 [00:03<00:01, 66.09it/s]Loading weights:  70%|#######   | 237/338 [00:03<00:01, 72.96it/s]Loading weights:  74%|#######3  | 249/338 [00:03<00:01, 78.75it/s]Loading weights:  76%|#######6  | 258/338 [00:03<00:01, 78.11it/s]Loading weights:  79%|#######8  | 267/338 [00:03<00:01, 63.00it/s]Loading weights:  82%|########1 | 277/338 [00:03<00:00, 70.66it/s]Loading weights:  84%|########4 | 285/338 [00:03<00:00, 70.35it/s]Loading weights:  88%|########8 | 299/338 [00:04<00:00, 68.43it/s]Loading weights:  91%|#########1| 309/338 [00:04<00:00, 71.55it/s]Loading weights:  95%|#########4| 321/338 [00:04<00:00, 71.21it/s]Loading weights: 100%|##########| 338/338 [00:04<00:00, 75.66it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (299078 > 131072). Running this sequence through the model will result in indexing errors
+Traceback (most recent call last):
+  File "D:\japan\scripts\run_ppl.py", line 108, in <module>
+    main()
+    ~~~~^^
+  File "D:\japan\scripts\run_ppl.py", line 67, in main
+    calibrated, calib_s = calibrate_if_needed(model, tok, seq_len, args.calib_tokens, args.device,
+                          ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                              **({"cache_dir": None} if args.no_calib_cache else {}),
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                              info=cal_cache)
+                                              ^^^^^^^^^^^^^^^
+  File "D:\japan\eval\runner.py", line 74, in calibrate_if_needed
+    train_ids = load_wikitext2_ids(tok, split="train")[:calib_tokens]
+                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\japan\eval\perplexity.py", line 27, in load_wikitext2_ids
+    ds = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split=split)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\datasets\load.py", line 1667, in load_dataset
+    builder_instance = load_dataset_builder(
+        path=path,
+    ...<10 lines>...
+        **config_kwargs,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\datasets\load.py", line 1290, in load_dataset_builder
+    dataset_module = dataset_module_factory(
+        path,
+    ...<5 lines>...
+        cache_dir=cache_dir,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\datasets\load.py", line 1157, in dataset_module_factory
+    ).get_module()
+      ~~~~~~~~~~^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\datasets\load.py", line 600, in get_module
+    standalone_yaml_path = cached_path(
+        hf_dataset_url(self.name, config.REPOYAML_FILENAME, revision=self.commit_hash),
+        download_config=download_config,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\datasets\utils\file_utils.py", line 183, in cached_path
+    ).hf_hub_download(
+      ~~~~~~~~~~~~~~~^
+        repo_id=resolved_path.repo_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        force_download=download_config.force_download,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\utils\_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\hf_api.py", line 6485, in hf_hub_download
+    return hf_hub_download(
+        repo_id=repo_id,
+    ...<16 lines>...
+        dry_run=dry_run,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\utils\_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\utils\_http.py", line 276, in _inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\file_download.py", line 1047, in hf_hub_download
+    return _hf_hub_download_to_cache_dir(
+        # Destination
+    ...<15 lines>...
+        dry_run=dry_run,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\file_download.py", line 1117, in _hf_hub_download_to_cache_dir
+    (url_to_download, etag, commit_hash, expected_size, xet_file_data, head_call_error) = _get_metadata_or_catch_error(
+                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        repo_id=repo_id,
+        ^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+        tree_cache_folder=storage_folder,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\file_download.py", line 1763, in _get_metadata_or_catch_error
+    metadata = get_hf_file_metadata(
+        url=url,
+    ...<4 lines>...
+        retry_on_errors=retry_on_errors,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\utils\_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\file_download.py", line 1670, in get_hf_file_metadata
+    response = _httpx2_follow_hub_redirects_with_backoff(
+        method="HEAD", url=url, headers=hf_headers, timeout=timeout, retry_on_errors=retry_on_errors
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\utils\_http.py", line 764, in _httpx2_follow_hub_redirects_with_backoff
+    response = http_backoff(
+        method=method,
+    ...<3 lines>...
+        **no_retry_kwargs,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\utils\_http.py", line 637, in http_backoff
+    return next(
+        _http_backoff_base(
+    ...<9 lines>...
+        )
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\huggingface_hub\utils\_http.py", line 545, in _http_backoff_base
+    response = client.request(method=method, url=url, **kwargs)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpx2\_client.py", line 796, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpx2\_client.py", line 979, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpx2\_client.py", line 1007, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpx2\_client.py", line 1042, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpx2\_client.py", line 1075, in _send_single_request
+    response = transport.handle_request(request)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpx2\_transports\default.py", line 245, in handle_request
+    resp = self._pool.handle_request(req)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_sync\connection_pool.py", line 242, in handle_request
+    raise exc from None
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_sync\connection_pool.py", line 224, in handle_request
+    response = connection.handle_request(pool_request.request)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_sync\connection.py", line 96, in handle_request
+    return self._connection.handle_request(request)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_sync\http11.py", line 125, in handle_request
+    raise exc
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_sync\http11.py", line 97, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_sync\http11.py", line 167, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_sync\http11.py", line 200, in _receive_event
+    data = self._network_stream.read(self.READ_NUM_BYTES, timeout=timeout)
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\httpcore2\_backends\sync.py", line 127, in read
+    return self._sock.recv(max_bytes)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\ssl.py", line 1285, in recv
+    return self.read(buflen)
+           ~~~~~~~~~^^^^^^^^
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\ssl.py", line 1140, in read
+    return self._sslobj.read(len)
+           ~~~~~~~~~~~~~~~~~^^^^^
+KeyboardInterrupt

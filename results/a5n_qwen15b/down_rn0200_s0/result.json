@@ -1,0 +1,28 @@
+{
+  "ppl": 3235281.2039405913,
+  "nll": 14.989626407623291,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    14.964099884033203,
+    15.015152931213379
+  ],
+  "resumed_windows": 0,
+  "model": "Qwen/Qwen2.5-1.5B",
+  "config": "D:\\japan\\results\\a5n_qwen15b\\configs\\down_rn0200_s0.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 196,
+  "seconds": 170.5,
+  "calibrated_layers": 196,
+  "calib_tokens": 2048,
+  "calib_seconds": 55.9,
+  "calib_cache": "hit",
+  "git": "95a092fe3e046643035753b7c13d2a5d14cb286c",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}

@@ -1,0 +1,43 @@
+W1114 00:33:08.561000 13672 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   7%|6         | 22/338 [00:00<00:03, 98.80it/s]Loading weights:  10%|9         | 33/338 [00:00<00:02, 102.08it/s]Loading weights:  13%|#3        | 44/338 [00:00<00:03, 84.77it/s] Loading weights:  16%|#5        | 53/338 [00:00<00:04, 65.49it/s]Loading weights:  18%|#7        | 60/338 [00:00<00:04, 56.85it/s]Loading weights:  20%|##        | 69/338 [00:01<00:05, 50.98it/s]Loading weights:  25%|##4       | 83/338 [00:01<00:04, 54.52it/s]Loading weights:  28%|##7       | 93/338 [00:01<00:04, 58.37it/s]Loading weights:  30%|##9       | 101/338 [00:01<00:03, 60.50it/s]Loading weights:  32%|###1      | 108/338 [00:01<00:04, 54.24it/s]Loading weights:  35%|###4      | 118/338 [00:01<00:03, 63.63it/s]Loading weights:  37%|###6      | 125/338 [00:02<00:03, 56.91it/s]Loading weights:  39%|###9      | 132/338 [00:02<00:04, 51.38it/s]Loading weights:  42%|####2     | 143/338 [00:02<00:03, 57.67it/s]Loading weights:  44%|####4     | 150/338 [00:02<00:03, 59.21it/s]Loading weights:  46%|####6     | 157/338 [00:02<00:03, 52.40it/s]Loading weights:  49%|####8     | 165/338 [00:02<00:03, 52.66it/s]Loading weights:  51%|#####     | 171/338 [00:02<00:03, 53.10it/s]Loading weights:  53%|#####2    | 179/338 [00:02<00:02, 57.83it/s]Loading weights:  55%|#####4    | 185/338 [00:03<00:02, 58.10it/s]Loading weights:  57%|#####6    | 191/338 [00:03<00:02, 49.52it/s]Loading weights:  60%|#####9    | 202/338 [00:03<00:02, 50.53it/s]Loading weights:  63%|######3   | 213/338 [00:03<00:02, 62.33it/s]Loading weights:  65%|######5   | 220/338 [00:03<00:02, 57.59it/s]Loading weights:  67%|######7   | 228/338 [00:03<00:01, 61.10it/s]Loading weights:  70%|######9   | 235/338 [00:03<00:01, 61.53it/s]Loading weights:  72%|#######1  | 242/338 [00:04<00:01, 53.40it/s]Loading weights:  74%|#######3  | 250/338 [00:04<00:01, 59.51it/s]Loading weights:  76%|#######6  | 257/338 [00:04<00:01, 54.29it/s]Loading weights:  78%|#######7  | 263/338 [00:04<00:01, 47.50it/s]Loading weights:  81%|########  | 273/338 [00:04<00:01, 47.33it/s]Loading weights:  85%|########4 | 286/338 [00:04<00:00, 52.38it/s]Loading weights:  88%|########7 | 297/338 [00:05<00:00, 51.63it/s]Loading weights:  92%|#########2| 311/338 [00:05<00:00, 61.05it/s]Loading weights:  94%|#########4| 318/338 [00:05<00:00, 62.17it/s]Loading weights:  96%|#########6| 325/338 [00:05<00:00, 55.24it/s]Loading weights: 100%|##########| 338/338 [00:05<00:00, 59.38it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (299078 > 131072). Running this sequence through the model will result in indexing errors
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 196 layers in 53.3 s (histogram cache: hit, 196 layers from cache)
+D:\japan\cimsim\core\layers.py:224: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:837.)
+  xn = float(qx.float().norm(dim=1).max()) if qx.numel() else 0.0
+Windows fatal exception: access violation
+
+Thread 0x00002a40 (most recent call first):
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 363 in wait
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 660 in wait
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\tqdm\_monitor.py", line 60 in run
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 1015 in _bootstrap
+
+Current thread 0x00002780 (most recent call first):
+  File "D:\japan\cimsim\quant.py", line 68 in quantize_act
+  File "D:\japan\cimsim\core\layers.py", line 351 in forward
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1833 in inner
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1885 in _call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779 in _wrapped_call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\qwen2\modeling_qwen2.py", line 46 in forward
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790 in _call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779 in _wrapped_call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\qwen2\modeling_qwen2.py", line 288 in forward
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790 in _call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779 in _wrapped_call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\modeling_layers.py", line 111 in __call__
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\qwen2\modeling_qwen2.py", line 380 in forward
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\output_capturing.py", line 287 in wrapper
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\generic.py", line 1081 in wrapper
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790 in _call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779 in _wrapped_call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\qwen2\modeling_qwen2.py", line 444 in forward
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\generic.py", line 943 in wrapper
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790 in _call_impl
+  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779 in _wrapped_call_impl
+  File "D:\japan\eval\perplexity.py", line 73 in perplexity
+  File "D:\japan\scripts\run_ppl.py", line 107 in main
+  File "D:\japan\scripts\run_ppl.py", line 143 in <module>

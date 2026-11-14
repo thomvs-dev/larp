@@ -1,0 +1,28 @@
+{
+  "ppl": 25.59435444214675,
+  "nll": 3.2423717975616455,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    3.0556156635284424,
+    3.4291279315948486
+  ],
+  "resumed_windows": 0,
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a5n_opt125m\\configs\\noise_free.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 12.9,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 14.9,
+  "calib_cache": "hit",
+  "git": "95a092fe3e046643035753b7c13d2a5d14cb286c",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}

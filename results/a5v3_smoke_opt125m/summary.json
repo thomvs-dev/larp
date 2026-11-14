@@ -1,0 +1,35 @@
+{
+  "model": "facebook/opt-125m",
+  "mode": "statistical",
+  "tokens": 8192,
+  "collapse_factor": 2.0,
+  "fake_quant_ppl": 30.45979220479355,
+  "points": [
+    {
+      "point": "o_n256_adc6",
+      "role": "o",
+      "nrow": 256,
+      "adc_bits": 6,
+      "ppl": 324.64444866937583,
+      "ratio_to_fake_quant": 10.658130774059764,
+      "adc_conversions": 333396836352,
+      "seconds": 72.9,
+      "calib_cache": "hit",
+      "git": "d5a233225971f36255cb95b21d34373d88118303",
+      "stat_inexact_layers": 12
+    },
+    {
+      "point": "qkv_n128_adc6",
+      "role": "qkv",
+      "nrow": 128,
+      "adc_bits": 6,
+      "ppl": 30.970529435386045,
+      "ratio_to_fake_quant": 1.016767587485778,
+      "adc_conversions": 347892350976,
+      "seconds": 33.4,
+      "calib_cache": "hit",
+      "git": "d5a233225971f36255cb95b21d34373d88118303",
+      "stat_inexact_layers": 0
+    }
+  ]
+}

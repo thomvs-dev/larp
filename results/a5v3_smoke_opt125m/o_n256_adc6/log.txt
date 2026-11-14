@@ -1,0 +1,52 @@
+W1113 19:16:16.634000 3624 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|##########| 197/197 [00:00<00:00, 2960.31it/s]
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 72 layers in 33.1 s (histogram cache: hit, 72 layers from cache)
+  window 1/4  running ppl 257.679  elapsed 0.4 min  eta 1.2 min
+  window 2/4  running ppl 282.968  elapsed 0.7 min  eta 0.7 min
+  window 3/4  running ppl 295.443  elapsed 1.0 min  eta 0.3 min
+  window 4/4  running ppl 324.644  elapsed 1.2 min  eta 0.0 min
+WARNING: 12 statistical layers have an ADC step that is not 1/n MAC unit; statistical mode overestimates their rounding error (findings F13): ['model.decoder.layers.0.self_attn.out_proj', 'model.decoder.layers.1.self_attn.out_proj', 'model.decoder.layers.2.self_attn.out_proj', 'model.decoder.layers.3.self_attn.out_proj', 'model.decoder.layers.4.self_attn.out_proj']
+{
+  "ppl": 324.64444866937583,
+  "nll": 5.782730579376221,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    5.551716327667236,
+    5.738949775695801,
+    5.7747578620910645,
+    6.065498352050781
+  ],
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a5v3_smoke_opt125m\\configs\\o_n256_adc6.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 72.9,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 33.1,
+  "calib_cache": "hit",
+  "git": "d5a233225971f36255cb95b21d34373d88118303",
+  "stat_inexact_layers": 12,
+  "stat_inexact_names": [
+    "model.decoder.layers.0.self_attn.out_proj",
+    "model.decoder.layers.1.self_attn.out_proj",
+    "model.decoder.layers.2.self_attn.out_proj",
+    "model.decoder.layers.3.self_attn.out_proj",
+    "model.decoder.layers.4.self_attn.out_proj",
+    "model.decoder.layers.5.self_attn.out_proj",
+    "model.decoder.layers.6.self_attn.out_proj",
+    "model.decoder.layers.7.self_attn.out_proj",
+    "model.decoder.layers.8.self_attn.out_proj",
+    "model.decoder.layers.9.self_attn.out_proj",
+    "model.decoder.layers.10.self_attn.out_proj",
+    "model.decoder.layers.11.self_attn.out_proj"
+  ]
+}

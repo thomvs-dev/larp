@@ -1,0 +1,30 @@
+{
+  "ppl": 10.355521485335188,
+  "nll": 2.3375198543071747,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    1.9680768251419067,
+    2.368767261505127,
+    2.5846898555755615,
+    2.4285454750061035
+  ],
+  "resumed_windows": 0,
+  "model": "Qwen/Qwen2.5-1.5B",
+  "config": "D:\\japan\\results\\a5r_qwen15b_stat\\configs\\all_n64_adc5.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 196,
+  "seconds": 3083.5,
+  "calibrated_layers": 196,
+  "calib_tokens": 2048,
+  "calib_seconds": 61.4,
+  "calib_cache": "hit",
+  "git": "4fefeb6e7094f1b4631362d0d73412e9e7b0e6ae",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}

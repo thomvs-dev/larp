@@ -1,0 +1,35 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B",
+  "mode": "statistical",
+  "tokens": 8192,
+  "collapse_factor": 2.0,
+  "fake_quant_ppl": 10.338312106069536,
+  "points": [
+    {
+      "point": "all_n128_adc6",
+      "role": "all",
+      "nrow": 128,
+      "adc_bits": 6,
+      "ppl": 10.341798601837553,
+      "ratio_to_fake_quant": 1.0003372403282322,
+      "adc_conversions": 5366561636352,
+      "seconds": 245.5,
+      "calib_cache": "miss",
+      "git": "d5a233225971f36255cb95b21d34373d88118303",
+      "stat_inexact_layers": 0
+    },
+    {
+      "point": "all_n64_adc5",
+      "role": "all",
+      "nrow": 64,
+      "adc_bits": 5,
+      "ppl": 10.355521485335188,
+      "ratio_to_fake_quant": 1.0016646217573126,
+      "adc_conversions": 10733123272704,
+      "seconds": 3083.5,
+      "calib_cache": "hit",
+      "git": "4fefeb6e7094f1b4631362d0d73412e9e7b0e6ae",
+      "stat_inexact_layers": 0
+    }
+  ]
+}

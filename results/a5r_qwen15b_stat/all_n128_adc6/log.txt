@@ -1,0 +1,39 @@
+W1113 19:25:43.656000 5676 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   4%|3         | 13/338 [00:00<00:03, 100.42it/s]Loading weights:   7%|7         | 24/338 [00:00<00:03, 79.21it/s] Loading weights:  10%|9         | 33/338 [00:00<00:04, 74.36it/s]Loading weights:  14%|#3        | 46/338 [00:00<00:04, 68.23it/s]Loading weights:  17%|#6        | 57/338 [00:00<00:04, 65.25it/s]Loading weights:  20%|##        | 69/338 [00:00<00:03, 73.12it/s]Loading weights:  24%|##4       | 82/338 [00:01<00:03, 76.61it/s]Loading weights:  27%|##6       | 90/338 [00:01<00:03, 68.34it/s]Loading weights:  29%|##8       | 97/338 [00:01<00:04, 56.68it/s]Loading weights:  31%|###       | 104/338 [00:01<00:04, 50.74it/s]Loading weights:  35%|###4      | 117/338 [00:01<00:04, 53.62it/s]Loading weights:  38%|###8      | 129/338 [00:02<00:03, 59.30it/s]Loading weights:  42%|####1     | 141/338 [00:02<00:03, 53.85it/s]Loading weights:  46%|####5     | 154/338 [00:02<00:02, 67.09it/s]Loading weights:  48%|####7     | 162/338 [00:02<00:02, 62.55it/s]Loading weights:  50%|#####     | 170/338 [00:02<00:03, 55.36it/s]Loading weights:  53%|#####2    | 178/338 [00:02<00:02, 55.80it/s]Loading weights:  55%|#####5    | 186/338 [00:02<00:02, 60.77it/s]Loading weights:  57%|#####7    | 193/338 [00:03<00:02, 54.30it/s]Loading weights:  59%|#####9    | 201/338 [00:03<00:02, 52.93it/s]Loading weights:  62%|######2   | 210/338 [00:03<00:02, 60.33it/s]Loading weights:  64%|######4   | 217/338 [00:03<00:02, 51.62it/s]Loading weights:  67%|######7   | 227/338 [00:03<00:02, 51.92it/s]Loading weights:  70%|#######   | 237/338 [00:03<00:01, 60.82it/s]Loading weights:  72%|#######2  | 244/338 [00:04<00:01, 56.42it/s]Loading weights:  74%|#######4  | 251/338 [00:04<00:01, 48.84it/s]Loading weights:  77%|#######7  | 261/338 [00:04<00:01, 50.22it/s]Loading weights:  81%|########1 | 275/338 [00:04<00:01, 53.90it/s]Loading weights:  84%|########4 | 285/338 [00:04<00:01, 51.85it/s]Loading weights:  88%|########7 | 297/338 [00:04<00:00, 63.42it/s]Loading weights:  90%|######### | 305/338 [00:05<00:00, 59.39it/s]Loading weights:  92%|#########2| 312/338 [00:05<00:00, 55.06it/s]Loading weights:  96%|#########5| 323/338 [00:05<00:00, 65.71it/s]Loading weights:  98%|#########7| 331/338 [00:05<00:00, 61.16it/s]Loading weights: 100%|##########| 338/338 [00:05<00:00, 60.67it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (299078 > 131072). Running this sequence through the model will result in indexing errors
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 196 layers in 3595.5 s (histogram cache: miss, 0 layers from cache)
+  window 1/4  running ppl 7.189  elapsed 1.5 min  eta 4.6 min
+  window 2/4  running ppl 8.741  elapsed 2.4 min  eta 2.4 min
+  window 3/4  running ppl 10.062  elapsed 3.2 min  eta 1.1 min
+  window 4/4  running ppl 10.342  elapsed 4.1 min  eta 0.0 min
+{
+  "ppl": 10.341798601837553,
+  "nll": 2.336193799972534,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    1.9725282192230225,
+    2.3635597229003906,
+    2.590139627456665,
+    2.4185476303100586
+  ],
+  "model": "Qwen/Qwen2.5-1.5B",
+  "config": "D:\\japan\\results\\a5r_qwen15b_stat\\configs\\all_n128_adc6.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 196,
+  "seconds": 245.5,
+  "calibrated_layers": 196,
+  "calib_tokens": 2048,
+  "calib_seconds": 3595.5,
+  "calib_cache": "miss",
+  "git": "d5a233225971f36255cb95b21d34373d88118303",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}

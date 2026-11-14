@@ -1,0 +1,36 @@
+W1114 03:09:01.628000 16324 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   4%|3         | 13/338 [00:00<00:03, 101.97it/s]Loading weights:   7%|7         | 24/338 [00:00<00:03, 92.76it/s] Loading weights:  10%|#         | 35/338 [00:00<00:03, 90.30it/s]Loading weights:  13%|#3        | 45/338 [00:00<00:03, 80.46it/s]Loading weights:  16%|#5        | 54/338 [00:00<00:04, 67.82it/s]Loading weights:  18%|#8        | 62/338 [00:00<00:04, 62.51it/s]Loading weights:  21%|##1       | 72/338 [00:01<00:04, 59.51it/s]Loading weights:  24%|##3       | 81/338 [00:01<00:04, 56.60it/s]Loading weights:  28%|##8       | 95/338 [00:01<00:03, 61.57it/s]Loading weights:  32%|###1      | 107/338 [00:01<00:03, 61.80it/s]Loading weights:  35%|###4      | 118/338 [00:01<00:03, 62.21it/s]Loading weights:  38%|###8      | 129/338 [00:01<00:03, 61.84it/s]Loading weights:  43%|####2     | 144/338 [00:02<00:02, 72.33it/s]Loading weights:  46%|####5     | 155/338 [00:02<00:02, 62.56it/s]Loading weights:  49%|####8     | 165/338 [00:02<00:02, 65.83it/s]Loading weights:  53%|#####2    | 179/338 [00:02<00:02, 63.06it/s]Loading weights:  57%|#####6    | 192/338 [00:02<00:02, 63.27it/s]Loading weights:  59%|#####9    | 201/338 [00:03<00:02, 60.05it/s]Loading weights:  63%|######3   | 213/338 [00:03<00:02, 59.40it/s]Loading weights:  67%|######7   | 228/338 [00:03<00:01, 72.17it/s]Loading weights:  71%|#######   | 239/338 [00:03<00:01, 59.88it/s]Loading weights:  74%|#######4  | 251/338 [00:03<00:01, 68.44it/s]Loading weights:  78%|#######7  | 262/338 [00:03<00:01, 66.12it/s]Loading weights:  81%|########1 | 275/338 [00:04<00:01, 62.11it/s]Loading weights:  85%|########4 | 287/338 [00:04<00:00, 63.32it/s]Loading weights:  89%|########8 | 300/338 [00:04<00:00, 64.72it/s]Loading weights:  92%|#########2| 311/338 [00:04<00:00, 66.64it/s]Loading weights:  96%|#########5| 323/338 [00:04<00:00, 65.70it/s]Loading weights: 100%|##########| 338/338 [00:05<00:00, 67.09it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (299078 > 131072). Running this sequence through the model will result in indexing errors
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 196 layers in 59.2 s (histogram cache: hit, 196 layers from cache)
+  window 1/2  running ppl 8008478.513  elapsed 2.3 min  eta 2.3 min  rss 9.7 GB
+  window 2/2  running ppl 8472905.102  elapsed 3.7 min  eta 0.0 min  rss 9.6 GB
+{
+  "ppl": 8472905.101876982,
+  "nll": 15.952383995056152,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    15.896011352539062,
+    16.008756637573242
+  ],
+  "resumed_windows": 0,
+  "model": "Qwen/Qwen2.5-1.5B",
+  "config": "D:\\japan\\results\\a5n_qwen15b\\configs\\up_gate_rn0200_s0.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 196,
+  "seconds": 220.7,
+  "calibrated_layers": 196,
+  "calib_tokens": 2048,
+  "calib_seconds": 59.2,
+  "calib_cache": "hit",
+  "git": "95a092fe3e046643035753b7c13d2a5d14cb286c",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}
