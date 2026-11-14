@@ -1,0 +1,28 @@
+{
+  "ppl": 25.604663082081988,
+  "nll": 3.242774486541748,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    3.0542643070220947,
+    3.4312846660614014
+  ],
+  "resumed_windows": 0,
+  "model": "/home/claude/hf_local/opt-125m",
+  "config": "/home/claude/scratch/l5_st_s1.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 2,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 20.6,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 14.3,
+  "calib_cache": "hit",
+  "git": "78c9d394693a81d8633bc448365f646e6540b13a",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}
