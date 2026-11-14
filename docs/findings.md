@@ -171,6 +171,15 @@ Observations from runs that affect the design or the paper. Each entry: what was
 - Statistical vs bit-accurate at 0.10 %: no difference at layer level (error std, non-zero fraction, kurtosis, per-column and per-token statistics, 60-repeat variance), but pooled PPL on layer 1 gives geometric means 190 (statistical, 5 runs) vs 102 (bit-accurate, 8 runs), p ≈ 0.06. The bit-accurate per-layer generator streams for seeds 0–2 give unusually close PPLs (88.1 / 88.0 / 89.4), not explained.
 - Consequence: design rule "keep analog noise below half an ADC step" (here sigma < ~0.08 % of full scale); no per-layer-type noise ranking is reported (§8, 2026-11-14).
 
+## F15 — The ADC boundary of a layer type follows the density of its high input bit planes, not its outlier size
+
+- Data: `scripts/a5_outliers.py`, FP32, first 2,048 WikiText-2 test tokens, 8-bit per-token signed input codes as the CIM layers see them (`results/a5o_opt125m_sandbox/`, `results/a5o_gpt2/`, `results/a5o_qwen15b/`, git e148283).
+- In two's complement a negative code sets every high plane, so the density of planes 4–7 equals the fraction of negative codes. Density of the sign plane (median over layers): OPT-125M qkv / o / fc1 0.40–0.49, fc2 (after ReLU) 0.00; GPT-2 qkv / o / c_fc 0.45–0.47, `mlp.c_proj` (after GELU) 0.82; Qwen2.5-1.5B qkv / o / up_gate 0.45–0.47, down_proj (after SwiGLU) 0.39.
+- GPT-2 `c_proj`: 82 % of input codes are small negatives (GELU outputs down to about −0.17 become codes −1 … −4), so planes 4–7 are set on ~0.82 of rows instead of ~0.47. Column sums on those planes are ~1.7× larger and saturate the ADC sooner; this matches its boundary 2^b − 1 ≥ nrow (one bit more than other layers, step 1, F12). Its outliers are not larger than other layer types' (median 2 channels above 6× median channel rms).
+- OPT fc2: 93 % of codes are zero, no negatives; works at 4 b at every nrow (step 1).
+- Qwen2.5-1.5B down_proj has the largest outliers of all layer types measured (peak / rms per token p99 59, up to 195 channels above 6×; 47 % of codes |code| ≤ 1) but a lower sign-plane density (0.39) than its other layers, and all layers on CIM is lossless at the nrow / 2 boundary (step 3: 128 / 6 b, 64 / 5 b).
+- Consequence: per-token outliers shrink the codes but do not by themselves raise ADC saturation; the activation function before the layer (ReLU / GELU / SwiGLU) decides the high-plane density, and that sets the ADC bits. Supports the deferred input-encoding study (offset-binary or sign-magnitude inputs would remove the GELU effect).
+
 ## Machine / speed notes
 
 - Thomas's machine: Intel Core i7-12700H (6 P-cores + 8 E-cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads.
