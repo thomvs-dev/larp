@@ -123,7 +123,7 @@ def main() -> None:
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+        fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
         model = "qwen2.5-1.5b"
         for ax, phase in zip(axes, ("prefill", "decode")):
             pts = sel(model=model, dram="default", budget="min", phase=phase)
@@ -138,8 +138,9 @@ def main() -> None:
             ax.set_title(f"Qwen2.5-1.5B, {phase}, sequence length {L}")
             ax.invert_yaxis()
             ax.tick_params(axis="y", labelsize=7)
-        axes[0].legend(fontsize=7, loc="lower right")
-        fig.tight_layout()
+        h, lab = axes[0].get_legend_handles_labels()
+        fig.legend(h, lab, fontsize=8, loc="lower center", ncol=4, frameon=False)
+        fig.tight_layout(rect=(0, 0.06, 1, 1))
         (ROOT / "figures").mkdir(exist_ok=True)
         fig.savefig(ROOT / "figures" / "b4_energy.png", dpi=160)
         print("figure: figures/b4_energy.png")
