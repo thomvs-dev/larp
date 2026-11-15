@@ -9,6 +9,11 @@
 KV cache (`kv`): "buffer" = keys / values in an on-chip SRAM buffer, attention matmuls on the digital
 MAC unit, the buffer is read once per attended key; "array" = keys / values written into CIM arrays,
 attention matmuls analog (events of cimsim.core.attention).
+
+Compute macro of the linear layers (`compute`): "acim" = the analog arrays of SystemCosts; "dcim" =
+digital SRAM CIM arrays at `dcim_mac_J` per MAC (weights still live in arrays and are written there);
+"digital" = INT8 MAC unit with weights read from an on-chip SRAM buffer for every MAC (streamed
+weights are written into that buffer).
 """
 
 from __future__ import annotations
@@ -20,6 +25,7 @@ from cimsim.system.shapes import ModelShape
 
 PHASES = ("prefill", "decode")
 KV = ("buffer", "array")
+COMPUTE = ("acim", "dcim", "digital")
 
 
 def _mean_keys(seq_len: int) -> float:
@@ -27,9 +33,14 @@ def _mean_keys(seq_len: int) -> float:
 
 
 def token_report(shape: ModelShape, costs: SystemCosts, mapping: Mapping, phase: str, seq_len: int,
-                 kv: str = "buffer", w_bits: int = 8, x_bits: int = 8) -> dict:
-    if phase not in PHASES or kv not in KV:
-        raise ValueError(f"phase in {PHASES}, kv in {KV}")
+                 kv: str = "buffer", w_bits: int = 8, x_bits: int = 8, compute: str = "acim",
+                 dcim_mac_J: float | None = None, hadamard_adds: int = 0) -> dict:
+    if phase not in PHASES or kv not in KV or compute not in COMPUTE:
+        raise ValueError(f"phase in {PHASES}, kv in {KV}, compute in {COMPUTE}")
+    if compute == "dcim" and dcim_mac_J is None:
+        raise ValueError("compute 'dcim' needs dcim_mac_J")
+    if compute != "acim" and kv == "array":
+        raise ValueError("kv 'array' (analog attention) is modelled for compute 'acim' only")
     if seq_len < 1:
         raise ValueError("seq_len must be >= 1")
     a, dg, nrow = costs.acim, costs.digital, costs.acim.nrow
@@ -44,15 +55,26 @@ def token_report(shape: ModelShape, costs: SystemCosts, mapping: Mapping, phase:
         conv += ev["adc_conversions"]
         cyc += ev["array_cycles"]
         macs += ev["macs"]
-    lin = a.energy(conv, cyc, wl_pulses=0.0, bl_activity=costs.input_bit_density)
-    e["array"] = lin["bitline"] + lin["cell_fixed"] + lin["wordline"] + lin["column_fixed"]
-    e["adc"] = lin["adc"]
-    e["shift_add_registers"] = lin["shift_add"] + lin["out_register"] + lin["in_register"]
+    write_e_bit = costs.write_e_bit
+    if compute == "acim":
+        lin = a.energy(conv, cyc, wl_pulses=0.0, bl_activity=costs.input_bit_density)
+        e["array"] = lin["bitline"] + lin["cell_fixed"] + lin["wordline"] + lin["column_fixed"]
+        e["adc"] = lin["adc"]
+        e["shift_add_registers"] = lin["shift_add"] + lin["out_register"] + lin["in_register"]
+    elif compute == "dcim":
+        e["array"], e["adc"], e["shift_add_registers"] = macs * dcim_mac_J, 0.0, 0.0
+        conv = cyc = 0
+    else:
+        xb, wb, acc = costs.head_macs_bits
+        e["array"] = macs * (dg.mac(xb, wb, acc) + dg.sram_read(w_bits))
+        e["adc"], e["shift_add_registers"] = 0.0, 0.0
+        write_e_bit = dg.e_sram_bit
+        conv = cyc = 0
 
     # weight streaming: DRAM read + array write of every non-resident layer
     stream_bits = mapping.streamed_bits * share
     e["dram_weights"] = costs.dram.energy(stream_bits)
-    e["array_write_weights"] = stream_bits * costs.write_e_bit
+    e["array_write_weights"] = stream_bits * write_e_bit
 
     # attention and KV cache
     kvb = 2 * shape.n_kv_heads * shape.head_dim * costs.kv_bits * shape.n_layers       # bits per new token
@@ -75,7 +97,8 @@ def token_report(shape: ModelShape, costs: SystemCosts, mapping: Mapping, phase:
     k_units = max(1, round(keys))
     for unit, (elements, vectors) in unit_elements(shape, k_units).items():
         units += dg.unit_energy(unit, elements, vectors, bits=costs.digital_bits)
-    e["digital_units"] = units * shape.n_layers + dg.unit_energy(shape.norm, shape.d_model, 1, costs.digital_bits)
+    e["digital_units"] = (units * shape.n_layers + dg.unit_energy(shape.norm, shape.d_model, 1, costs.digital_bits)
+                          + dg.hadamard(hadamard_adds, costs.digital_bits))
 
     # LM head: digital MACs + its weights from DRAM; once per token in decode, once per prompt in prefill
     xb, wb, acc = costs.head_macs_bits
@@ -86,7 +109,7 @@ def token_report(shape: ModelShape, costs: SystemCosts, mapping: Mapping, phase:
     # latency: weight / head stream at DRAM bandwidth, then one array evaluation per input cycle and layer
     t_stream = costs.dram.time(stream_bits + shape.head_params() * wb * share)
     t_compute = len(mapping.layers) * x_bits * costs.t_eval
-    return {"phase": phase, "seq_len": seq_len, "kv": kv, "energy_J": e, "total_J": total,
+    return {"phase": phase, "seq_len": seq_len, "kv": kv, "compute": compute, "energy_J": e, "total_J": total,
             "share": {k: v / total for k, v in e.items()},
             "events": {"macs": macs, "adc_conversions": conv, "array_cycles": cyc, "attention_macs": att_macs,
                        "streamed_weight_bits": stream_bits},

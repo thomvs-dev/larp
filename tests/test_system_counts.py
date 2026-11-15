@@ -94,3 +94,22 @@ def test_token_report_structure():
     assert area_report(Q15, c, full)["array_cells"] == full.total_bits
     with pytest.raises(ValueError):
         token_report(Q15, c, small, "train", 8)
+
+
+def test_compute_macros():
+    c = load_costs(ROOT, 128, 6)
+    mp = map_weights(Q15.linear_layers(), 1.2e8, 128, c.array_cols)
+    macs = Q15.linear_params()
+    d = token_report(Q15, c, mp, "decode", 512, compute="dcim", dcim_mac_J=1e-13)
+    assert d["energy_J"]["array"] == pytest.approx(macs * 1e-13) and d["energy_J"]["adc"] == 0.0
+    g = token_report(Q15, c, mp, "decode", 512, compute="digital")
+    assert g["energy_J"]["array"] == pytest.approx(macs * (c.digital.mac(8, 8, 24) + c.digital.sram_read(8)))
+    assert g["energy_J"]["array_write_weights"] == pytest.approx(mp.streamed_bits * c.digital.e_sram_bit)
+    a = token_report(Q15, c, mp, "decode", 512)
+    assert a["energy_J"]["dram_weights"] == d["energy_J"]["dram_weights"] == g["energy_J"]["dram_weights"]
+    h = token_report(Q15, c, mp, "decode", 512, hadamard_adds=1000)
+    assert h["energy_J"]["digital_units"] - a["energy_J"]["digital_units"] == pytest.approx(c.digital.hadamard(1000, 16))
+    with pytest.raises(ValueError):
+        token_report(Q15, c, mp, "decode", 512, compute="dcim")
+    with pytest.raises(ValueError):
+        token_report(Q15, c, mp, "decode", 512, kv="array", compute="digital")

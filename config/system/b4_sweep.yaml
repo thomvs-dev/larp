@@ -1,0 +1,28 @@
+# B4 sweep: operating points with a Part A perplexity (same 8,192 WikiText-2 test tokens per model),
+# costed under several compute macros, ADC anchors, on-chip budgets and DRAM types.
+# Sources: docs/assumptions.md B-30 ... B-32.
+seq_len: 512
+kv: buffer
+budgets_mbit: [min, 2048]
+drams: [default, gddr5]
+dcim:
+  results: results/b1_m4_chih/results.json   # calibrated M4: energy per 1b x 1b product = base + toggle * rate, 22 nm, 0.72 V
+  toggle_rate: 0.31                           # input toggle rate of 8-b activations (results/b1_toggle_opt125m_sandbox: 0.31-0.32 on OPT-125M; not measured on Qwen)
+adc_variants:                                 # analog ADC energy: the calibrated macro's SAR, or a survey line (config/circuits/adc_survey_lines.yaml)
+  m1: null
+  best_sar: bound_best_sar
+models:
+  qwen2.5-1.5b:
+    shape: config/models/qwen2.5-1.5b.yaml
+    points:
+      - {name: "W8A8 digital INT8",        run: a5r_qwen15b_stat/fake_quant,        compute: digital}
+      - {name: "W8A8 DCIM (M4)",           run: a5r_qwen15b_stat/fake_quant,        compute: dcim}
+      - {name: "analog nrow 128 / 6 b",    run: a5r_qwen15b_stat/all_n128_adc6,     compute: acim, nrow: 128, adc_bits: 6}
+      - {name: "analog nrow 64 / 5 b",     run: a5r_qwen15b_stat/all_n64_adc5,      compute: acim, nrow: 64,  adc_bits: 5}
+      - {name: "analog 128 / 6 b + Hadamard", run: a6m_qwen15b_stat/n128_adc6_had_all, compute: acim, nrow: 128, adc_bits: 6, hadamard: true}
+  qwen2.5-0.5b:
+    shape: config/models/qwen2.5-0.5b.yaml
+    points:
+      - {name: "W8A8 digital INT8",        run: e0_qwen05b_w8a8_sub8k,              compute: digital}
+      - {name: "W8A8 DCIM (M4)",           run: e0_qwen05b_w8a8_sub8k,              compute: dcim}
+      - {name: "analog nrow 128 / 6 b",    run: a4_qwen05b_stat_adc6cal_sub8k,      compute: acim, nrow: 128, adc_bits: 6}
