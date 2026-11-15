@@ -1,15 +1,36 @@
-W1115 02:18:45.216000 16652 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
-Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   3%|3         | 11/338 [00:00<00:05, 63.11it/s]Loading weights:   7%|6         | 23/338 [00:00<00:05, 57.17it/s]Loading weights:  10%|#         | 35/338 [00:00<00:05, 53.93it/s]Loading weights:  14%|#3        | 47/338 [00:00<00:05, 57.01it/s]Loading weights:  17%|#6        | 56/338 [00:00<00:04, 63.51it/s]Loading weights:  19%|#8        | 63/338 [00:01<00:04, 57.57it/s]Loading weights:  21%|##        | 70/338 [00:01<00:04, 58.26it/s]Loading weights:  23%|##2       | 77/338 [00:01<00:04, 60.00it/s]Loading weights:  25%|##4       | 84/338 [00:01<00:04, 51.90it/s]Loading weights:  28%|##7       | 93/338 [00:01<00:04, 55.17it/s]Loading weights:  30%|##9       | 100/338 [00:01<00:04, 58.13it/s]Loading weights:  32%|###1      | 107/338 [00:01<00:04, 51.51it/s]Loading weights:  35%|###4      | 117/338 [00:02<00:04, 48.51it/s]Loading weights:  38%|###8      | 129/338 [00:02<00:03, 57.92it/s]Loading weights:  41%|####1     | 139/338 [00:02<00:02, 66.36it/s]Loading weights:  43%|####3     | 147/338 [00:02<00:03, 58.31it/s]Loading weights:  46%|####5     | 154/338 [00:02<00:03, 50.43it/s]Loading weights:  49%|####8     | 165/338 [00:02<00:03, 50.97it/s]Loading weights:  52%|#####2    | 177/338 [00:03<00:03, 52.12it/s]Loading weights:  56%|#####6    | 190/338 [00:03<00:02, 64.49it/s]Loading weights:  59%|#####8    | 198/338 [00:03<00:02, 60.96it/s]Loading weights:  61%|######    | 205/338 [00:03<00:02, 54.30it/s]Loading weights:  63%|######3   | 213/338 [00:03<00:02, 49.12it/s]Loading weights:  67%|######6   | 226/338 [00:04<00:01, 57.12it/s]Loading weights:  69%|######8   | 232/338 [00:04<00:01, 57.36it/s]Loading weights:  71%|#######   | 239/338 [00:04<00:01, 56.84it/s]Loading weights:  73%|#######3  | 247/338 [00:04<00:01, 60.73it/s]Loading weights:  75%|#######5  | 254/338 [00:04<00:01, 53.50it/s]Loading weights:  77%|#######7  | 261/338 [00:04<00:01, 51.43it/s]Loading weights:  80%|#######9  | 269/338 [00:04<00:01, 56.42it/s]Loading weights:  81%|########1 | 275/338 [00:04<00:01, 48.62it/s]Loading weights:  84%|########4 | 285/338 [00:05<00:00, 58.42it/s]Loading weights:  86%|########6 | 292/338 [00:05<00:00, 54.84it/s]Loading weights:  88%|########8 | 298/338 [00:05<00:00, 45.94it/s]Loading weights:  92%|#########2| 312/338 [00:05<00:00, 59.41it/s]Loading weights:  94%|#########4| 319/338 [00:05<00:00, 61.27it/s]Loading weights:  96%|#########6| 326/338 [00:05<00:00, 53.42it/s]Loading weights: 100%|##########| 338/338 [00:05<00:00, 57.29it/s]
-Windows fatal exception: access violation
-
-Thread 0x00000670 (most recent call first):
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 363 in wait
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 660 in wait
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\tqdm\_monitor.py", line 60 in run
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 1044 in _bootstrap_inner
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\threading.py", line 1015 in _bootstrap
-
-Current thread 0x00004c48 (most recent call first):
-  File "D:\japan\cimsim\core\layers.py", line 322 in __init__
-  File "__init__", line ??? in __init__
-  <invalid frame>
+W1115 02:41:51.156000 8264 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   4%|3         | 12/338 [00:00<00:03, 97.48it/s]Loading weights:   7%|6         | 22/338 [00:00<00:03, 86.04it/s]Loading weights:  10%|#         | 35/338 [00:00<00:04, 73.18it/s]Loading weights:  13%|#3        | 45/338 [00:00<00:04, 70.03it/s]Loading weights:  17%|#7        | 59/338 [00:00<00:03, 75.16it/s]Loading weights:  21%|##1       | 72/338 [00:00<00:03, 82.57it/s]Loading weights:  24%|##4       | 82/338 [00:01<00:03, 84.18it/s]Loading weights:  27%|##6       | 91/338 [00:01<00:03, 81.01it/s]Loading weights:  30%|##9       | 100/338 [00:01<00:03, 70.80it/s]Loading weights:  32%|###1      | 108/338 [00:01<00:03, 64.56it/s]Loading weights:  35%|###5      | 119/338 [00:01<00:03, 69.34it/s]Loading weights:  38%|###8      | 129/338 [00:01<00:03, 59.84it/s]Loading weights:  42%|####1     | 141/338 [00:01<00:03, 65.33it/s]Loading weights:  45%|####5     | 153/338 [00:02<00:02, 62.58it/s]Loading weights:  49%|####9     | 167/338 [00:02<00:02, 68.49it/s]Loading weights:  53%|#####2    | 179/338 [00:02<00:02, 71.58it/s]Loading weights:  56%|#####5    | 188/338 [00:02<00:01, 75.17it/s]Loading weights:  58%|#####7    | 196/338 [00:02<00:02, 61.41it/s]Loading weights:  60%|######    | 203/338 [00:02<00:02, 56.30it/s]Loading weights:  63%|######3   | 214/338 [00:03<00:01, 65.42it/s]Loading weights:  66%|######5   | 222/338 [00:03<00:01, 60.98it/s]Loading weights:  68%|######7   | 229/338 [00:03<00:01, 55.24it/s]Loading weights:  70%|#######   | 237/338 [00:03<00:01, 59.48it/s]Loading weights:  72%|#######2  | 244/338 [00:03<00:01, 53.92it/s]Loading weights:  74%|#######4  | 251/338 [00:03<00:01, 51.00it/s]Loading weights:  78%|#######7  | 262/338 [00:04<00:01, 51.30it/s]Loading weights:  81%|########1 | 275/338 [00:04<00:01, 52.31it/s]Loading weights:  84%|########4 | 285/338 [00:04<00:00, 53.41it/s]Loading weights:  86%|########6 | 292/338 [00:04<00:00, 55.18it/s]Loading weights:  89%|########9 | 301/338 [00:04<00:00, 56.76it/s]Loading weights:  92%|#########2| 312/338 [00:04<00:00, 57.87it/s]Loading weights:  95%|#########4| 321/338 [00:05<00:00, 54.99it/s]Loading weights: 100%|##########| 338/338 [00:05<00:00, 65.97it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (299078 > 131072). Running this sequence through the model will result in indexing errors
+  window 1/4  running ppl 6.994  elapsed 0.6 min  eta 1.7 min  rss 8.3 GB
+  window 2/4  running ppl 8.562  elapsed 1.0 min  eta 1.0 min  rss 8.7 GB
+  window 3/4  running ppl 9.869  elapsed 1.5 min  eta 0.5 min  rss 8.7 GB
+  window 4/4  running ppl 10.133  elapsed 1.9 min  eta 0.0 min  rss 8.7 GB
+{
+  "ppl": 10.132500718482452,
+  "nll": 2.315748150429029,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    1.9450666150874374,
+    2.3496626279502015,
+    2.5735156679363094,
+    2.3947476907421685
+  ],
+  "resumed_windows": 0,
+  "model": "Qwen/Qwen2.5-1.5B",
+  "config": "D:\\japan\\results\\a6m_qwen15b_stat\\configs\\fake_quant_had.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 196,
+  "seconds": 114.1,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "calib_cache": "off",
+  "git": "89f7ad8677b99354e587a4adce9006c677a3fbb7"
+}

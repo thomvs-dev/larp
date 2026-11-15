@@ -2,5 +2,46 @@
  "model": "Qwen/Qwen2.5-1.5B",
  "mode": "statistical",
  "tokens": 8192,
- "rows": []
+ "rows": [
+  {
+   "run": "fake_quant",
+   "ppl": 10.338312106069536,
+   "ratio_to_fake_quant": 1.0,
+   "adc_conversions_analog": 2683280818176,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "bd6a1dc0b7ca88679da3ff33be654e240d9beecf"
+  },
+  {
+   "run": "fake_quant_had",
+   "ppl": 10.132500718482452,
+   "ratio_to_fake_quant": 0.9800923607765476,
+   "adc_conversions_analog": 2683280818176,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 25954353152,
+   "stat_inexact_layers": 0,
+   "git": "89f7ad8677b99354e587a4adce9006c677a3fbb7"
+  },
+  {
+   "run": "n128_adc6_base",
+   "ppl": 10.341797699643152,
+   "ratio_to_fake_quant": 1.0003371530611433,
+   "adc_conversions_analog": 5366561636352,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "89f7ad8677b99354e587a4adce9006c677a3fbb7"
+  },
+  {
+   "run": "n128_adc6_had_all",
+   "ppl": 10.228955183372385,
+   "ratio_to_fake_quant": 0.9894221685730548,
+   "adc_conversions_analog": 5366561636352,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 25954353152,
+   "stat_inexact_layers": 0,
+   "git": "89f7ad8677b99354e587a4adce9006c677a3fbb7"
+  }
+ ]
 }

@@ -1,35 +1,0 @@
-W1115 02:21:48.688000 11160 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
-Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   4%|3         | 13/338 [00:00<00:04, 81.08it/s]Loading weights:   7%|6         | 23/338 [00:00<00:03, 79.87it/s]Loading weights:   9%|9         | 31/338 [00:00<00:03, 79.05it/s]Loading weights:  12%|#1        | 39/338 [00:00<00:04, 63.79it/s]Loading weights:  14%|#3        | 47/338 [00:00<00:04, 59.19it/s]Loading weights:  17%|#7        | 58/338 [00:00<00:03, 72.06it/s]Loading weights:  20%|#9        | 66/338 [00:00<00:04, 67.97it/s]Loading weights:  22%|##1       | 74/338 [00:01<00:04, 64.64it/s]Loading weights:  25%|##4       | 83/338 [00:01<00:03, 64.74it/s]Loading weights:  27%|##6       | 91/338 [00:01<00:03, 67.78it/s]Loading weights:  29%|##8       | 98/338 [00:01<00:04, 54.38it/s]Loading weights:  31%|###1      | 105/338 [00:01<00:04, 47.94it/s]Loading weights:  35%|###5      | 119/338 [00:01<00:04, 53.24it/s]Loading weights:  38%|###8      | 129/338 [00:02<00:03, 56.79it/s]Loading weights:  41%|####1     | 139/338 [00:02<00:03, 64.41it/s]Loading weights:  43%|####3     | 146/338 [00:02<00:03, 56.25it/s]Loading weights:  46%|####5     | 154/338 [00:02<00:03, 56.04it/s]Loading weights:  47%|####7     | 160/338 [00:02<00:03, 56.59it/s]Loading weights:  49%|####9     | 166/338 [00:02<00:03, 49.77it/s]Loading weights:  51%|#####     | 172/338 [00:02<00:03, 44.88it/s]Loading weights:  54%|#####4    | 183/338 [00:03<00:02, 58.76it/s]Loading weights:  57%|#####6    | 191/338 [00:03<00:02, 53.37it/s]Loading weights:  60%|######    | 203/338 [00:03<00:02, 55.78it/s]Loading weights:  63%|######3   | 213/338 [00:03<00:02, 51.37it/s]Loading weights:  67%|######6   | 225/338 [00:03<00:02, 52.79it/s]Loading weights:  71%|#######   | 239/338 [00:04<00:01, 60.92it/s]Loading weights:  73%|#######2  | 246/338 [00:04<00:01, 61.90it/s]Loading weights:  75%|#######4  | 253/338 [00:04<00:01, 55.02it/s]Loading weights:  78%|#######7  | 263/338 [00:04<00:01, 59.06it/s]Loading weights:  80%|#######9  | 270/338 [00:04<00:01, 60.02it/s]Loading weights:  82%|########1 | 277/338 [00:04<00:01, 52.68it/s]Loading weights:  84%|########3 | 283/338 [00:04<00:01, 52.45it/s]Loading weights:  86%|########5 | 289/338 [00:05<00:00, 50.67it/s]Loading weights:  88%|########7 | 297/338 [00:05<00:00, 46.14it/s]Loading weights:  91%|#########1| 309/338 [00:05<00:00, 60.99it/s]Loading weights:  93%|#########3| 316/338 [00:05<00:00, 59.09it/s]Loading weights:  96%|#########5| 323/338 [00:05<00:00, 49.80it/s]Loading weights: 100%|##########| 338/338 [00:05<00:00, 59.05it/s]
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (299078 > 131072). Running this sequence through the model will result in indexing errors
-calibrating (ADC range / statistical error model) on 2048 train tokens ...
-Traceback (most recent call last):
-  File "D:\japan\scripts\run_ppl.py", line 143, in <module>
-    main()
-    ~~~~^^
-  File "D:\japan\scripts\run_ppl.py", line 96, in main
-    calibrated, calib_s = calibrate_if_needed(model, tok, seq_len, args.calib_tokens, args.device,
-                          ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                                              **({"cache_dir": None} if args.no_calib_cache else {}),
-                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                                              info=cal_cache)
-                                              ^^^^^^^^^^^^^^^
-  File "D:\japan\eval\runner.py", line 99, in calibrate_if_needed
-    calibrated = calibrate_adc_range(model, run_calib, cache_dir=cache_dir, data_key=data_key, report=report)
-  File "D:\japan\cimsim\calibrate.py", line 73, in calibrate_adc_range
-    m.finish_calibration()
-    ~~~~~~~~~~~~~~~~~~~~^^
-  File "D:\japan\cimsim\core\layers.py", line 137, in finish_calibration
-    info = layer_stat_params(self._hist, self.cfg, self._n_chunks(), self.adc_fs,
-                             exclude_saturation=exact_sat,
-                             flip_lambda_max=self.cfg.stat_flip_lambda_max if self.cfg.stat_noise == "auto" else None,
-                             flip_kurtosis_min=self.cfg.stat_flip_kurtosis_min)
-  File "D:\japan\cimsim\stat\analytic.py", line 119, in layer_stat_params
-    sat = deterministic_tables(cfg, full_scale, hist.shape[-1] - 1, hist)[0] if exclude_saturation else None
-          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\japan\cimsim\stat\saturation.py", line 97, in deterministic_tables
-    sat = saturation_tables(cfg, full_scale, max_mac)
-  File "D:\japan\cimsim\stat\saturation.py", line 81, in saturation_tables
-    q_u = mu if L is None else torch.round(mu / fs * L) / L * fs
-                               ~~~~~~~~~~~^^^^^^^^^^^^^
-KeyboardInterrupt
