@@ -6,7 +6,7 @@ number was measured. GATE B1: the model reproduces each macro's TOPS/W and area 
 
 Status: 2026-11-15. **M1, M2 and M4 are calibrated** (section 3; `results/b1_m1_jia/`, `results/b1_m2_sinangil/`,
 `results/b1_m4_chih/`, summary `results/b1_gate/`). M3 still needs the right PDF. History: headline numbers first checked against abstracts and publisher/author pages, then against
-the full texts of M1, M2 and M4 (PDFs from Thomas, `D:\japan\hf_local\papers\`). The PDF supplied for M3 is a
+the full texts of M1, M2 and M4. The PDF supplied for M3 is a
 different paper (see M3).
 
 Convention used in this file: **1 MAC = 2 ops**, unless a row says otherwise. TOPS/W and TOPS/mm² are quoted
@@ -212,11 +212,9 @@ output precisions and data patterns, so this bounds the scaling rule's error onl
 
 GATE B1 status (2026-11-15): M4 and M1 within 13 %; M2 within 7 % in its operating range at 0.8 V and over VDD in
 Fig. 13(b), with three points over 30 % (above). Area: M2 and M4 areas are inputs, M1 not available — the gate's
-area half is not independently tested on any macro. Passed with these exceptions documented (Thomas, 2026-11-15, `CLAUDE.md` §8).
+area half is not independently tested on any macro. Passed with these exceptions documented (2026-11-15, `docs/decisions.md`).
 
 ## 4. What is needed from the full texts
 
-The open items above need the paper PDFs, which the sandbox cannot fetch: IEEE Xplore is paywalled, and page
-fetches currently need approval. With Thomas's university access, the cheapest route is one PDF per macro
-saved to `D:\japan\hf_local\papers\`; the agent then reads the comparison table and the efficiency-vs-voltage
-figure of each.
+The open items above need the full paper texts (IEEE Xplore). For each macro the comparison table and the
+efficiency-vs-voltage figure are the parts used.

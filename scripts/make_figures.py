@@ -11,6 +11,7 @@ Figures:
     a5_planes       density of each input bit plane per layer type (OPT-125M, GPT-2, Qwen2.5-1.5B)
     a5_noise        PPL vs analog noise, all layers noisy (OPT-125M, statistical)
     a6_pareto       mitigations: PPL / W8A8 vs analog ADC conversions per token
+    headline        energy per token, digital INT8 vs SRAM CIM (Part B, results/b4_sweep/)
 """
 
 from __future__ import annotations
@@ -244,13 +245,65 @@ def a4_zeroshot():
     save(fig, "a4_zeroshot")
 
 
+def headline():
+    rows = j("b4_sweep/summary.json")["rows"]
+
+    def get(model, point, adc, phase):
+        for r in rows:
+            if (r["model"], r["point"], r["adc"], r["phase"], r["dram"], r["budget"]) == (model, point, adc, phase, "default", "min"):
+                return r
+        raise KeyError((model, point, adc, phase))
+
+    opts = [("W8A8 digital INT8", "-", "Digital INT8\n(conventional)"),
+            ("W8A8 DCIM (M4)", "-", "Digital SRAM CIM"),
+            ("analog nrow 128 / 6 b", "m1", "Analog SRAM CIM\n(calibrated ADC)"),
+            ("analog nrow 128 / 6 b", "best_sar", "Analog SRAM CIM\n(best SAR ADC)")]
+    fig, (a, b) = plt.subplots(1, 2, figsize=(10, 3.6), gridspec_kw={"width_ratios": [1.15, 1]})
+    models = [("qwen2.5-0.5b", "Qwen2.5-0.5B"), ("qwen2.5-1.5b", "Qwen2.5-1.5B")]
+    w = 0.38
+    for i, (m, mname) in enumerate(models):
+        base = get(m, opts[0][0], opts[0][1], "prefill")["compute_J"]
+        vals = [get(m, p, adc, "prefill")["compute_J"] * 1e3 for p, adc, _ in opts]
+        xs = [k + (i - 0.5) * w for k in range(len(opts))]
+        bars = a.bar(xs, vals, w, color=C[i], label=mname, zorder=3)
+        for x, v in zip(xs, vals):
+            a.text(x, v, f"{base * 1e3 / v:.1f}×" if v < base * 1e3 * 0.999 else "1×", ha="center", va="bottom",
+                   fontsize=6.5, color=INK2)
+    a.set_xticks(range(len(opts)), [o[2] for o in opts], fontsize=7)
+    a.set_ylabel("mJ per token", fontsize=8, color=INK2)
+    a.legend(fontsize=7, frameon=False)
+    style(a, "Compute energy per token (linear layers), same perplexity as W8A8")
+
+    m = "qwen2.5-1.5b"
+    parts = [("compute_J", "compute", C[6]), ("weights_J", "weights from DRAM + array write", C[3]),
+             ("lm_head_J", "LM head", C[2]), ("other_J", "attention, KV, other", C[4])]
+    labels = []
+    for k, (p, adc, name) in enumerate(opts[::-1]):
+        r = get(m, p, adc, "decode")
+        left = 0.0
+        for key, lab, col in parts:
+            v = r[key] * 1e3
+            b.barh(k, v, left=left, color=col, label=lab if k == 0 else None, zorder=3, height=0.6)
+            left += v
+        b.text(left + 0.5, k, f"{left:.1f} mJ", va="center", fontsize=7, color=INK2)
+        labels.append(name.replace("\n", " "))
+    b.set_yticks(range(len(opts)), labels, fontsize=7)
+    b.set_xlabel("mJ per generated token", fontsize=8, color=INK2)
+    b.set_xlim(0, 60)
+    b.legend(fontsize=6.5, frameon=False, loc="lower center", bbox_to_anchor=(0.45, -0.42), ncol=2)
+    style(b, "Qwen2.5-1.5B decode: where the energy goes")
+    fig.tight_layout()
+    save(fig, "headline")
+
+
 def a6_pareto():
     import fig_a6_pareto
     fig_a6_pareto.main()
 
 
 FIGS = {"a3_validation": a3_validation, "a4_zeroshot": a4_zeroshot, "a5_boundary": a5_boundary,
-        "a5_alignment": a5_alignment, "a5_planes": a5_planes, "a5_noise": a5_noise, "a6_pareto": a6_pareto}
+        "a5_alignment": a5_alignment, "a5_planes": a5_planes, "a5_noise": a5_noise, "a6_pareto": a6_pareto,
+        "headline": headline}
 
 if __name__ == "__main__":
     names = sys.argv[1:] or list(FIGS)

@@ -5,13 +5,13 @@ GATE B5: differences between this simulator and an existing CIM tool on an overl
 ## Setup
 
 - Tool: AccelForge 1.0.551 (repository git df6a79f4), the maintained successor of CiMLoop from the same
-  group. Its `jia_jssc_2020` model is the CiMLoop model of the Jia JSSC 2020 macro (§8, 2026-11-16).
+  group. Its `jia_jssc_2020` model is the CiMLoop model of the Jia JSSC 2020 macro (`docs/decisions.md`, 2026-11-16).
 - Case: the Jia JSSC 2020 macro (65 nm, charge-domain, 8-b SAR ADC). It is our calibration macro M1 and the
   anchor of the Part B analog arrays. Workload is AccelForge's own peak-throughput matmul for this macro
   (M = 1, N = 256 outputs, K = 2,304 inputs). Four runs: 1-b and 8-b inputs and weights, at 0.85 V and 1.2 V.
 - This simulator: the M1 calibration (`results/b1_m1_jia/`), fitted to Table I at 1.2 V and moved to
   0.85 V by VDD².
-- Run: Thomas's laptop, WSL Ubuntu, Python 3.14, our git 2931d87 (AccelForge does not install on native
+- Run: the i7-12700H laptop, WSL Ubuntu, Python 3.14, our git 2931d87 (AccelForge does not install on native
   Windows: `islpy` has no Windows wheel, and `hwcomponents-neurosim` exceeds the path length limit). The
   compare step ran in the project environment at the same commit.
 - Script: `scripts/b5_cimloop_jia.py` (`run`, then `compare`). Results: `results/b5_cimloop_jia/`
@@ -65,7 +65,7 @@ Table I conditions.
    energy in AccelForge is exactly 64.0× the 1-b value, the same factor our event counts give.
 4. **1b-TOPS/W (AccelForge +3.3 % at 1.2 V).** This follows from item 1: lower array energy gives higher
    TOPS/W. The TOPS/W convention is the same in both tools (2 operations per 1-b MAC, array + ADC only, NMC
-   data path excluded; §8 2026-11-15 and AccelForge's notebook).
+   data path excluded; `docs/decisions.md`, 2026-11-15 and AccelForge's notebook).
 5. **8-b operating point (ours 3–4 % below AccelForge).** Going from 1-b to 8-b, AccelForge scales every
    array component by exactly 64× except the row drivers (83×) and the zero-gating logic (86×).
    AccelForge's row-driver energy depends on how many input bits are 1 in its 8-b input distribution, which

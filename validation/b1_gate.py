@@ -30,7 +30,7 @@ def git_hash() -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(ROOT / "results/b1_gate"))
-    ap.add_argument("--limit", type=float, default=30.0, help="gate limit, % (CLAUDE.md: 20-30 %)")
+    ap.add_argument("--limit", type=float, default=30.0, help="gate limit, % (20-30 %)")
     a = ap.parse_args()
     res = {k: json.loads((ROOT / "results" / v / "results.json").read_text(encoding="utf-8")) for k, v in MACROS.items()}
     sc = yaml.safe_load((ROOT / "config/circuits/scaling.yaml").read_text())

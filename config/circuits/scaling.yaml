@@ -6,5 +6,5 @@ rule:
   delay_node_exp: 1.0
   source: "Constant-field scaling: Dennard et al., IEEE JSSC 9(5), 1974"
 target:
-  node_nm: 22              # CLAUDE.md §8, 2026-11-11
-  vdd: 0.8                 # provisional (CLAUDE.md §8, 2026-11-15); M4 was measured at 0.72 V
+  node_nm: 22              # docs/decisions.md, 2026-11-11
+  vdd: 0.8                 # provisional (docs/decisions.md, 2026-11-15); M4 was measured at 0.72 V

@@ -3,7 +3,7 @@
 All numbers are WikiText-2 perplexity (PPL) unless stated otherwise. W8A8 = 8-bit integer fake-quant
 (per-channel weights, per-token activations), the digital reference every CIM result is compared with.
 Every number has a results folder; the finding numbers (F…) refer to `docs/findings.md`, the
-decisions to `CLAUDE.md` §8. All figures are made by one command from the committed results:
+decisions to `docs/decisions.md`. All figures are made by one command from the committed results:
 
 ```
 python scripts/make_figures.py
@@ -25,7 +25,7 @@ python scripts/make_figures.py
 - Models:
   - development models, bit-accurate on the first 8,192 test tokens: OPT-125M and GPT-2;
   - result models, statistical: Qwen2.5-0.5B, TinyLlama-1.1B and Qwen2.5-1.5B.
-- Hardware: CPU only (i7-12700H laptop, 2-core cloud sandbox).
+- Hardware: CPU only (i7-12700H laptop, 2-core 2-core cloud VM).
 
 ## 2. Statistical mode is validated where it is used
 
@@ -131,7 +131,7 @@ step-1 points, the calibrated ADC step sorts the points cleanly.
 **Result models at the boundary** (statistical, 8,192 tokens, `results/a5r_qwen15b_stat/`):
 Qwen2.5-1.5B with all layers at 128 / 6 b gives 10.342, and at 64 / 5 b gives 10.356 (W8A8 10.338).
 Both points are on the boundary and both are lossless. Points below the boundary were not run on the
-result model (§8, 2026-11-14).
+result model (`docs/decisions.md`, 2026-11-14).
 
 ![noise](../figures/a5_noise.png)
 
@@ -143,7 +143,7 @@ result model (§8, 2026-11-14).
   with noise on one fc1 layer, bit-accurate gives 52–245 over random streams.
 - The design rule is to keep analog noise below about 0.08 %, i.e. half an ADC step is ≥ 5σ.
 - A per-layer-type noise ranking is not reported, because statistical mode is not validated at the
-  cliff for single layer types (§8).
+  cliff for single layer types (`docs/decisions.md`).
 
 ## 5. Mitigation at equal ADC cost: rotate the one dense input
 
@@ -175,7 +175,7 @@ result model (§8, 2026-11-14).
 - The result models are checked at two boundary points only.
 - Statistical mode is valid only at ADC steps of 1/n MAC unit (F13).
 - Noise is user-specified Gaussian / nonlinear, not derived from circuit parameters. A7 is deferred.
-- The following were deferred for the deadline (§8, 2026-11-11):
+- The following were deferred for the deadline (`docs/decisions.md`, 2026-11-11):
   - bit-serial vs bit-parallel inputs;
   - input encoding (sign-magnitude / offset inputs, which F15 suggests would remove the GELU effect);
   - SmoothQuant;

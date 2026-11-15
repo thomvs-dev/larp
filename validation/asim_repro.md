@@ -16,7 +16,7 @@ Status: **GATE A2 passed** (2026-11-02). Full sweep (1,000 images, 13 configs) a
 - Known difference: ASiM skips channel groups for some nrow values (findings F4). Config `bs_n64_adc8` shows it.
 - Expected spread: at low ADC precision, whole-network predictions are sensitive to ~1e-7 float differences (findings F6), so per-config accuracy differences of a few % at ADC ≤ 6 b are not evidence of a semantic difference.
 
-## GATE A2 criterion (refined, approved by Thomas 2026-11-02)
+## GATE A2 criterion (refined, approved 2026-11-02)
 
 - Trends (accuracy vs ADC bits, nrow, noise, encoding) match.
 - Per-config difference ≤ 1% absolute at ADC ≥ 8 b and for fake-quant; at ADC ≤ 6 b, difference within the run-to-run spread of either simulator.

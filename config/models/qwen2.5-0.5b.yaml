@@ -1,4 +1,4 @@
-# Shapes of Qwen/Qwen2.5-0.5B (HuggingFace config.json, D:\japan\hf_local\qwen2.5-0.5b). Checked: linear weight
+# Shapes of Qwen/Qwen2.5-0.5B (HuggingFace config.json). Checked: linear weight
 # bits = 2,862,612,480 at 8 b, equal to weight_bits_written in results/a4_qwen05b_stat_adc6cal/events.json.
 name: Qwen/Qwen2.5-0.5B
 n_layers: 24

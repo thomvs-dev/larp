@@ -1,7 +1,7 @@
 """A2 / E1: run the same pretrained CIFAR-10 ResNet-20 through ASiM and cimsim
 with matched configurations and compare top-1 accuracy.
 
-Example (Thomas's machine; downloads ResNet-20 weights from GitHub and CIFAR-10 from HuggingFace):
+Example (downloads ResNet-20 weights from GitHub and CIFAR-10 from HuggingFace):
     python validation/a2_asim_compare.py --name a2_resnet20 --n-images 1000
     python validation/a2_asim_compare.py --name a2_smoke --configs quick --n-images 200
 Smoke test without downloads:

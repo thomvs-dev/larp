@@ -1,7 +1,7 @@
 """Technology-node and supply-voltage scaling (Part B, B0).
 
 Used only to move a calibrated or cited per-action cost to another node / VDD,
-never to invent a macro (docs/part_b_plan.md §3).
+never to invent a macro.
 
 Rule (docs/assumptions.md B-11):
     energy  ~ node**energy_node_exp * vdd**2      (switched capacitance C ~ node, E = C V^2)
