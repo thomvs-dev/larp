@@ -1,0 +1,5 @@
+cimsim: SRAM compute-in-memory simulator for LLM inference
+Copyright 2026 Thomas
+
+This product includes ideas and reference semantics from ASiM
+(https://github.com/Keio-CSG/ASiM), licensed under the Apache License 2.0.

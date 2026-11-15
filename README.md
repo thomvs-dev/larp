@@ -261,3 +261,7 @@ tests/         pytest
   - H. Jia et al., JSSC 2020;
   - M. Sinangil et al., JSSC 2021;
   - Y.-D. Chih et al., ISSCC 2021.
+
+## License
+
+Apache License 2.0, see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
