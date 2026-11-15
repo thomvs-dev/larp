@@ -1,0 +1,79 @@
+{
+  "git": "75af28a",
+  "config": {
+    "scaling": {
+      "rule": {
+        "energy_node_exp": 1.0,
+        "area_node_exp": 2.0,
+        "delay_node_exp": 1.0,
+        "source": "Constant-field scaling: Dennard et al., IEEE JSSC 9(5), 1974"
+      },
+      "target": {
+        "node_nm": 22,
+        "vdd": 0.8
+      }
+    },
+    "digital_source": {
+      "node_nm": 45,
+      "vdd": 0.9
+    },
+    "unit_bits": 16
+  },
+  "energy_factor_source_to_target": 0.3862825788751715,
+  "digital_J": {
+    "source": {
+      "add_8b": 2.5e-14,
+      "add_16b": 5e-14,
+      "add_24b": 7.500000000000001e-14,
+      "mul_8x8b": 1.93728e-13,
+      "mul_16x16b": 7.74912e-13,
+      "int8_mac_acc24": 2.68728e-13,
+      "register_bit": 7.5e-15,
+      "sram_buffer_bit": 1.5625e-13,
+      "gate_mul_per_element_16b": 7.74912e-13,
+      "gelu_per_element_16b": 4.099824e-12,
+      "layernorm_per_element_16b": 2.524736e-12,
+      "relu_per_element_16b": 0.0,
+      "residual_per_element_16b": 5e-14,
+      "rmsnorm_per_element_16b": 2.374736e-12,
+      "rope_per_element_16b": 1.599824e-12,
+      "silu_per_element_16b": 4.099824e-12,
+      "softmax_per_element_16b": 4.149824e-12
+    },
+    "target": {
+      "add_8b": 9.657064471879288e-15,
+      "add_16b": 1.9314128943758575e-14,
+      "add_24b": 2.897119341563786e-14,
+      "mul_8x8b": 7.483375144032923e-14,
+      "mul_16x16b": 2.993350057613169e-13,
+      "int8_mac_acc24": 1.0380494485596708e-13,
+      "register_bit": 2.897119341563786e-15,
+      "sram_buffer_bit": 6.035665294924555e-14,
+      "gate_mul_per_element_16b": 2.993350057613169e-13,
+      "gelu_per_element_16b": 1.5836905876543211e-12,
+      "layernorm_per_element_16b": 9.75261533058985e-13,
+      "relu_per_element_16b": 0.0,
+      "residual_per_element_16b": 1.9314128943758575e-14,
+      "rmsnorm_per_element_16b": 9.173191462277093e-13,
+      "rope_per_element_16b": 6.179841404663924e-13,
+      "silu_per_element_16b": 1.5836905876543211e-12,
+      "softmax_per_element_16b": 1.6030047165980796e-12
+    }
+  },
+  "adc_J_per_conversion": {
+    "bound_survey_lines": {
+      "4": 1.6e-13,
+      "5": 3.2e-13,
+      "6": 6.4e-13,
+      "7": 1.28e-12,
+      "8": 2.56e-12
+    },
+    "bound_best_sar": {
+      "4": 6.4e-15,
+      "5": 1.28e-14,
+      "6": 2.56e-14,
+      "7": 5.12e-14,
+      "8": 1.024e-13
+    }
+  }
+}
