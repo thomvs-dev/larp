@@ -13,6 +13,11 @@ Two architectures:
 - ``flash``: (2**b - 1) comparators fire per conversion, plus a fixed encoder /
   reference cost: E = (2**b - 1) * e_comparator + e_fixed.
 
+- ``sar``: binary-weighted capacitor DAC + one comparator, b bit cycles:
+    E = dac_switch_factor * 2**b * c_unit * vref**2 + b * (e_comparator + e_logic_bit).
+  ``dac_switch_factor`` is the average DAC switching energy in units of
+  2**b * C_u * Vref^2 for the switching scheme used (docs/assumptions.md B-16).
+
 No number is built in: every parameter comes from config, and each config value
 must cite its source in docs/assumptions.md (Part B section). Speed (throughput
 per ADC) is not modelled yet; the bound model is only valid below the speed
@@ -25,7 +30,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, fields
 
-ARCHS = ("bound", "flash")
+ARCHS = ("bound", "flash", "sar")
 
 
 @dataclass(frozen=True)
@@ -35,7 +40,11 @@ class ADCSpec:
     enob: float | None = None          # default: bits (ideal converter)
     fom_walden: float | None = None    # J / conversion-step   (arch 'bound')
     fom_schreier_db: float | None = None  # dB                 (arch 'bound')
-    e_comparator: float | None = None  # J per comparator decision (arch 'flash')
+    e_comparator: float | None = None  # J per comparator decision (arch 'flash', 'sar')
+    c_unit: float | None = None        # F, unit capacitor of the DAC (arch 'sar')
+    vref: float | None = None          # V, DAC reference (arch 'sar')
+    dac_switch_factor: float | None = None  # average DAC energy / (2**b * c_unit * vref**2) (arch 'sar')
+    e_logic_bit: float = 0.0           # J of SAR logic per bit cycle (arch 'sar')
     e_fixed: float = 0.0               # J per conversion, any arch (reference, encoder, sampling switch)
 
     def __post_init__(self):
@@ -49,6 +58,8 @@ class ADCSpec:
             raise ValueError("arch 'bound' needs fom_walden and fom_schreier_db")
         if self.arch == "flash" and self.e_comparator is None:
             raise ValueError("arch 'flash' needs e_comparator")
+        if self.arch == "sar" and None in (self.e_comparator, self.c_unit, self.vref, self.dac_switch_factor):
+            raise ValueError("arch 'sar' needs e_comparator, c_unit, vref and dac_switch_factor")
         if self.e_fixed < 0:
             raise ValueError("e_fixed must be >= 0")
 
@@ -88,6 +99,9 @@ class ADCSpec:
         """Joules per conversion."""
         if self.arch == "bound":
             core = max(self.walden_energy(), self.schreier_energy())
+        elif self.arch == "sar":
+            core = (self.dac_switch_factor * 2 ** self.bits * self.c_unit * self.vref ** 2
+                    + self.bits * (self.e_comparator + self.e_logic_bit))
         else:
             core = (2 ** self.bits - 1) * self.e_comparator
         return core + self.e_fixed

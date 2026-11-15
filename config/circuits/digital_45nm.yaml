@@ -1,0 +1,14 @@
+# Digital per-operation energies for cimsim.circuits.DigitalSpec, as published at 45 nm.
+# Sources: docs/assumptions.md, Part B, B-12 ... B-14. Scale with config/circuits/scaling.yaml; do not edit
+# these values to another node.
+node_nm: 45
+vdd: 0.9
+e_add_bit: 3.125e-15     # J per adder bit: 32-b integer add 0.1 pJ / 32
+e_mul_bit2: 3.027e-15    # J per bit^2: 32-b integer multiply 3.1 pJ / 32^2
+e_sram_bit: 1.5625e-13   # J per bit: 32-b read from an 8 KB SRAM 5 pJ / 32
+e_reg_bit: 7.5e-15       # J per bit: 16-b access to a 16-word register file 0.12 pJ / 16
+source: "Horowitz, ISSCC 2014, paper 1.1, Fig. 1.1.9 (add, multiply, SRAM); Pedram et al., IEEE Design & Test 2017 (arXiv 1602.04183), Table I (register file)"
+# Published points the per-bit values are checked against (tests/test_circuits_digital.py), in J:
+points:
+  add: {8: 0.03e-12, 16: 0.05e-12, 32: 0.1e-12}
+  mul: {8: 0.2e-12, 32: 3.1e-12}

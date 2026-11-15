@@ -1,0 +1,5 @@
+# SAR capacitor-DAC switching energy in units of 2^b * C_u * Vref^2 (ADCSpec.dac_switch_factor).
+# 10-bit averages 1363.3 / 255.5 C Vref^2, divided by 2^10. Source: docs/assumptions.md B-16.
+conventional: 1.331
+monotonic: 0.2495
+source: "Sanyal & Sun, Electronics Letters 49(4), 2013, Table 1; monotonic scheme: Liu et al., IEEE JSSC 45(4), 2010"

@@ -1,0 +1,10 @@
+# Node / VDD scaling rule for cimsim.circuits.ScalingRule and the result node of Part B.
+# Sources: docs/assumptions.md, Part B, B-11.
+rule:
+  energy_node_exp: 1.0     # switched capacitance ~ feature size; E = C V^2
+  area_node_exp: 2.0
+  delay_node_exp: 1.0
+  source: "Constant-field scaling: Dennard et al., IEEE JSSC 9(5), 1974"
+target:
+  node_nm: 22              # CLAUDE.md §8, 2026-11-11
+  vdd: 0.8                 # provisional (CLAUDE.md §8, 2026-11-15); M4 was measured at 0.72 V
