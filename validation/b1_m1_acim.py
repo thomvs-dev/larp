@@ -22,7 +22,8 @@ from pathlib import Path
 
 import yaml
 
-from cimsim.circuits import ADCSpec, AnalogArraySpec
+from cimsim.circuits import AnalogArraySpec
+from cimsim.circuits.macros import m1_spec
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,18 +37,8 @@ def git_hash() -> str:
 
 
 def build(cfg: dict) -> AnalogArraySpec:
-    v = cfg["vdd"]
-    e = cfg["energy_pj"][v]
-    n, share, act = cfg["nrow"], cfg["data_dependent_share"], cfg["calib_activity"]
     k = yaml.safe_load((ROOT / "config/circuits/sar_switching.yaml").read_text())["conventional"]
-    bits = cfg["adc_bits"]
-    e_dac = k * 2 ** bits * cfg["adc_c_unit"] * v ** 2
-    adc = ADCSpec(arch="sar", bits=bits, c_unit=cfg["adc_c_unit"], vref=v, dac_switch_factor=k,
-                  e_comparator=(e["adc"] * 1e-12 - e_dac) / bits)     # comparator + SAR logic per bit cycle
-    return AnalogArraySpec(nrow=n, adc=adc, e_wl_cell=0.0,
-                           e_bl_cell=share * e["cima"] * 1e-12 / n / act,   # input broadcast + cell capacitor, per active cell
-                           e_cell_fixed=(1 - share) * e["cima"] * 1e-12 / n,
-                           area_cell=cfg["bitcell_um2"] * 1e-12, vdd=v, node_nm=cfg["node_nm"])
+    return m1_spec(cfg, k)
 
 
 def err(model: float, ref: float) -> float:

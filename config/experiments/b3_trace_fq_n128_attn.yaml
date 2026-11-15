@@ -1,0 +1,8 @@
+# B3 decode trace with both attention matmuls counted on CIM arrays as well (keys / values written per token).
+attention: true
+default:
+  mode: fake_quant
+  macro: acim
+  w_bits: 8
+  x_bits: 8
+  nrow: 128

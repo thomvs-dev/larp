@@ -1,0 +1,12 @@
+# Result system for Part B: analog SRAM CIM arrays built from the calibrated M1 macro (bit-serial inputs,
+# bit-sliced weights, one SAR ADC per column: the architecture the simulator computes), moved to the
+# result node with config/circuits/scaling.yaml. Sources: docs/assumptions.md B-25 ... B-29.
+macro: config/macros/m1_jia_jssc20.yaml
+input_bit_density: 0.47        # mean density of the 8 input bit planes (results/a5o_qwen15b/summary.md: 0.39-0.47)
+acc_bits: 24                   # shift-add accumulator: ADC bits + 14 shift positions (8 b x 8 b) + chunk sum
+t_eval: 1.0e-8                 # s per array evaluation at the macro's node: one 100 MHz clock (Jia Table I)
+array_cols: 256                # bit columns per array (tiling granularity, cimsim.mapper)
+write_e_bit: 6.0e-13           # J per weight bit written at the macro's node / VDD (Jia Table I: 19.2 pJ per 32 b)
+kv_bits: 8                     # bits per stored key / value element
+digital_bits: 16               # word width of the non-linear units
+head_macs_bits: [8, 8, 24]     # LM head on a digital INT8 MAC unit: x bits, w bits, accumulator

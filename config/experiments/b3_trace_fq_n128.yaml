@@ -1,0 +1,8 @@
+# B3 decode trace: event counting only. Linear layers counted as analog arrays at nrow 128 (bit-serial W8A8);
+# fake_quant computes the ideal result, so no ADC calibration is needed and the run is short.
+default:
+  mode: fake_quant
+  macro: acim
+  w_bits: 8
+  x_bits: 8
+  nrow: 128

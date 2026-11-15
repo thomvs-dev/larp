@@ -4,7 +4,7 @@ Example:
     python scripts/run_ppl.py --model facebook/opt-125m \
         --config config/experiments/e0_w8a8.yaml --name e0_opt125m_w8a8
 
-Writes results/<name>/{result.json, config.yaml, events.json}.
+Writes results/<name>/{result.json, config.yaml, events.json, events_per_layer.json}.
 The unmodified model (no CIM swap) is selected with --config none.
 """
 
@@ -132,6 +132,8 @@ def main() -> None:
     (out / "result.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     (out / "config.yaml").write_text(yaml.safe_dump(cfg_dict or {"fp": True}), encoding="utf-8")
     (out / "events.json").write_text(json.dumps(counter.to_dict()["total"], indent=2), encoding="utf-8")
+    # per-layer counts for Part B (events.json keeps the totals; older readers use that file)
+    (out / "events_per_layer.json").write_text(json.dumps(counter.to_dict()["per_layer"]), encoding="utf-8")
     if calibrated:
         fs = {m.name: m.adc_fs.tolist() for m in model.modules()
               if getattr(m, "adc_fs", None) is not None}
