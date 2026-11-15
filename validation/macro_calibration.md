@@ -212,7 +212,7 @@ output precisions and data patterns, so this bounds the scaling rule's error onl
 
 GATE B1 status (2026-11-15): M4 and M1 within 13 %; M2 within 7 % in its operating range at 0.8 V and over VDD in
 Fig. 13(b), with three points over 30 % (above). Area: M2 and M4 areas are inputs, M1 not available — the gate's
-area half is not independently tested on any macro. Decision on passing: Thomas.
+area half is not independently tested on any macro. Passed with these exceptions documented (Thomas, 2026-11-15, `CLAUDE.md` §8).
 
 ## 4. What is needed from the full texts
 

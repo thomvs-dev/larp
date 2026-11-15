@@ -1,0 +1,2565 @@
+{
+  "git": "ff767af",
+  "run": "a4_qwen15b_stat_adc6cal",
+  "run_git": "2d1d11f3b9243ec17e254a9f3880b6384a746e46",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "ppl": 9.491614538387937,
+  "config": {
+    "default": {
+      "adc_bits": 6,
+      "adc_range": "calibrated",
+      "adc_range_gran": "layer",
+      "adc_range_method": "mse",
+      "macro": "acim",
+      "mode": "statistical",
+      "nrow": 128,
+      "rand_noise_sigma": 0.0,
+      "w_bits": 8,
+      "x_bits": 8
+    }
+  },
+  "shape": "config/models/qwen2.5-1.5b.yaml",
+  "dram": "default",
+  "node_nm": 22,
+  "vdd": 0.8,
+  "count_check": {
+    "tokens_processed": 299008,
+    "all_equal": true,
+    "fields": {
+      "macs": {
+        "derived": 391758999453696,
+        "events_json": 391758999453696,
+        "equal": true
+      },
+      "adc_conversions": {
+        "derived": 195879499726848,
+        "events_json": 195879499726848,
+        "equal": true
+      },
+      "array_cycles": {
+        "derived": 9510846464,
+        "events_json": 9510846464,
+        "equal": true
+      },
+      "weight_bits_written": {
+        "derived": 10481565696,
+        "events_json": 10481565696,
+        "equal": true
+      },
+      "kv_bits_written": {
+        "derived": 0,
+        "events_json": 0,
+        "equal": true
+      }
+    }
+  },
+  "energy_per_conversion_J": {
+    "wordline": 0.0,
+    "bitline": 1.0576847863247867e-13,
+    "cell_fixed": 5.796467236467238e-14,
+    "column_fixed": 0.0,
+    "adc": 3.5735582982564115e-13,
+    "shift_add": 2.897119341563786e-14,
+    "out_register": 1.7382716049382716e-14
+  },
+  "write_J_per_bit": 9.025641025641028e-14,
+  "dram_J_per_bit": 3.97e-12,
+  "reports": [
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.00032509231104000004,
+        "array_write_weights": 7.390847606153848e-06,
+        "attention": 5.759131558191408e-07,
+        "kv_cache": 4.5340303978052126e-07,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.0007639704891771212,
+      "share": {
+        "array": 0.1403997113682884,
+        "adc": 0.3064294253041536,
+        "shift_add_registers": 0.039763502045336505,
+        "dram_weights": 0.4255299329561271,
+        "array_write_weights": 0.009674257986214348,
+        "attention": 0.0007538421496352058,
+        "kv_cache": 0.0005934824004378564,
+        "digital_units": 0.0008121901247899236,
+        "lm_head_macs": 0.00024773273300581096,
+        "lm_head_dram": 0.07579592293201123
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 81887232.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00094212,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.0009474270769230769
+      },
+      "tokens_per_s": 1055.4902053756605,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.041611815813120005,
+        "array_write_weights": 0.0009460284935876925,
+        "attention": 1.1428974255015506e-06,
+        "kv_cache": 8.929617119341564e-07,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.05036845147098082,
+      "share": {
+        "array": 0.0021295321385084707,
+        "adc": 0.004647810903671597,
+        "shift_add_registers": 0.000603118444617524,
+        "dram_weights": 0.8261484043656604,
+        "array_write_weights": 0.018782163555946037,
+        "attention": 2.269073978103173e-05,
+        "kv_cache": 1.772859172469548e-05,
+        "digital_units": 1.3003383690357402e-05,
+        "lm_head_macs": 0.00048096264500151187,
+        "lm_head_dram": 0.14715458523139838
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 10481565696.0
+      },
+      "latency_s": {
+        "dram_stream": 0.12059136,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.12059666707692307
+      },
+      "tokens_per_s": 8.292103125554423,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 8.127307776000001e-05,
+        "array_write_weights": 1.847711901538462e-06,
+        "attention": 2.290259294071467e-06,
+        "kv_cache": 1.7824623319615913e-06,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.00047418360705030167,
+      "share": {
+        "array": 0.2262019069819501,
+        "adc": 0.4936970288874718,
+        "shift_add_registers": 0.06406409175116984,
+        "dram_weights": 0.17139579806557614,
+        "array_write_weights": 0.0038966169940633476,
+        "attention": 0.00482989976882207,
+        "kv_cache": 0.003759012976111818,
+        "digital_units": 0.001526628749822995,
+        "lm_head_macs": 9.978228602046429e-05,
+        "lm_head_dram": 0.030529233538991427
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 20471808.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00023553,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00024083707692307692
+      },
+      "tokens_per_s": 4152.184592073416,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.041611815813120005,
+        "array_write_weights": 0.0009460284935876925,
+        "attention": 4.5715897020062025e-06,
+        "kv_cache": 3.5510802962962962e-06,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.05037474510792224,
+      "share": {
+        "array": 0.002129266082529306,
+        "adc": 0.00464723022312746,
+        "shift_add_registers": 0.0006030430931985746,
+        "dram_weights": 0.8260451883969112,
+        "array_write_weights": 0.018779816980928295,
+        "attention": 9.075161953101866e-05,
+        "kv_cache": 7.0493265795956e-05,
+        "digital_units": 1.7107508515911695e-05,
+        "lm_head_macs": 0.0004809025552826748,
+        "lm_head_dram": 0.1471362002741797
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 10481565696.0
+      },
+      "latency_s": {
+        "dram_stream": 0.12059136,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.12059666707692307
+      },
+      "tokens_per_s": 8.292103125554423,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 2.0318269440000003e-05,
+        "array_write_weights": 4.619279753846155e-07,
+        "attention": 9.14764384708077e-06,
+        "kv_cache": 7.098699500685872e-06,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.00041353745578376144,
+      "share": {
+        "array": 0.25937489984086176,
+        "adc": 0.5660987527821199,
+        "shift_add_registers": 0.07345922765665006,
+        "dram_weights": 0.04913283949453037,
+        "array_write_weights": 0.0011170160499951363,
+        "attention": 0.02212047232757574,
+        "kv_cache": 0.017165795749340247,
+        "digital_units": 0.0027507894929867933,
+        "lm_head_macs": 2.8603892853692134e-05,
+        "lm_head_dram": 0.008751602713086367
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 5117952.0
+      },
+      "latency_s": {
+        "dram_stream": 5.88825e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 6.418957692307692e-05
+      },
+      "tokens_per_s": 15578.853264578662,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.041611815813120005,
+        "array_write_weights": 0.0009460284935876925,
+        "attention": 1.828635880802481e-05,
+        "kv_cache": 1.4183554633744855e-05,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.05039991965568793,
+      "share": {
+        "array": 0.002128202523081857,
+        "adc": 0.0046449089511883465,
+        "shift_add_registers": 0.0006027418757113602,
+        "dram_weights": 0.8256325823016241,
+        "array_write_weights": 0.018770436541379044,
+        "attention": 0.0003628251579159231,
+        "kv_cache": 0.0002814201834177757,
+        "digital_units": 3.351375785273578e-05,
+        "lm_head_macs": 0.00048066234648013476,
+        "lm_head_dram": 0.1470627063613487
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 10481565696.0
+      },
+      "latency_s": {
+        "dram_stream": 0.12059136,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.12059666707692307
+      },
+      "tokens_per_s": 8.292103125554423,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.00032509231104000004,
+        "array_write_weights": 7.390847606153848e-06,
+        "attention": 2.3448336361861037e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.0007652963579448872,
+      "share": {
+        "array": 0.14015647018417188,
+        "adc": 0.30589853919667714,
+        "shift_add_registers": 0.03969461215070733,
+        "dram_weights": 0.4247927063353561,
+        "array_write_weights": 0.009657497424920582,
+        "attention": 0.0030639550441385567,
+        "kv_cache": 1.352590675759185e-05,
+        "digital_units": 0.0008107830130105879,
+        "lm_head_macs": 0.0002473035383676348,
+        "lm_head_dram": 0.0756646072058925
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 659226624,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 81887232.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00094212,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.0009474270769230769
+      },
+      "tokens_per_s": 1055.4902053756605,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.041611815813120005,
+        "array_write_weights": 0.0009460284935876925,
+        "attention": 3.125780318602048e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.050369551743489165,
+      "share": {
+        "array": 0.002129485621007589,
+        "adc": 0.004647709376888367,
+        "shift_add_registers": 0.0006031052700979795,
+        "dram_weights": 0.8261303579795864,
+        "array_write_weights": 0.018781753278357842,
+        "attention": 6.205694135457718e-05,
+        "kv_cache": 2.055076295338524e-07,
+        "digital_units": 1.300309964443889e-05,
+        "lm_head_macs": 0.0004809521388533029,
+        "lm_head_dram": 0.14715137078657997
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 660602880,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 10481565696.0
+      },
+      "latency_s": {
+        "dram_stream": 0.12059136,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.12059666707692307
+      },
+      "tokens_per_s": 8.292103125554423,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 8.127307776000001e-05,
+        "array_write_weights": 1.847711901538462e-06,
+        "attention": 6.25056384273496e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.0004763718005941831,
+      "share": {
+        "array": 0.22516285817206216,
+        "adc": 0.49142925264652404,
+        "shift_add_registers": 0.06376981607870207,
+        "dram_weights": 0.17060849877895234,
+        "array_write_weights": 0.003878718050131837,
+        "attention": 0.013121187767492897,
+        "kv_cache": 2.1729512885892642e-05,
+        "digital_units": 0.0015196162457870724,
+        "lm_head_macs": 9.93239403463682e-05,
+        "lm_head_dram": 0.03038899880711531
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 666107904,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 20471808.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00023553,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00024083707692307692
+      },
+      "tokens_per_s": 4152.184592073416,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.041611815813120005,
+        "array_write_weights": 0.0009460284935876925,
+        "attention": 1.2500130891000784e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.05037913292014212,
+      "share": {
+        "array": 0.002129080632340016,
+        "adc": 0.004646825468770255,
+        "shift_add_registers": 0.0006029905706619592,
+        "dram_weights": 0.8259732433085039,
+        "array_write_weights": 0.018778181337246878,
+        "attention": 0.0002481211995215403,
+        "kv_cache": 2.0546854579445548e-07,
+        "digital_units": 1.7106018523318196e-05,
+        "lm_head_macs": 0.0004808606706771579,
+        "lm_head_dram": 0.1471233853252092
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 677117952,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 10481565696.0
+      },
+      "latency_s": {
+        "dram_stream": 0.12059136,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.12059666707692307
+      },
+      "tokens_per_s": 8.292103125554423,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 2.0318269440000003e-05,
+        "array_write_weights": 4.619279753846155e-07,
+        "attention": 2.4999264987532435e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.0004223007287507067,
+      "share": {
+        "array": 0.25399254339832444,
+        "adc": 0.5543514893768381,
+        "shift_add_registers": 0.07193485599430274,
+        "dram_weights": 0.04811327108079493,
+        "array_write_weights": 0.0010938365575431002,
+        "attention": 0.059197778468173194,
+        "kv_cache": 2.45117435864e-05,
+        "digital_units": 0.0026937071401503185,
+        "lm_head_macs": 2.8010325985513388e-05,
+        "lm_head_dram": 0.008569995914301258
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 699138048,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 5117952.0
+      },
+      "latency_s": {
+        "dram_stream": 5.88825e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 6.418957692307692e-05
+      },
+      "tokens_per_s": 15578.853264578662,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.041611815813120005,
+        "array_write_weights": 0.0009460284935876925,
+        "attention": 4.999753318059573e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.05041745762675393,
+      "share": {
+        "array": 0.0021274622169254313,
+        "adc": 0.004643293195800734,
+        "shift_add_registers": 0.0006025322088603509,
+        "dram_weights": 0.8253453817758309,
+        "array_write_weights": 0.018763907148814346,
+        "attention": 0.0009916710507446261,
+        "kv_cache": 2.0531235938391047e-07,
+        "digital_units": 3.35020999202814e-05,
+        "lm_head_macs": 0.0004804951456191256,
+        "lm_head_dram": 0.14701154984512474
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 743178240,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 10481565696.0
+      },
+      "latency_s": {
+        "dram_stream": 0.12059136,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.12059666707692307
+      },
+      "tokens_per_s": 8.292103125554423,
+      "budget": "min",
+      "budget_bits": 110100480,
+      "resident_fraction": 0.0,
+      "area": {
+        "array_cells": 110100480,
+        "arrays": 3360,
+        "cell_area_mm2": 22.70284927242604,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0003127013376,
+        "array_write_weights": 7.1091436307692325e-06,
+        "attention": 5.759131558191408e-07,
+        "kv_cache": 4.5340303978052126e-07,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.0007512978117617366,
+      "share": {
+        "array": 0.14276793369441398,
+        "adc": 0.311598189536749,
+        "shift_add_registers": 0.04043422146769833,
+        "dram_weights": 0.4162148920236291,
+        "array_write_weights": 0.00946248414340357,
+        "attention": 0.0007665577442168613,
+        "kv_cache": 0.000603493092462662,
+        "digital_units": 0.0008258899163909243,
+        "lm_head_macs": 0.00025191141815764513,
+        "lm_head_dram": 0.07707442696287797
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 78766080.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00091164,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.0009169470769230769
+      },
+      "tokens_per_s": 1090.5754815813546,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0400257712128,
+        "array_write_weights": 0.0009099703847384618,
+        "attention": 1.1428974255015506e-06,
+        "kv_cache": 8.929617119341564e-07,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.04874634876181159,
+      "share": {
+        "array": 0.0022003952890598346,
+        "adc": 0.004802473290702692,
+        "shift_add_registers": 0.0006231880516304382,
+        "dram_weights": 0.8211029590826835,
+        "array_write_weights": 0.01866745731428694,
+        "attention": 2.3445805778932693e-05,
+        "kv_cache": 1.8318535328613415e-05,
+        "digital_units": 1.3436089409827001e-05,
+        "lm_head_macs": 0.0004969673474927341,
+        "lm_head_dram": 0.15205135919362642
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 10082058240.0
+      },
+      "latency_s": {
+        "dram_stream": 0.11668992,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.11669522707692308
+      },
+      "tokens_per_s": 8.569330769122379,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 7.81753344e-05,
+        "array_write_weights": 1.7772859076923081e-06,
+        "attention": 2.290259294071467e-06,
+        "kv_cache": 1.7824623319615913e-06,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.0004710154376964555,
+      "share": {
+        "array": 0.22772339840691613,
+        "adc": 0.49701776037910966,
+        "shift_add_registers": 0.06449500308851511,
+        "dram_weights": 0.16597191544787512,
+        "array_write_weights": 0.00377330712637422,
+        "attention": 0.0048623869002514895,
+        "kv_cache": 0.003784297051236554,
+        "digital_units": 0.0015368972421754828,
+        "lm_head_macs": 0.00010045344699593633,
+        "lm_head_dram": 0.030734580910550355
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 19691520.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00022791,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00023321707692307693
+      },
+      "tokens_per_s": 4287.850671972167,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0400257712128,
+        "array_write_weights": 0.0009099703847384618,
+        "attention": 4.5715897020062025e-06,
+        "kv_cache": 3.5510802962962962e-06,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.04875264239875301,
+      "share": {
+        "array": 0.0022001112328857366,
+        "adc": 0.004801853323828581,
+        "shift_add_registers": 0.0006231076022609228,
+        "dram_weights": 0.8209969602349959,
+        "array_write_weights": 0.018665047471595857,
+        "attention": 9.377111633487859e-05,
+        "kv_cache": 7.283872466340667e-05,
+        "digital_units": 1.7676711220532807e-05,
+        "lm_head_macs": 0.0004969031923638432,
+        "lm_head_dram": 0.15203173038985027
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 10082058240.0
+      },
+      "latency_s": {
+        "dram_stream": 0.11668992,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.11669522707692308
+      },
+      "tokens_per_s": 8.569330769122379,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 1.95438336e-05,
+        "array_write_weights": 4.4432147692307703e-07,
+        "attention": 9.14764384708077e-06,
+        "kv_cache": 7.098699500685872e-06,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.00041274541344529987,
+      "share": {
+        "array": 0.2598726301499483,
+        "adc": 0.5671850741932072,
+        "shift_add_registers": 0.07360019304732293,
+        "dram_weights": 0.04735081956904676,
+        "array_write_weights": 0.0010765025181363084,
+        "attention": 0.02216292065058425,
+        "kv_cache": 0.01719873624138199,
+        "digital_units": 0.0027560681506572787,
+        "lm_head_macs": 2.865878260763472e-05,
+        "lm_head_dram": 0.008768396697107411
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 4922880.0
+      },
+      "latency_s": {
+        "dram_stream": 5.69775e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 6.228457692307693e-05
+      },
+      "tokens_per_s": 16055.339048622358,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0400257712128,
+        "array_write_weights": 0.0009099703847384618,
+        "attention": 1.828635880802481e-05,
+        "kv_cache": 1.4183554633744855e-05,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.04877781694651869,
+      "share": {
+        "array": 0.002198975741205516,
+        "adc": 0.0047993750561767705,
+        "shift_add_registers": 0.0006227860123850684,
+        "dram_weights": 0.8205732383777103,
+        "array_write_weights": 0.01865541431950876,
+        "attention": 0.00037489088181364214,
+        "kv_cache": 0.0002907787908855389,
+        "digital_units": 3.4628255401221176e-05,
+        "lm_head_macs": 0.000496646737402671,
+        "lm_head_dram": 0.15195326582751048
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 10082058240.0
+      },
+      "latency_s": {
+        "dram_stream": 0.11668992,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.11669522707692308
+      },
+      "tokens_per_s": 8.569330769122379,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0003127013376,
+        "array_write_weights": 7.1091436307692325e-06,
+        "attention": 2.3448336361861037e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.0007526236805295025,
+      "share": {
+        "array": 0.14251642480727567,
+        "adc": 0.31104925875196615,
+        "shift_add_registers": 0.0403629900239106,
+        "dram_weights": 0.41548166193761193,
+        "array_write_weights": 0.009445814441777396,
+        "attention": 0.0031155459186939403,
+        "kv_cache": 1.3753655973466827e-05,
+        "digital_units": 0.0008244349772572191,
+        "lm_head_macs": 0.0002514676353081022,
+        "lm_head_dram": 0.07693864785022549
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 659226624,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 78766080.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00091164,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.0009169470769230769
+      },
+      "tokens_per_s": 1090.5754815813546,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0400257712128,
+        "array_write_weights": 0.0009099703847384618,
+        "attention": 3.125780318602048e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.048747449034319934,
+      "share": {
+        "array": 0.002200345624215991,
+        "adc": 0.004802364894685289,
+        "shift_add_registers": 0.0006231739857317231,
+        "dram_weights": 0.8210844260716174,
+        "array_write_weights": 0.01866703597346828,
+        "attention": 6.412192597814478e-05,
+        "kv_cache": 2.1234602803932322e-07,
+        "digital_units": 1.3435786145551842e-05,
+        "lm_head_macs": 0.0004969561305055722,
+        "lm_head_dram": 0.152047927261624
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 660602880,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 10082058240.0
+      },
+      "latency_s": {
+        "dram_stream": 0.11668992,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.11669522707692308
+      },
+      "tokens_per_s": 8.569330769122379,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 7.81753344e-05,
+        "array_write_weights": 1.7772859076923081e-06,
+        "attention": 6.25056384273496e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.0004732036312403369,
+      "share": {
+        "array": 0.22667035731152424,
+        "adc": 0.49471944527192147,
+        "shift_add_registers": 0.0641967645711965,
+        "dram_weights": 0.16520442625321968,
+        "array_write_weights": 0.003755858557200371,
+        "attention": 0.013209036089497675,
+        "kv_cache": 2.1874995236944436e-05,
+        "digital_units": 0.00152979030469463,
+        "lm_head_macs": 9.998892903862273e-05,
+        "lm_head_dram": 0.030592457716469856
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 666107904,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 19691520.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00022791,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00023321707692307693
+      },
+      "tokens_per_s": 4287.850671972167,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0400257712128,
+        "array_write_weights": 0.0009099703847384618,
+        "attention": 1.2500130891000784e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.048757030210972885,
+      "share": {
+        "array": 0.002199913237336972,
+        "adc": 0.004801421188593905,
+        "shift_add_registers": 0.0006230515266726503,
+        "dram_weights": 0.8209230759053103,
+        "array_write_weights": 0.0186633677400161,
+        "attention": 0.00025637596951480447,
+        "kv_cache": 2.1230430021469172e-07,
+        "digital_units": 1.7675120432718925e-05,
+        "lm_head_macs": 0.0004968584743428703,
+        "lm_head_dram": 0.15201804853347947
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 677117952,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 10082058240.0
+      },
+      "latency_s": {
+        "dram_stream": 0.11668992,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.11669522707692308
+      },
+      "tokens_per_s": 8.569330769122379,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 1.95438336e-05,
+        "array_write_weights": 4.4432147692307703e-07,
+        "attention": 2.4999264987532435e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.00042150868641224515,
+      "share": {
+        "array": 0.25446981196836826,
+        "adc": 0.5553931520142392,
+        "shift_add_registers": 0.07207002628472683,
+        "dram_weights": 0.04636638396791112,
+        "array_write_weights": 0.0010541217565526524,
+        "attention": 0.05930901495843097,
+        "kv_cache": 2.45578027527607e-05,
+        "digital_units": 0.002698768791715735,
+        "lm_head_macs": 2.8062959216594514e-05,
+        "lm_head_dram": 0.008586099496085882
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 699138048,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 4922880.0
+      },
+      "latency_s": {
+        "dram_stream": 5.69775e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 6.228457692307693e-05
+      },
+      "tokens_per_s": 16055.339048622358,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0400257712128,
+        "array_write_weights": 0.0009099703847384618,
+        "attention": 4.999753318059573e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.048795354917584695,
+      "share": {
+        "array": 0.002198185387841159,
+        "adc": 0.004797650070242919,
+        "shift_add_registers": 0.0006225621713435601,
+        "dram_weights": 0.8202783088759881,
+        "array_write_weights": 0.018648709211673956,
+        "attention": 0.0010246371455857122,
+        "kv_cache": 2.1213755278490264e-07,
+        "digital_units": 3.461580935297911e-05,
+        "lm_head_macs": 0.0004964682331961681,
+        "lm_head_dram": 0.15189865095722274
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 743178240,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 10082058240.0
+      },
+      "latency_s": {
+        "dram_stream": 0.11668992,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.11669522707692308
+      },
+      "tokens_per_s": 8.569330769122379,
+      "budget": "512",
+      "budget_bits": 512000000.0,
+      "resident_fraction": 0.038115246098439415,
+      "area": {
+        "array_cells": 509607936,
+        "arrays": 15552,
+        "cell_area_mm2": 105.08175948951481,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.00026499121152000004,
+        "array_write_weights": 6.02447241846154e-06,
+        "attention": 5.759131558191408e-07,
+        "kv_cache": 4.5340303978052126e-07,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.000702503014469429,
+      "share": {
+        "array": 0.15268437852237235,
+        "adc": 0.3332413286862357,
+        "shift_add_registers": 0.04324272135958666,
+        "dram_weights": 0.37721007036551546,
+        "array_write_weights": 0.008575724650820994,
+        "attention": 0.0008198016861950462,
+        "kv_cache": 0.0006454108102624407,
+        "digital_units": 0.0008832549813458303,
+        "lm_head_macs": 0.00026940880440573636,
+        "lm_head_dram": 0.08242790013325972
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 66748416.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00079428,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.0007995870769230769
+      },
+      "tokens_per_s": 1250.645525498161,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.033918875074560005,
+        "array_write_weights": 0.0007711324695630771,
+        "attention": 1.1428974255015506e-06,
+        "kv_cache": 8.929617119341564e-07,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.0425006147083962,
+      "share": {
+        "array": 0.002523757289401462,
+        "adc": 0.005508227105751253,
+        "shift_add_registers": 0.0007147694760981855,
+        "dram_weights": 0.7980796350190005,
+        "array_write_weights": 0.018144030971174074,
+        "attention": 2.6891315180807625e-05,
+        "kv_cache": 2.1010559919213296e-05,
+        "digital_units": 1.5410607702032125e-05,
+        "lm_head_macs": 0.0005699998414217617,
+        "lm_head_dram": 0.1743962678143508
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 8543797248.0
+      },
+      "latency_s": {
+        "dram_stream": 0.10166784,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.10167314707692307
+      },
+      "tokens_per_s": 9.835438645795314,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 6.624780288000001e-05,
+        "array_write_weights": 1.506118104615385e-06,
+        "attention": 2.290259294071467e-06,
+        "kv_cache": 1.7824623319615913e-06,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.00045881673837337857,
+      "share": {
+        "array": 0.2337779492409674,
+        "adc": 0.5102321218223922,
+        "shift_add_registers": 0.06620975123241883,
+        "dram_weights": 0.14438837413575023,
+        "array_write_weights": 0.0032826136857058764,
+        "attention": 0.004991664650664262,
+        "kv_cache": 0.0038849113009278417,
+        "digital_units": 0.0015777591937560457,
+        "lm_head_macs": 0.00010312423315821635,
+        "lm_head_dram": 0.031551730504259114
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 16687104.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00019857,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00020387707692307692
+      },
+      "tokens_per_s": 4904.9163108087005,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.033918875074560005,
+        "array_write_weights": 0.0007711324695630771,
+        "attention": 4.5715897020062025e-06,
+        "kv_cache": 3.5510802962962962e-06,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.04250690834533763,
+      "share": {
+        "array": 0.002523383618091878,
+        "adc": 0.005507411549340684,
+        "shift_add_registers": 0.0007146636462518266,
+        "dram_weights": 0.7979614701448969,
+        "array_write_weights": 0.018141344538590957,
+        "attention": 0.00010754933444854118,
+        "kv_cache": 8.354125092905743e-05,
+        "digital_units": 2.0274031080295817e-05,
+        "lm_head_macs": 0.0005699154463857963,
+        "lm_head_dram": 0.17437044643998392
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 8543797248.0
+      },
+      "latency_s": {
+        "dram_stream": 0.10166784,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.10167314707692307
+      },
+      "tokens_per_s": 9.835438645795314,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 1.6561950720000002e-05,
+        "array_write_weights": 3.7652952615384625e-07,
+        "attention": 9.14764384708077e-06,
+        "kv_cache": 7.098699500685872e-06,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.00040969573861453066,
+      "share": {
+        "array": 0.2618070584211678,
+        "adc": 0.5714070611023325,
+        "shift_add_registers": 0.07414805487531075,
+        "dram_weights": 0.04042500118748514,
+        "array_write_weights": 0.0009190467233736854,
+        "attention": 0.022327896008914775,
+        "kv_cache": 0.01732675942564491,
+        "digital_units": 0.0027765836475950006,
+        "lm_head_macs": 2.887211157291649e-05,
+        "lm_head_dram": 0.008833666496602513
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 4171776.0
+      },
+      "latency_s": {
+        "dram_stream": 4.96425e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 5.4949576923076923e-05
+      },
+      "tokens_per_s": 18198.502263263734,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.033918875074560005,
+        "array_write_weights": 0.0007711324695630771,
+        "attention": 1.828635880802481e-05,
+        "kv_cache": 1.4183554633744855e-05,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.04253208289310331,
+      "share": {
+        "array": 0.0025218900387253456,
+        "adc": 0.005504151737319189,
+        "shift_add_registers": 0.0007142406400674321,
+        "dram_weights": 0.7974891603547598,
+        "array_write_weights": 0.01813060675869505,
+        "attention": 0.00042994270593293683,
+        "kv_cache": 0.00033347895680050873,
+        "digital_units": 3.9713331401692395e-05,
+        "lm_head_macs": 0.0005695781160071384,
+        "lm_head_dram": 0.17426723736029084
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 8543797248.0
+      },
+      "latency_s": {
+        "dram_stream": 0.10166784,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.10167314707692307
+      },
+      "tokens_per_s": 9.835438645795314,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.00026499121152000004,
+        "array_write_weights": 6.02447241846154e-06,
+        "attention": 2.3448336361861037e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.0007038288832371948,
+      "share": {
+        "array": 0.15239675257573962,
+        "adc": 0.33261357060418356,
+        "shift_add_registers": 0.043161260971913765,
+        "dram_weights": 0.3764994842229234,
+        "array_write_weights": 0.008559569750466256,
+        "attention": 0.003331539372753874,
+        "kv_cache": 1.470716451970147e-05,
+        "digital_units": 0.0008815911107351872,
+        "lm_head_macs": 0.00026890129366267083,
+        "lm_head_dram": 0.08227262293310199
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 659226624,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 66748416.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00079428,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.0007995870769230769
+      },
+      "tokens_per_s": 1250.645525498161,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.033918875074560005,
+        "array_write_weights": 0.0007711324695630771,
+        "attention": 3.125780318602048e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.04250171498090455,
+      "share": {
+        "array": 0.0025236919550787294,
+        "adc": 0.005508084510308766,
+        "shift_add_registers": 0.000714750972345932,
+        "dram_weights": 0.7980589745566573,
+        "array_write_weights": 0.018143561263575754,
+        "attention": 7.354480448627588e-05,
+        "kv_cache": 2.435508116351986e-07,
+        "digital_units": 1.541020875653077e-05,
+        "lm_head_macs": 0.000569985085425314,
+        "lm_head_dram": 0.17439175309255378
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 660602880,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 8543797248.0
+      },
+      "latency_s": {
+        "dram_stream": 0.10166784,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.10167314707692307
+      },
+      "tokens_per_s": 9.835438645795314,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 6.624780288000001e-05,
+        "array_write_weights": 1.506118104615385e-06,
+        "attention": 6.25056384273496e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.00046100493191726,
+      "share": {
+        "array": 0.23266830514865056,
+        "adc": 0.5078102678300513,
+        "shift_add_registers": 0.06589548181758581,
+        "dram_weights": 0.1437030241834593,
+        "array_write_weights": 0.0032670325203499107,
+        "attention": 0.013558561763622945,
+        "kv_cache": 2.2453831754982204e-05,
+        "digital_units": 0.0015702702446308851,
+        "lm_head_macs": 0.00010263474646167266,
+        "lm_head_dram": 0.03140196791343265
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 666107904,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 16687104.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00019857,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00020387707692307692
+      },
+      "tokens_per_s": 4904.9163108087005,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.033918875074560005,
+        "array_write_weights": 0.0007711324695630771,
+        "attention": 1.2500130891000784e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.042511296157557506,
+      "share": {
+        "array": 0.00252312316653016,
+        "adc": 0.0055068431007192515,
+        "shift_add_registers": 0.0007145898820958596,
+        "dram_weights": 0.7978791083868194,
+        "array_write_weights": 0.018139472075964638,
+        "attention": 0.0002940425727004928,
+        "kv_cache": 2.434959202637005e-07,
+        "digital_units": 2.0271938491987275e-05,
+        "lm_head_macs": 0.0005698566224451976,
+        "lm_head_dram": 0.17435244875831268
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 677117952,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 8543797248.0
+      },
+      "latency_s": {
+        "dram_stream": 0.10166784,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.10167314707692307
+      },
+      "tokens_per_s": 9.835438645795314,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 1.6561950720000002e-05,
+        "array_write_weights": 3.7652952615384625e-07,
+        "attention": 2.4999264987532435e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.00041845901158147594,
+      "share": {
+        "array": 0.25632435484896626,
+        "adc": 0.5594407850440029,
+        "shift_add_registers": 0.07259526325927007,
+        "dram_weights": 0.03957843005317933,
+        "array_write_weights": 0.0008998002569733982,
+        "attention": 0.05974125134276134,
+        "kv_cache": 2.4736776824010942e-05,
+        "digital_units": 0.0027184370675333736,
+        "lm_head_macs": 2.8267478412097815e-05,
+        "lm_head_dram": 0.008648673872077293
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 699138048,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 4171776.0
+      },
+      "latency_s": {
+        "dram_stream": 4.96425e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 5.4949576923076923e-05
+      },
+      "tokens_per_s": 18198.502263263734,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.033918875074560005,
+        "array_write_weights": 0.0007711324695630771,
+        "attention": 4.999753318059573e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.042549620864169316,
+      "share": {
+        "array": 0.0025208505738926975,
+        "adc": 0.005501883053087662,
+        "shift_add_registers": 0.0007139462465704923,
+        "dram_weights": 0.7971604537403248,
+        "array_write_weights": 0.018123133741303,
+        "attention": 0.001175040627041127,
+        "kv_cache": 2.432766019826971e-07,
+        "digital_units": 3.9696962483640674e-05,
+        "lm_head_macs": 0.0005693433490617349,
+        "lm_head_dram": 0.17419540842963283
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 743178240,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 8543797248.0
+      },
+      "latency_s": {
+        "dram_stream": 0.10166784,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.10167314707692307
+      },
+      "tokens_per_s": 9.835438645795314,
+      "budget": "2048",
+      "budget_bits": 2048000000.0,
+      "resident_fraction": 0.18487394957983194,
+      "area": {
+        "array_cells": 2047868928,
+        "arrays": 62496,
+        "cell_area_mm2": 422.27299646712436,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 5.759131558191408e-07,
+        "kv_cache": 4.5340303978052126e-07,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.0004314873305309674,
+      "share": {
+        "array": 0.2485849029272017,
+        "adc": 0.5425490423086178,
+        "shift_add_registers": 0.07040332348018034,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.0013347162594796237,
+        "kv_cache": 0.0010507910839991188,
+        "digital_units": 0.001438024347498317,
+        "lm_head_macs": 0.0004386235326695219,
+        "lm_head_dram": 0.13420057606035354
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00014244,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00014774707692307692
+      },
+      "tokens_per_s": 6768.3234134008635,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 1.1428974255015506e-06,
+        "kv_cache": 8.929617119341564e-07,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.007810607164273123,
+      "share": {
+        "array": 0.013732765445558029,
+        "adc": 0.029972450671786496,
+        "shift_add_registers": 0.003889344511899833,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.0001463263228407304,
+        "kv_cache": 0.00011432679856422634,
+        "digital_units": 8.385523514256304e-05,
+        "lm_head_macs": 0.003101595450213339,
+        "lm_head_dram": 0.9489593355639948
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.01823232,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.01823762707692308
+      },
+      "tokens_per_s": 54.83169470360246,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 2.290259294071467e-06,
+        "kv_cache": 1.7824623319615913e-06,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.0003910628173887632,
+      "share": {
+        "array": 0.2742813466403466,
+        "adc": 0.5986328219876551,
+        "shift_add_registers": 0.07768097798664322,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.0058564997546025335,
+        "kv_cache": 0.004557994912079843,
+        "digital_units": 0.0018511152045890236,
+        "lm_head_macs": 0.00012099110987039137,
+        "lm_head_dram": 0.037018252404213275
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 3.561e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 4.0917076923076925e-05
+      },
+      "tokens_per_s": 24439.673485962227,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 4.5715897020062025e-06,
+        "kv_cache": 3.5510802962962962e-06,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.007816900801214544,
+      "share": {
+        "array": 0.013721708756709859,
+        "adc": 0.029948318892764357,
+        "shift_add_registers": 0.003886213076191425,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.0005848340433456564,
+        "kv_cache": 0.000454282379500652,
+        "digital_units": 0.00011024655459191211,
+        "lm_head_macs": 0.0030990982564789915,
+        "lm_head_dram": 0.9481952980404171
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.01823232,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.01823762707692308
+      },
+      "tokens_per_s": 54.83169470360246,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 9.14764384708077e-06,
+        "kv_cache": 7.098699500685872e-06,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.0003927572583683768,
+      "share": {
+        "array": 0.27309803673635724,
+        "adc": 0.5960501886595494,
+        "shift_add_registers": 0.07734584520517956,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.02329083333833889,
+        "kv_cache": 0.018074012254225037,
+        "digital_units": 0.0028963296389535364,
+        "lm_head_macs": 3.0117281919542917e-05,
+        "lm_head_dram": 0.009214636885476834
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 8.9025e-06,
+        "array_compute": 5.307076923076923e-06,
+        "total": 1.4209576923076924e-05
+      },
+      "tokens_per_s": 70375.07206678053,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "buffer",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 1.828635880802481e-05,
+        "kv_cache": 1.4183554633744855e-05,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.007842075348980229,
+      "share": {
+        "array": 0.013677659471648153,
+        "adc": 0.029852179114591235,
+        "shift_add_registers": 0.0038737375958675935,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.002331826461014907,
+        "kv_cache": 0.0018086480941029548,
+        "digital_units": 0.00021538822670936342,
+        "lm_head_macs": 0.003089149563866847,
+        "lm_head_dram": 0.9451514114721989
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.01823232,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.01823762707692308
+      },
+      "tokens_per_s": 54.83169470360246,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 2.3448336361861037e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.20489286940585e-07,
+        "lm_head_macs": 1.8926049721963458e-07,
+        "lm_head_dram": 5.790584832e-05
+      },
+      "total_J": 0.00043281319929873327,
+      "share": {
+        "array": 0.24782339436077325,
+        "adc": 0.5408870115957287,
+        "shift_add_registers": 0.07018765175875287,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.005417657409675414,
+        "kv_cache": 2.3916385166300258e-05,
+        "digital_units": 0.0014336191408809492,
+        "lm_head_macs": 0.0004372798646766882,
+        "lm_head_dram": 0.13378946948434592
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 659226624,
+        "array_cycles": 31808,
+        "attention_macs": 5548032.0,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.00014244,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.00014774707692307692
+      },
+      "tokens_per_s": 6768.3234134008635,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 128,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 3.125780318602048e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 6.549603003663103e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.007811707436781469,
+      "share": {
+        "array": 0.013730831196943932,
+        "adc": 0.02996822907698807,
+        "shift_add_registers": 0.003888796700953691,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.00040014047426869745,
+        "kv_cache": 1.3251043082780978e-06,
+        "digital_units": 8.384342420229744e-05,
+        "lm_head_macs": 0.0031011585930686624,
+        "lm_head_dram": 0.9488256754292664
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 660602880,
+        "array_cycles": 31808,
+        "attention_macs": 11010048,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.01823232,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.01823762707692308
+      },
+      "tokens_per_s": 54.83169470360246,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 6.25056384273496e-06,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 7.239023272177604e-07,
+        "lm_head_macs": 4.7315124304908644e-08,
+        "lm_head_dram": 1.447646208e-05
+      },
+      "total_J": 0.0003932510109326446,
+      "share": {
+        "array": 0.27275514415074054,
+        "adc": 0.5953018083607041,
+        "shift_add_registers": 0.07724873239848914,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.01589459065320889,
+        "kv_cache": 2.632244264277337e-05,
+        "digital_units": 0.0018408149174262368,
+        "lm_head_macs": 0.0001203178707479857,
+        "lm_head_dram": 0.03681226920604028
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 666107904,
+        "array_cycles": 31808,
+        "attention_macs": 22063104.0,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 3.561e-05,
+        "array_compute": 5.307076923076923e-06,
+        "total": 4.0917076923076925e-05
+      },
+      "tokens_per_s": 24439.673485962227,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 512,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 1.2500130891000784e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 8.617863809206607e-07,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.007821288613434422,
+      "share": {
+        "array": 0.013714010756503489,
+        "adc": 0.029931517620480814,
+        "shift_add_registers": 0.0038840328762183066,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.0015982188497084275,
+        "kv_cache": 1.3234810388798309e-06,
+        "digital_units": 0.00011018470529784477,
+        "lm_head_macs": 0.0030973596348946885,
+        "lm_head_dram": 0.9476633520758575
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 677117952,
+        "array_cycles": 31808,
+        "attention_macs": 44040192,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.01823232,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.01823762707692308
+      },
+      "tokens_per_s": 54.83169470360246,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "prefill",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 2.4999264987532435e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.1375544883264615e-06,
+        "lm_head_macs": 1.1828781076227161e-08,
+        "lm_head_dram": 3.61911552e-06
+      },
+      "total_J": 0.0004015205313353221,
+      "share": {
+        "array": 0.2671376126586682,
+        "adc": 0.5830412635920024,
+        "shift_add_registers": 0.07565775530318143,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.06226148611726852,
+        "kv_cache": 2.5780318493458234e-05,
+        "digital_units": 0.0028331166143443233,
+        "lm_head_macs": 2.945996568815203e-05,
+        "lm_head_dram": 0.009013525430353563
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 699138048,
+        "array_cycles": 31808,
+        "attention_macs": 88123392.0,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 8.9025e-06,
+        "array_compute": 5.307076923076923e-06,
+        "total": 1.4209576923076924e-05
+      },
+      "tokens_per_s": 70375.07206678053,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    },
+    {
+      "phase": "decode",
+      "seq_len": 2048,
+      "kv": "array",
+      "energy_J": {
+        "array": 0.00010726123617435792,
+        "adc": 0.00023410303794787836,
+        "shift_add_registers": 3.037814210897119e-05,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 4.999753318059573e-05,
+        "kv_cache": 1.0351327179487181e-08,
+        "digital_units": 1.6890907031380637e-06,
+        "lm_head_macs": 2.4225343644113226e-05,
+        "lm_head_dram": 0.00741194858496
+      },
+      "total_J": 0.007859613320046234,
+      "share": {
+        "array": 0.013647139090263407,
+        "adc": 0.029785566848535654,
+        "shift_add_registers": 0.0038650937230576745,
+        "dram_weights": 0.0,
+        "array_write_weights": 0.0,
+        "attention": 0.006361322261627704,
+        "kv_cache": 1.3170275378670014e-06,
+        "digital_units": 0.00021490760860079153,
+        "lm_head_macs": 0.003082256423776675,
+        "lm_head_dram": 0.9430423970166003
+      },
+      "events": {
+        "macs": 1310195712,
+        "adc_conversions": 743178240,
+        "array_cycles": 31808,
+        "attention_macs": 176160768,
+        "streamed_weight_bits": 0.0
+      },
+      "latency_s": {
+        "dram_stream": 0.01823232,
+        "array_compute": 5.307076923076923e-06,
+        "total": 0.01823762707692308
+      },
+      "tokens_per_s": 54.83169470360246,
+      "budget": "all",
+      "budget_bits": 10481565696,
+      "resident_fraction": 1.0,
+      "area": {
+        "array_cells": 10481565696,
+        "arrays": 319872,
+        "cell_area_mm2": 2161.3112507349592,
+        "note": "bit-cell area only; ADC and periphery area is not available from the M1 anchor"
+      }
+    }
+  ]
+}
