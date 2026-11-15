@@ -1,4 +1,4 @@
-# B4 sweep (git 3332d00)
+# B4 sweep (git 152fda8)
 Energy per token at sequence length 512, KV cache in an SRAM buffer, 22 nm / 0.8 V. PPL: first 8,192 WikiText-2 test tokens (Part A runs). Compute = array + ADC + shift-add of the linear layers (or the digital / DCIM equivalent). Decode and prefill totals at the minimum on-chip budget (the largest layer only) with the default DRAM.
 | Model | Point | ADC | PPL | Compute (mJ) | of which ADC | Prefill total (mJ) | Decode total (mJ) | Decode, GDDR5 (mJ) | Decode, 2 Gbit on chip (mJ) |
 |---|---|---|---|---|---|---|---|---|---|

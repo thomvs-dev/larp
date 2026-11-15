@@ -1,5 +1,5 @@
 {
-  "git": "3332d00",
+  "git": "152fda8",
   "config": {
     "seq_len": 512,
     "kv": "buffer",
