@@ -1,0 +1,125 @@
+{
+  "macro": "m1_jia_jssc20",
+  "git": "baf03ef",
+  "config": {
+    "macro": "m1_jia_jssc20",
+    "type": "acim",
+    "node_nm": 65,
+    "vdd": 1.2,
+    "nrow": 2304,
+    "adc_bits": 8,
+    "adc_c_unit": 1.2e-15,
+    "bitcell_um2": 1.8,
+    "data_dependent_share": 0.66,
+    "calib_activity": 0.5,
+    "energy_pj": {
+      "1.2": {
+        "cima": 20.4,
+        "adc": 3.56,
+        "abn": 9.78,
+        "reshape_32b": 35.0,
+        "load_32b": 19.2,
+        "nmc_output": 14.7
+      },
+      "0.85": {
+        "cima": 9.7,
+        "adc": 1.79,
+        "abn": 4.92,
+        "reshape_32b": 12.0,
+        "load_32b": 9.6,
+        "nmc_output": 8.3
+      }
+    },
+    "check_points": {
+      "tops_w_1b": {
+        "1.2": 192.0,
+        "0.85": 400.0
+      },
+      "fig12_fj_per_1b_mac": {
+        "reshape": 0.47,
+        "adc": 1.55,
+        "cima": 8.85,
+        "total": 10.87,
+        "load_per_bit": 600.0
+      },
+      "adc_energy_overhead": 0.18
+    }
+  },
+  "fitted": {
+    "e_bl_cell_fJ_per_active_cell": 11.6875,
+    "e_cell_fixed_fJ": 3.010416666666666,
+    "adc_dac_fJ": 588.791808,
+    "adc_comparator_logic_fJ_per_bit_cycle": 371.401024,
+    "energy_per_1b_mac_fJ": 10.399305555555555,
+    "weight_load_fJ_per_bit": {
+      "1.2": 600.0,
+      "0.85": 300.0
+    },
+    "weight_load_over_1b_mac": 55.19779208831647
+  },
+  "checks": [
+    {
+      "check": "array energy per column, 1.2 V (pJ)",
+      "kind": "fit",
+      "model": 20.4,
+      "paper": 20.4,
+      "err_pct": 0.0
+    },
+    {
+      "check": "ADC energy per column, 1.2 V (pJ)",
+      "kind": "fit",
+      "model": 3.56,
+      "paper": 3.56,
+      "err_pct": 0.0
+    },
+    {
+      "check": "array energy per 1-b MAC, 1.2 V (fJ, Fig. 12)",
+      "kind": "consistency",
+      "model": 8.854166666666666,
+      "paper": 8.85,
+      "err_pct": 0.04708097928436644
+    },
+    {
+      "check": "ADC energy per 1-b MAC, 1.2 V (fJ, Fig. 12)",
+      "kind": "consistency",
+      "model": 1.5451388888888888,
+      "paper": 1.55,
+      "err_pct": -0.3136200716845938
+    },
+    {
+      "check": "1b-TOPS/W, 1.2 V (abstract)",
+      "kind": "consistency (confirms 2 ops per 1-b MAC, array + ADC)",
+      "model": 192.32053422370618,
+      "paper": 192.0,
+      "err_pct": 0.16694490818029983
+    },
+    {
+      "check": "ADC / array energy (Sec. II-B: 18 %)",
+      "kind": "consistency",
+      "model": 17.450980392156865,
+      "paper": 18.0,
+      "err_pct": -3.0501089324618627
+    },
+    {
+      "check": "array energy per column, 0.85 V (pJ)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 10.235416666666667,
+      "paper": 9.7,
+      "err_pct": 5.519759450171837
+    },
+    {
+      "check": "ADC energy per column, 0.85 V (pJ)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 1.7861805555555559,
+      "paper": 1.79,
+      "err_pct": -0.2133767846058186
+    },
+    {
+      "check": "1b-TOPS/W, 0.85 V (abstract)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 383.3101304943071,
+      "paper": 400.0,
+      "err_pct": -4.172467376423228
+    }
+  ]
+}

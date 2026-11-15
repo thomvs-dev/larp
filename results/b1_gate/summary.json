@@ -1,0 +1,80 @@
+{
+  "git": "baf03ef",
+  "limit_pct": 30.0,
+  "gate": {
+    "M1": {
+      "macro": "m1_jia_jssc20",
+      "git": "baf03ef",
+      "held_out_points": 3,
+      "worst": {
+        "check": "array energy per column, 0.85 V (pJ)",
+        "err_pct": 5.519759450171837
+      },
+      "over_limit": []
+    },
+    "M2": {
+      "macro": "m2_sinangil_jssc21",
+      "git": "baf03ef",
+      "held_out_points": 20,
+      "worst": {
+        "check": "energy at MAC 0, 0.8 V (pJ, Fig. 13a)",
+        "err_pct": 40.40404040404043
+      },
+      "over_limit": [
+        {
+          "check": "energy at MAC 0, 0.8 V (pJ, Fig. 13a)",
+          "err_pct": 40.40404040404043
+        },
+        {
+          "check": "TOPS/W average, 1.0 V (Table I)",
+          "err_pct": -30.79254448492529
+        },
+        {
+          "check": "TOPS/W highest, 1.0 V (Table I)",
+          "err_pct": -35.042661622711016
+        }
+      ]
+    },
+    "M4": {
+      "macro": "m4_chih_isscc21",
+      "git": "901f8e3",
+      "held_out_points": 9,
+      "worst": {
+        "check": "TOPS/W 4b/4b toggle 0.0625 (Fig. 16.4.5)",
+        "err_pct": -12.69803373684316
+      },
+      "over_limit": []
+    }
+  },
+  "target": {
+    "node_nm": 22,
+    "vdd": 0.8
+  },
+  "mac_4b4b_fJ": {
+    "M1": {
+      "e": 166.38888888888889,
+      "node": 65,
+      "vdd": 1.2,
+      "note": "16 1-b MACs, array + 8-b SAR ADC, activity 0.5",
+      "factor": 0.15042735042735048,
+      "e_target": 25.02943969610637
+    },
+    "M2": {
+      "e": 5.76171875,
+      "node": 7,
+      "vdd": 0.8,
+      "note": "average point of Fig. 13(a), 4-b output",
+      "factor": 3.142857142857143,
+      "e_target": 18.108258928571427
+    },
+    "M4": {
+      "e": 22.47191011235954,
+      "node": 22,
+      "vdd": 0.72,
+      "note": "18 % input toggle, exact digital",
+      "factor": 1.234567901234568,
+      "e_target": 27.743098904147587
+    }
+  },
+  "spread_max_over_min": 1.5320688208392135
+}

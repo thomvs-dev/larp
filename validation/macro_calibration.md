@@ -4,9 +4,10 @@ Calibration macros for the Part B cost model, their reported numbers, and the co
 number was measured. GATE B1: the model reproduces each macro's TOPS/W and area within the stated error
 (target ≤ 20–30 %). The error table (section 3) stays empty until `cimsim/ppa/` exists.
 
-Status: 2026-11-11. Headline numbers first checked against abstracts and publisher/author pages, then against
+Status: 2026-11-15. **M1, M2 and M4 are calibrated** (section 3; `results/b1_m1_jia/`, `results/b1_m2_sinangil/`,
+`results/b1_m4_chih/`, summary `results/b1_gate/`). M3 still needs the right PDF. History: headline numbers first checked against abstracts and publisher/author pages, then against
 the full texts of M1, M2 and M4 (PDFs from Thomas, `D:\japan\hf_local\papers\`). The PDF supplied for M3 is a
-different paper (see M3). **M4 is calibrated** (section 3, `results/b1_m4_chih/`).
+different paper (see M3).
 
 Convention used in this file: **1 MAC = 2 ops**, unless a row says otherwise. TOPS/W and TOPS/mm² are quoted
 exactly as the paper states them; the "8b-equivalent" values are derived, not reported.
@@ -35,9 +36,18 @@ Derived (not reported): 8 b × 8 b equivalent = 1b figure / 64 → 3.0 / 6.25 TO
 Full text (JSSC 2020): column ADC is an 8-b SAR; ADC precision chosen for N = 2304 rows; the 8-b ADC costs
 15 % area and 18 % energy overhead; M-BC bit cell 1.8 µm² (80 % over a logic-rule 6T).
 
+Table I (1.2 V | 0.85 V, 100 | 40 MHz), energy per CIMA column and evaluation: CIMA 20.4 | 9.7 pJ, ADC 3.56 | 1.79 pJ,
+ABN 9.78 | 4.92 pJ; NMC data path 14.7 | 8.3 pJ per output; reshaping buffer 35 | 12 pJ per 32-b input; CIMA load
+19.2 | 9.6 pJ per 32-b word. Fig. 12 (1.2 V, per 1-b MAC): reshaping 0.47 fJ, ADC 1.55 fJ, CIMA 8.85 fJ, total 10.87 fJ;
+CIMA loading 600 fJ per bit = 55.2× one 1-b MAC. Sec. III-B: input broadcast and charging of the cell capacitors are
+about 66 % of the CIMA energy and scale with input sparsity. SAR unit capacitor 1.2 fF.
+
+Resolved 2026-11-15:
+- "1b-TOPS" counts 2 ops per 1-b MAC, and "MAC hardware" is the array plus the ADC: 2 · 2304 / (20.4 + 3.56 pJ) =
+  192.3 and 2 · 2304 / (9.7 + 1.79 pJ) = 401, the abstract's 192 | 400.
+
 Open:
-- Whether "1b-TOPS" counts 2 ops per 1-b MAC.
-- What "MAC hardware" includes, and why the preprint (152 / 297) is lower than the JSSC (192 / 400). Possibly a
+- Why the preprint (152 / 297) is lower than the JSSC (192 / 400). Possibly a
   different scope (the whole accelerator vs the MAC hardware only).
 - Hot Chips slide gives 0.26 / 0.10 (1b-)throughput per mm² for the 8.5 mm² CIMU. The JSSC abstract gives
   0.60 / 0.24 for MAC hardware. The ratio of 0.43 would mean MAC hardware ≈ 43 % of CIMU area. Not checked.
@@ -68,8 +78,18 @@ Full text (JSSC 2021, Sec. IV, Fig. 11–13, Table I):
 - Energy grows with the MAC result (more RWL pulses, deeper RBL discharge; Fig. 13a).
 - Derived: 372.4 GOPS / 0.0032 mm² = 116 TOPS/mm² at 0.8 V (whole macro incl. test circuits).
 
+Fig. 11 / Fig. 13 / Table I, read 2026-11-15:
+- Fig. 13(a), 0.8 V, 5.5 ns: macro energy per cycle vs MAC result (4-b code) 3.3 pJ at 0 … 7.8 pJ at 15, "5.9 pJ in
+  average" at code 6 (digitised points in `config/macros/m2_sinangil_jssc21.yaml`). 2048 ops / 5.9 pJ = 347 TOPS/W: the
+  351 is the average point; the range 262.3–610.5 TOPS/W is codes 15 and 0. Max power 1.42 mW at 0.8 V.
+- Fig. 13(b): energy at MAC 15 vs VDD, 5.1 pJ at 0.65 V to 13.1 pJ at 1.0 V.
+- Table I at 1.0 V: 189.3–435.5 TOPS/W, 321 average. This does not match Fig. 13(b): 13.1 pJ at 1.0 V is
+  156 TOPS/W, below the table's lowest value. Bit cell 0.053 µm².
+
 Open:
-- Data pattern behind the 351 / 321 TOPS/W (Fig. 13a gives energy vs MAC result; to digitise).
+- Which input / weight values produce each MAC result in Fig. 13(a) (the model assumes pulses per row = code, weights
+  at maximum).
+- The Table I vs Fig. 13(b) disagreement at 1.0 V.
 
 ### M3 — Wang et al., IEEE JSSC 2023 (Intel Labs; VLSI 2022 companion pp. 36–37, doi 10.1109/VLSITechnologyandCir46769.2022.9830322)
 
@@ -147,8 +167,14 @@ Full text (ISSCC 2021, text and Fig. 16.4.5–16.4.7):
 
 | Macro | Point (precision, VDD, data) | Reported TOPS/W | Model TOPS/W | Error | Reported area | Model area | Error |
 |---|---|---|---|---|---|---|---|
-| M1 | | | | | | | |
-| M2 | | | | | | | |
+| M1 | 1b/1b, 1.2 V, array + ADC | 192 (1b) | 192.3 (fit: Table I energies) | +0.2 % | not given for the MAC hardware | — | not checked |
+| M1 | 1b/1b, 0.85 V | 400 (1b) | 383.3 | −4.2 % | | | |
+| M1 | array / ADC energy per column, 0.85 V | 9.7 / 1.79 pJ | 10.24 / 1.786 pJ | +5.5 / −0.2 % | | | |
+| M2 | 4b/4b, 0.8 V, average (code 6) | 351 | 347.1 (fit: 5.9 pJ) | −1.1 % | 0.0032 mm² | 0.0032 (input) | 0 % |
+| M2 | 4b/4b, 0.8 V, lowest / highest (codes 15 / 0) | 262.3 / 610.5 | 262.6 (fit) / 442.0 | +0.1 / −27.6 % | | | |
+| M2 | energy vs MAC code 1–12, 0.8 V (Fig. 13a, digitised ±0.1 pJ) | 4.55 … 7.05 pJ | 4.84 … 7.17 pJ | +0.1 … +6.5 % | | | |
+| M2 | energy at code 15, 0.65–1.0 V (Fig. 13b) | 5.1 … 13.1 pJ | 5.15 … 12.19 pJ | +1.2 … −7.0 % | | | |
+| M2 | 4b/4b, 1.0 V, lowest / average / highest (Table I) | 189.3 / 321 / 435.5 | 168.0 / 222.2 / 282.9 | −11.2 / **−30.8 / −35.0 %** | | | |
 | M3 | | | | | | | |
 | M4 | 4b/4b, 0.72 V, 18 % toggle | 89 | 89.0 (fit) | 0 % | 0.202 mm² | 0.202 (input) | 0 % |
 | M4 | 4b/4b, 0.72 V, 50 % toggle | 52 | 52.0 (fit) | 0 % | | | |
@@ -163,6 +189,30 @@ Throughput 2 · 256 · (64 / ⌈w_bits / 4⌉) / ((x_bits + 1) · 2 ns): 3277 GO
 independent checks are the 8b/8b estimate and the toggle-rate curve, all within ±13 %. The fitted line is too
 flat at very low toggle rates (−12.7 % at 6.25 %), which matters for post-ReLU layers (OPT fc2 toggles 2.5 %,
 `results/b1_toggle_opt125m_sandbox/`).
+
+M2 model (`config/macros/m2_sinangil_jssc21.yaml`, `validation/b1_m2_acim.py`, `results/b1_m2_sinangil/`): one
+conversion = one 4-b output = 4 bit columns × 64 rows = 256 cells = 64 MACs; macro energy = 16 conversions,
+E = a + b · code, fitted to the two labelled points of Fig. 13(a) (5.9 pJ at code 6, 7.8 pJ at code 15). Per
+conversion at 0.8 V: data-independent 289.6 fJ (charged to the 15 flash comparators, 19.3 fJ each), wordline 12.0 aJ
+per cell and pulse (the paper's 5 % RWL share at the average point), bit line 0.593 fJ per cell at full activity.
+Held-out: codes 1–12 within +6.5 %, the VDD sweep of Fig. 13(b) within −7.0 % with the VDD² rule. Outside or at the
+limit: code 0 (energy +40 %, TOPS/W −27.6 %; the measured curve steps up between codes 0 and 1) and the Table I
+values at 1.0 V (−31 / −35 % for average / highest), which disagree with the paper's own Fig. 13(b).
+
+M1 model (`config/macros/m1_jia_jssc20.yaml`, `validation/b1_m1_acim.py`, `results/b1_m1_jia/`): one conversion = one
+column of 2304 cells for one input bit. Array energy 20.4 pJ at 1.2 V split 66 % data-dependent (11.69 fJ per active
+cell at an assumed input activity of 0.5) and 34 % data-independent (3.01 fJ per cell). ADC: 8-b SAR, DAC 589 fJ
+(1.2 fF unit, conventional switching) + 371 fJ per bit cycle (fitted remainder of 3.56 pJ). Held-out: the 0.85 V
+energies and 400 1b-TOPS/W with the VDD² rule, within +5.5 %. Area and throughput not checked (no macro-only area or
+evaluation time in the paper).
+
+Cross-node plausibility (`validation/b1_gate.py`, `results/b1_gate/summary.md`): energy per 4b × 4b MAC moved to
+22 nm / 0.8 V with E ∝ node · VDD²: M1 25.0 fJ, M2 18.1 fJ, M4 27.7 fJ (spread 1.53×). Different architectures,
+output precisions and data patterns, so this bounds the scaling rule's error only loosely.
+
+GATE B1 status (2026-11-15): M4 and M1 within 13 %; M2 within 7 % in its operating range at 0.8 V and over VDD in
+Fig. 13(b), with three points over 30 % (above). Area: M2 and M4 areas are inputs, M1 not available — the gate's
+area half is not independently tested on any macro. Decision on passing: Thomas.
 
 ## 4. What is needed from the full texts
 

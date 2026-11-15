@@ -1,0 +1,300 @@
+{
+  "macro": "m2_sinangil_jssc21",
+  "git": "baf03ef",
+  "config": {
+    "macro": "m2_sinangil_jssc21",
+    "type": "acim",
+    "node_nm": 7,
+    "vdd": 0.8,
+    "rows": 64,
+    "cols": 64,
+    "w_bits": 4,
+    "x_bits": 4,
+    "adc_bits": 4,
+    "t_cycle": 5.5e-09,
+    "macro_area_mm2": 0.0032,
+    "area_split": {
+      "sram_macro": 0.25,
+      "cim_circuits": 0.53,
+      "test": 0.22
+    },
+    "bitcell_um2": 0.053,
+    "rwl_power_share": 0.05,
+    "energy_vs_mac_pj": [
+      {
+        "mac": 0,
+        "e": 3.3
+      },
+      {
+        "mac": 1,
+        "e": 4.55
+      },
+      {
+        "mac": 2,
+        "e": 5.05
+      },
+      {
+        "mac": 4,
+        "e": 5.45
+      },
+      {
+        "mac": 6,
+        "e": 5.9
+      },
+      {
+        "mac": 8,
+        "e": 6.3
+      },
+      {
+        "mac": 10,
+        "e": 6.65
+      },
+      {
+        "mac": 12,
+        "e": 7.05
+      },
+      {
+        "mac": 15,
+        "e": 7.8
+      }
+    ],
+    "calib_points": [
+      {
+        "mac": 6,
+        "e_pj": 5.9
+      },
+      {
+        "mac": 15,
+        "e_pj": 7.8
+      }
+    ],
+    "check_points": {
+      "tops_w_0p8v": {
+        "avg": 351.0,
+        "min": 262.3,
+        "max": 610.5
+      },
+      "tops_w_1p0v": {
+        "avg": 321.0,
+        "min": 189.3,
+        "max": 435.5
+      },
+      "throughput_gops": {
+        "0.8": 372.4,
+        "1.0": 455.1
+      },
+      "t_cycle_1p0v": 4.5e-09,
+      "max_energy_vs_vdd_pj": [
+        {
+          "vdd": 0.65,
+          "e": 5.1
+        },
+        {
+          "vdd": 0.7,
+          "e": 5.9
+        },
+        {
+          "vdd": 0.75,
+          "e": 6.8
+        },
+        {
+          "vdd": 0.85,
+          "e": 9.0
+        },
+        {
+          "vdd": 0.9,
+          "e": 10.3
+        },
+        {
+          "vdd": 0.95,
+          "e": 11.7
+        },
+        {
+          "vdd": 1.0,
+          "e": 13.1
+        }
+      ]
+    }
+  },
+  "fitted": {
+    "e_wl_cell_aJ_per_pulse": 12.003580729166668,
+    "e_bl_cell_fJ": 0.5930582682291665,
+    "c_wl_cell_fF": 0.018755594889322918,
+    "c_bl_cell_fF": 0.9266535441080725,
+    "e_comparator_fJ": 19.305555555555557,
+    "adc_and_fixed_fJ_per_conversion": 289.58333333333337,
+    "energy_per_4b4b_mac_avg_fJ": 5.76171875,
+    "area_cell_um2": 0.1953125,
+    "area_adc_um2": 106.00000000000001
+  },
+  "checks": [
+    {
+      "check": "energy at MAC 0, 0.8 V (pJ, Fig. 13a)",
+      "kind": "held-out (digitised curve)",
+      "model": 4.633333333333334,
+      "paper": 3.3,
+      "err_pct": 40.40404040404043
+    },
+    {
+      "check": "energy at MAC 1, 0.8 V (pJ, Fig. 13a)",
+      "kind": "held-out (digitised curve)",
+      "model": 4.844444444444445,
+      "paper": 4.55,
+      "err_pct": 6.471306471306487
+    },
+    {
+      "check": "energy at MAC 2, 0.8 V (pJ, Fig. 13a)",
+      "kind": "held-out (digitised curve)",
+      "model": 5.055555555555555,
+      "paper": 5.05,
+      "err_pct": 0.11001100110010963
+    },
+    {
+      "check": "energy at MAC 4, 0.8 V (pJ, Fig. 13a)",
+      "kind": "held-out (digitised curve)",
+      "model": 5.477777777777779,
+      "paper": 5.45,
+      "err_pct": 0.5096839959225425
+    },
+    {
+      "check": "energy at MAC 6, 0.8 V (pJ, Fig. 13a)",
+      "kind": "fit",
+      "model": 5.9,
+      "paper": 5.9,
+      "err_pct": 0.0
+    },
+    {
+      "check": "energy at MAC 8, 0.8 V (pJ, Fig. 13a)",
+      "kind": "held-out (digitised curve)",
+      "model": 6.322222222222222,
+      "paper": 6.3,
+      "err_pct": 0.35273368606701816
+    },
+    {
+      "check": "energy at MAC 10, 0.8 V (pJ, Fig. 13a)",
+      "kind": "held-out (digitised curve)",
+      "model": 6.7444444444444445,
+      "paper": 6.65,
+      "err_pct": 1.4202172096908887
+    },
+    {
+      "check": "energy at MAC 12, 0.8 V (pJ, Fig. 13a)",
+      "kind": "held-out (digitised curve)",
+      "model": 7.166666666666667,
+      "paper": 7.05,
+      "err_pct": 1.6548463356974064
+    },
+    {
+      "check": "energy at MAC 15, 0.8 V (pJ, Fig. 13a)",
+      "kind": "fit",
+      "model": 7.8,
+      "paper": 7.8,
+      "err_pct": 0.0
+    },
+    {
+      "check": "TOPS/W average, 0.8 V",
+      "kind": "held-out",
+      "model": 347.11864406779654,
+      "paper": 351.0,
+      "err_pct": -1.1057994108841773
+    },
+    {
+      "check": "TOPS/W lowest (MAC 15), 0.8 V",
+      "kind": "held-out",
+      "model": 262.56410256410254,
+      "paper": 262.3,
+      "err_pct": 0.10068721467881411
+    },
+    {
+      "check": "TOPS/W highest (MAC 0), 0.8 V",
+      "kind": "held-out",
+      "model": 442.0143884892086,
+      "paper": 610.5,
+      "err_pct": -27.597970763438394
+    },
+    {
+      "check": "energy at MAC 15, 0.65 V (pJ, Fig. 13b)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 5.14921875,
+      "paper": 5.1,
+      "err_pct": 0.9650735294117753
+    },
+    {
+      "check": "energy at MAC 15, 0.70 V (pJ, Fig. 13b)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 5.971874999999998,
+      "paper": 5.9,
+      "err_pct": 1.2182203389830117
+    },
+    {
+      "check": "energy at MAC 15, 0.75 V (pJ, Fig. 13b)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 6.85546875,
+      "paper": 6.8,
+      "err_pct": 0.8157169117647085
+    },
+    {
+      "check": "energy at MAC 15, 0.85 V (pJ, Fig. 13b)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 8.80546875,
+      "paper": 9.0,
+      "err_pct": -2.161458333333341
+    },
+    {
+      "check": "energy at MAC 15, 0.90 V (pJ, Fig. 13b)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 9.871875000000001,
+      "paper": 10.3,
+      "err_pct": -4.156553398058248
+    },
+    {
+      "check": "energy at MAC 15, 0.95 V (pJ, Fig. 13b)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 10.999218749999995,
+      "paper": 11.7,
+      "err_pct": -5.989583333333368
+    },
+    {
+      "check": "energy at MAC 15, 1.00 V (pJ, Fig. 13b)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 12.1875,
+      "paper": 13.1,
+      "err_pct": -6.96564885496183
+    },
+    {
+      "check": "TOPS/W average, 1.0 V (Table I)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 222.15593220338982,
+      "paper": 321.0,
+      "err_pct": -30.79254448492529
+    },
+    {
+      "check": "TOPS/W lowest, 1.0 V (Table I)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 168.04102564102567,
+      "paper": 189.3,
+      "err_pct": -11.230308694650999
+    },
+    {
+      "check": "TOPS/W highest, 1.0 V (Table I)",
+      "kind": "held-out (VDD^2 rule)",
+      "model": 282.8892086330935,
+      "paper": 435.5,
+      "err_pct": -35.042661622711016
+    },
+    {
+      "check": "throughput 0.8 V (GOPS)",
+      "kind": "consistency (cycle time is an input)",
+      "model": 372.36363636363643,
+      "paper": 372.4,
+      "err_pct": -0.009764671418782614
+    },
+    {
+      "check": "macro area (mm2)",
+      "kind": "consistency (area is an input)",
+      "model": 0.0032,
+      "paper": 0.0032,
+      "err_pct": 0.0
+    }
+  ]
+}
