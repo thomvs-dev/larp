@@ -12,6 +12,36 @@
    "hadamard_adds": 0,
    "stat_inexact_layers": 0,
    "git": "72fc4159e3a2143aa89881355935ba53171bae89"
+  },
+  {
+   "run": "fake_quant_had",
+   "ppl": 30.12699294291983,
+   "ratio_to_fake_quant": 0.9890741453639547,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 4831838208,
+   "stat_inexact_layers": 0,
+   "git": "2b2bf0c5dd3e5ca65bbc7acec51747dd0e69e751"
+  },
+  {
+   "run": "n128_adc6_base",
+   "ppl": 30.815709619363457,
+   "ratio_to_fake_quant": 1.011684827400559,
+   "adc_conversions_analog": 347892350976,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "2b2bf0c5dd3e5ca65bbc7acec51747dd0e69e751"
+  },
+  {
+   "run": "n128_adc6_had_all",
+   "ppl": 30.103656249866898,
+   "ratio_to_fake_quant": 0.9883079978834981,
+   "adc_conversions_analog": 347892350976,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 4831838208,
+   "stat_inexact_layers": 0,
+   "git": "2b2bf0c5dd3e5ca65bbc7acec51747dd0e69e751"
   }
  ]
 }

@@ -1,0 +1,37 @@
+W1115 11:19:44.016000 5260 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|##########| 197/197 [00:00<00:00, 4415.46it/s]
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 72 layers in 9.4 s (histogram cache: hit, 72 layers from cache)
+  window 1/4  running ppl 21.236  elapsed 1.9 min  eta 5.8 min  rss 1.7 GB
+  window 2/4  running ppl 25.596  elapsed 3.9 min  eta 3.9 min  rss 1.7 GB
+  window 3/4  running ppl 30.036  elapsed 5.9 min  eta 2.0 min  rss 1.7 GB
+  window 4/4  running ppl 30.816  elapsed 7.9 min  eta 0.0 min  rss 1.7 GB
+{
+  "ppl": 30.815709619363457,
+  "nll": 3.4280246125236626,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    3.055706849724826,
+    3.429128194938477,
+    3.722394099978627,
+    3.5048693054527202
+  ],
+  "resumed_windows": 0,
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a6m_opt125m_ba\\configs\\n128_adc6_base.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 471.1,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 9.4,
+  "calib_cache": "hit",
+  "git": "2b2bf0c5dd3e5ca65bbc7acec51747dd0e69e751"
+}

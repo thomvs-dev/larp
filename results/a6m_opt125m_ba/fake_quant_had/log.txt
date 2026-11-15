@@ -1,88 +1,35 @@
-W1115 02:25:12.522000 26032 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
-Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|##########| 197/197 [00:00<00:00, 3112.51it/s]
+W1115 11:19:08.347000 15660 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-  window 1/4  running ppl 20.868  elapsed 0.1 min  eta 0.3 min  rss 1.3 GB
-  window 2/4  running ppl 25.057  elapsed 0.1 min  eta 0.1 min  rss 1.4 GB
-  window 3/4  running ppl 29.418  elapsed 0.2 min  eta 0.1 min  rss 1.6 GB
-Traceback (most recent call last):
-  File "D:\japan\scripts\run_ppl.py", line 143, in <module>
-    main()
-    ~~~~^^
-  File "D:\japan\scripts\run_ppl.py", line 107, in main
-    res = perplexity(model, ids, seq_len, max_windows, args.device, checkpoint=ck)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
-    return func(*args, **kwargs)
-  File "D:\japan\eval\perplexity.py", line 73, in perplexity
-    out = model(chunk, labels=chunk)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\generic.py", line 943, in wrapper
-    output = func(self, *args, **kwargs)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\opt\modeling_opt.py", line 497, in forward
-    outputs: BaseModelOutputWithPast = self.model.decoder(
-                                       ~~~~~~~~~~~~~~~~~~^
-        input_ids=input_ids,
-        ^^^^^^^^^^^^^^^^^^^^
-    ...<5 lines>...
-        **kwargs,
-        ^^^^^^^^^
-    )
-    ^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\generic.py", line 1081, in wrapper
-    output = func(self, *args, **kwargs)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\utils\output_capturing.py", line 287, in wrapper
-    outputs = func(self, *args, **kwargs)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\opt\modeling_opt.py", line 381, in forward
-    hidden_states = decoder_layer(
-        hidden_states,
-    ...<4 lines>...
-        **kwargs,
-    )
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\modeling_layers.py", line 111, in __call__
-    return super().__call__(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\opt\modeling_opt.py", line 218, in forward
-    hidden_states, _ = self.self_attn(
-                       ~~~~~~~~~~~~~~^
-        hidden_states=hidden_states,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<3 lines>...
-        **kwargs,
-        ^^^^^^^^^
-    )
-    ^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\models\opt\modeling_opt.py", line 167, in forward
-    attn_output, attn_weights = attention_interface(
-                                ~~~~~~~~~~~~~~~~~~~^
-        self,
-        ^^^^^
-    ...<6 lines>...
-        **kwargs,
-        ^^^^^^^^^
-    )
-    ^
-  File "C:\Users\ASUS\scoop\apps\python313\current\Lib\site-packages\transformers\integrations\sdpa_attention.py", line 174, in sdpa_attention_forward
-    attn_output = torch.nn.functional.scaled_dot_product_attention(
-        query,
-    ...<6 lines>...
-        **sdpa_kwargs,
-    )
-KeyboardInterrupt
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights:   1%|          | 1/197 [00:00<00:37,  5.23it/s]Loading weights:  98%|#########7| 193/197 [00:00<00:00, 822.37it/s]Loading weights: 100%|##########| 197/197 [00:00<00:00, 674.30it/s]
+  window 1/4  running ppl 20.868  elapsed 0.0 min  eta 0.1 min  rss 1.3 GB
+  window 2/4  running ppl 25.057  elapsed 0.1 min  eta 0.1 min  rss 1.3 GB
+  window 3/4  running ppl 29.418  elapsed 0.1 min  eta 0.0 min  rss 1.3 GB
+  window 4/4  running ppl 30.127  elapsed 0.2 min  eta 0.0 min  rss 1.3 GB
+{
+  "ppl": 30.12699294291983,
+  "nll": 3.405421545404193,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    3.038231264980001,
+    3.404051482065981,
+    3.70256828900716,
+    3.4768351455636295
+  ],
+  "resumed_windows": 0,
+  "model": "facebook/opt-125m",
+  "config": "D:\\japan\\results\\a6m_opt125m_ba\\configs\\fake_quant_had.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 10.7,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "calib_cache": "off",
+  "git": "2b2bf0c5dd3e5ca65bbc7acec51747dd0e69e751"
+}

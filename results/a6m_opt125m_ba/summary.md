@@ -5,3 +5,6 @@ facebook/opt-125m, bit_accurate, first 8192 WikiText-2 test tokens. All layers a
 | Run | PPL | / fake-quant | analog ADC conversions | DCIM column ops | Hadamard adds |
 |---|---|---|---|---|---|
 | fake_quant | 30.460 | 1.000 | - | 0.000e+00 | 0.000e+00 |
+| fake_quant_had | 30.127 | 0.989 | - | 0.000e+00 | 4.832e+09 |
+| n128_adc6_base | 30.816 | 1.012 | 3.479e+11 | 0.000e+00 | 0.000e+00 |
+| n128_adc6_had_all | 30.104 | 0.988 | 3.479e+11 | 0.000e+00 | 4.832e+09 |
