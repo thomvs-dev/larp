@@ -1,0 +1,12 @@
+# A5 full-range ADC base (ASiM default): every layer W8A8 bit-serial, nrow 128, ADC 8 b, full scale = nrow * L
+# (no calibration). Used with a5_sweep.py --points all:128:<b> to compare against the calibrated sweeps
+# (a5_base_adc8cal.yaml) at the same points.
+default:
+  mode: statistical
+  macro: acim
+  w_bits: 8
+  x_bits: 8
+  nrow: 128
+  adc_bits: 8
+  adc_range: full
+  rand_noise_sigma: 0.0
