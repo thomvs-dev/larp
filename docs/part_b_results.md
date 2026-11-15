@@ -75,5 +75,6 @@ and `results/b3_ppa_qwen05b/summary.md`.
 - Latency is a bound (DRAM stream time plus array evaluations); digital units and scheduling are not timed.
 - DCIM uses an input toggle rate measured on OPT-125M and an 8 b × 8 b point outside the fitted data.
 - The digital baseline and the SRAM buffer use an 8 KB SRAM read energy for much larger memories.
-- Not done: M3 calibration, CiMLoop comparison (B5), hybrid policy per layer role, array-size sweeps,
+- Tool comparison (B5): AccelForge's CiMLoop model of the Jia macro agrees with our M1 model within 4.5 % (array, ADC, TOPS/W, 8 b × 8 b MAC energy); our M1 model leaves out Jia's near-memory data path (`validation/tool_comparison.md`).
+- Not done: M3 calibration, NeuroSim comparison, hybrid policy per layer role, array-size sweeps,
   pipelined / single-slope ADCs.

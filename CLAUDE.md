@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A done for the deadline scope (2026-11-15; deferred items listed in A5–A7): results in `docs/part_a_results.md`, figures `python scripts/make_figures.py`. GATE A2, GATE A3 passed. Statistical mode limited to ADC steps of 1/n MAC unit (F13). Part B in progress: working plan of 2026-11-15 in `docs/part_b_plan.md` §6, B0 component models done 2026-11-15 (analog array, SAR / flash ADC, DCIM, digital units, node scaling), M1, M2, M4 calibrated, GATE B1 passed with documented exceptions 2026-11-15; B2 + B3 mapper and system model done and decode trace checked 2026-11-15 (`results/b3_ppa_*`, `results/b3_trace_*`); B4 sweep done (`results/b4_sweep/`, `docs/part_b_results.md`); next B5 (one CiMLoop case; script ready, laptop run pending); result models: Qwen2.5-1.5B, Qwen2.5-0.5B**
+Status: **Part A done for the deadline scope (2026-11-15; deferred items listed in A5–A7): results in `docs/part_a_results.md`, figures `python scripts/make_figures.py`. GATE A2, GATE A3 passed. Statistical mode limited to ADC steps of 1/n MAC unit (F13). Part B in progress: working plan of 2026-11-15 in `docs/part_b_plan.md` §6, B0 component models done 2026-11-15 (analog array, SAR / flash ADC, DCIM, digital units, node scaling), M1, M2, M4 calibrated, GATE B1 passed with documented exceptions 2026-11-15; B2 + B3 mapper and system model done and decode trace checked 2026-11-15 (`results/b3_ppa_*`, `results/b3_trace_*`); B4 sweep done (`results/b4_sweep/`, `docs/part_b_results.md`); B5 done 2026-11-16, GATE B5 passed (AccelForge / CiMLoop Jia model within 4.5 % of ours, `validation/tool_comparison.md`); all five steps of the working plan done, open: tasks outside the plan (decision by Thomas); result models: Qwen2.5-1.5B, Qwen2.5-0.5B**
 Last updated: 2026-11-15
 
 ---
@@ -213,8 +213,8 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 ### Part B exit criteria
 
 - [ ] All B milestones ticked, all GATEs passed.
-- [ ] Calibration error table against ≥3 published SRAM CIM macros.
-- [ ] Coupled DSE results for at least 2 result models.
+- [x] Calibration error table against ≥3 published SRAM CIM macros. (M1, M2, M4: `validation/macro_calibration.md`, `results/b1_gate/`.)
+- [x] Coupled DSE results for at least 2 result models. (Qwen2.5-0.5B, Qwen2.5-1.5B: `results/b4_sweep/`.)
 - [ ] Write-up in `docs/part_b_results.md`; combined A+B tool release.
 
 ### B0 — Component library
@@ -268,8 +268,8 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 
 - [ ] Run overlapping cases in NeuroSim V1.5 and/or CiMLoop; compare energy and accuracy. *(2026-11-15 plan: one CiMLoop case; NeuroSim not named.)*
   - [x] Comparison script `scripts/b5_cimloop_jia.py` (`run`: AccelForge's `jia_jssc_2020` model at Table I conditions and at 8 b × 8 b, 0.85 / 1.2 V; `compare`: against the M1 calibration and the paper), compare step tested on a stand-in result (`tests/test_b5_compare.py`) (2026-11-16).
-  - [ ] Laptop run (Thomas), then `validation/tool_comparison.md`.
-- [ ] **GATE B5:** differences explained in `validation/tool_comparison.md`.
+  - [x] Laptop run (Thomas, WSL Ubuntu, git 2931d87, results commit 01cb98f), then `validation/tool_comparison.md` (2026-11-16).
+- [x] **GATE B5:** differences explained in `validation/tool_comparison.md`. Passed 2026-11-16: tools agree within 4.5 % on array, ADC, 1b-TOPS/W and 8 b × 8 b energy per MAC; each within 5.5 % of the paper at Table I conditions.
 
 ---
 
@@ -288,8 +288,8 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 ## 6. Status
 
 - Current part: **B** (Part A done for the deadline scope 2026-11-15)
-- Current milestone: **B5** (step 5 of the 2026-11-15 working plan). Steps 1–4 done; write-up `docs/part_b_results.md`. Open and not in the plan: conversion scheduling beyond ADC sharing (B3), pipelined / single-slope ADC costs (B0), hybrid per layer role and array-size sweeps (B4), M3.
-- Next task: B5 — Thomas runs `scripts/b5_cimloop_jia.py run` (AccelForge, separate venv in `third_party/`, commands in chat) and `compare`, commits `results/b5_cimloop_jia/`; then agent writes `validation/tool_comparison.md` (GATE B5).
+- Current milestone: none open in the 2026-11-15 working plan (steps 1–5 done, GATE B5 passed 2026-11-16); write-up `docs/part_b_results.md`. Open and not in the plan: conversion scheduling beyond ADC sharing (B3), pipelined / single-slope ADC costs (B0), hybrid per layer role and array-size sweeps (B4), M3.
+- Next task: decision by Thomas on the §4 tasks marked *(not in the 2026-11-15 plan)* (defer or do), then the paper draft (needs venue / page limit). B5 parent task left unticked: NeuroSim not run.
 - Part B order (Thomas, 2026-11-15): 1. B0 analog per-action costs + digital units + node scaling to 22 nm → 2. B1 M2 then M1, GATE B1 → 3. B2 + B3 mapper and system model, `scripts/run_ppa.py`, one laptop decode-trace run → 4. B4 sweeps + Pareto (Qwen2.5-0.5B, 1.5B) → 5. B5 one CiMLoop case.
 - Open items from Thomas: Wang JSSC 2023 C-2C PDF (M3); paper venue / submission date / page limit; decision on the §4 tasks marked *(not in the 2026-11-15 plan)*.
 - History of Part A next-task notes (kept for reference):
@@ -405,6 +405,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-15 — B3 decode trace on the laptop (Thomas, git 0314dae, Qwen2.5-1.5B, 64-token prompt + 16 cached decode steps, fake-quant counting at nrow 128): measured = derived event counts in 17 of 17 checks, linear layers only (prefill 83,852,525,568 MACs / 41,926,262,784 conversions; each decode step 1,310,195,712 / 655,097,856) and with attention on CIM (decode step at position 65: 1,315,786,752 / 659,248,128; position 80: 1,317,076,992 / 659,570,688). — `results/b3_trace_qwen15b/`, `results/b3_trace_qwen15b_attn/` (committed by Thomas, 1cdf7c4)
 - 2026-11-15 — B4 sweep (sandbox, git 152fda8), sequence length 512, KV in buffer, 22 nm / 0.8 V, minimum on-chip budget, HBM2-class DRAM. Qwen2.5-1.5B, compute energy per token (PPL on 8,192 tokens): digital INT8 0.769 mJ (10.338), DCIM M4 0.187 (10.338), analog 128 / 6 b 0.372 with the M1 ADC (63 % ADC) and 0.154 with a best-SAR ADC (10.342), analog 64 / 5 b 0.545 / 0.181 (10.356), 128 / 6 b + Hadamard 0.372 / 0.154 (10.229). Prefill totals 0.257–0.870 mJ; decode totals 50.2–50.6 mJ for every option (weights from DRAM + LM head), 174 mJ with GDDR5-class DRAM, 42.3–42.7 mJ with 2 Gbit on chip. Qwen2.5-0.5B: compute 0.210 / 0.051 / 0.102 / 0.042 mJ (digital / DCIM / analog M1 ADC / best SAR), decode 16.0–16.1 mJ. 307 tests pass, 30 skipped. — `scripts/b4_sweep.py`, `config/system/b4_sweep.yaml`, `cimsim/ppa/__init__.py`, `results/b4_sweep/`, `figures/b4_energy.png`, `docs/part_b_results.md`, `docs/assumptions.md` B-30 … B-32
 - 2026-11-16 — B5 prepared: `scripts/b5_cimloop_jia.py` (AccelForge 1.0.550 / repo df6a79f, Jia JSSC 2020 model; cases 1 b and 8 b at 0.85 and 1.2 V; compare step against `results/b1_m1_jia/` and Table I). AccelForge, HWComponents and the AccelForge repo install / clone in the sandbox, but running the repo's example loader was refused by the sandbox safety check, so the run moves to the laptop. Compare step tested on a stand-in result. Decode-trace results committed by Thomas (1cdf7c4). 308 tests pass, 30 skipped. — `scripts/b5_cimloop_jia.py`, `tests/test_b5_compare.py`
+- 2026-11-16 — B5 run (Thomas, WSL Ubuntu, Python 3.14, AccelForge 1.0.551 / repo df6a79f4, our git 2931d87; native Windows install failed: no `islpy` wheel, `hwcomponents-neurosim` path length). Jia macro, per column and evaluation, 1-b: array pJ paper / AccelForge / ours 9.7 / 10.0 / 10.2 at 0.85 V, 20.4 / 19.7 / 20.4 at 1.2 V; ADC equal within 0.2 %; 1b-TOPS/W 400 / 391 / 383 and 192 / 198 / 192. 8 b × 8 b MAC (array + ADC): AccelForge 347.3 / 684.3 fJ, ours 333.9 / 665.6 fJ at 0.85 / 1.2 V (0.96× / 0.97×); the gap is AccelForge's row-driver energy, which scales 83× from 1-b to 8-b inputs (input-value dependent) against 64× for every other component and for our model. NMC data path (paper 8.3 / 14.7 pJ per column) not in our M1 model. GATE B5 passed. — `results/b5_cimloop_jia/`, `validation/tool_comparison.md`
 
 ---
 
