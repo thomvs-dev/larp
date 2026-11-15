@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A — A0–A4 done (GATE A2, GATE A3 passed). A5 nearly done (steps 1–3 reduced, noise as threshold result, outlier statistics F15); A6 done (Hadamard / hybrid / equal-conversion figure, F16). Statistical mode limited to ADC steps of 1/n MAC unit (F13). Part B started in parallel (B0/B1 groundwork, `docs/part_b_plan.md`); result model: Qwen2.5-1.5B**
+Status: **Part A done for the deadline scope (2026-11-15; deferred items listed in A5–A7): results in `docs/part_a_results.md`, figures `python scripts/make_figures.py`. GATE A2, GATE A3 passed. Statistical mode limited to ADC steps of 1/n MAC unit (F13). Part B started in parallel (B0/B1 groundwork, `docs/part_b_plan.md`); result model: Qwen2.5-1.5B**
 Last updated: 2026-11-15
 
 ---
@@ -94,10 +94,10 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 ### Part A exit criteria
 
-- [ ] All A milestones ticked, all GATEs passed. (Deferred items, marked in A5–A7, are excluded from this criterion for the deadline paper; Thomas 2026-11-11.)
-- [ ] Results for at least 2 development models and 2 result models (Section 1 scope).
-- [ ] Reproducible: one command per figure, from config to plot.
-- [ ] Short write-up in `docs/part_a_results.md`.
+- [x] All A milestones ticked, all GATEs passed. (Deferred items, marked in A5–A7, are excluded from this criterion for the deadline paper; Thomas 2026-11-11.)
+- [x] Results for at least 2 development models and 2 result models (Section 1 scope).
+- [x] Reproducible: one command per figure, from config to plot. (`python scripts/make_figures.py [name]`, from the committed results; each results folder holds its config and git hash.)
+- [x] Short write-up in `docs/part_a_results.md`.
 
 ### A0 — Setup and baselines
 
@@ -165,7 +165,7 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 ### A5 — Sensitivity study
 
-- [ ] Perplexity vs ADC bits and `nrow`, per layer type.
+- [x] Perplexity vs ADC bits and `nrow`, per layer type. (Figure `figures/a5_boundary.png`.)
   - [x] Sweep script `scripts/a5_sweep.py` (Thomas approved the design 2026-11-09): one role (qkv / o / up_gate / down) or all layers changed at a time, others at the base config (calibrated ADC 6 b, nrow 128); ADC bits descend per (role, nrow) and stop after the first point above 2× fake-quant PPL; fake-quant reference on the same tokens; resumable; `summary.{json,md}`; `--points` for statistical validation runs.
   - [x] Step 1, first pass (base: others at ADC 6 b): bit-accurate OPT-125M and GPT-2 (`results/a5s_opt125m_ba/`, `results/a5s_gpt2_ba/`). Found the integer-full-scale calibration artefact and the GPT-2 base collapse (F12); full-scale search fixed.
   - [x] Step 1 rerun with fractional full scales and the lossless base (others at ADC 8 b): `a5s2_opt125m_ba`, `a5s2_gpt2_ba` (Thomas, git 695e2ba, 2026-11-12). Boundary for qkv / up_gate / all: works iff 2^b − 1 ≥ nrow / 2; OPT fc2 (post-ReLU) works at 4 b everywhere; GPT-2 `c_proj` needs one bit more (2^b − 1 ≥ nrow).
@@ -175,10 +175,10 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 - [x] Activation outlier statistics per layer (max/std, channel outliers) and correlation with sensitivity. Kept (one forward pass per model; explains the GPT-2 `mlp.c_proj` collapse, F12). Done 2026-11-14 (F15): OPT-125M, GPT-2, Qwen2.5-1.5B; the ADC boundary per layer type follows the density of the high input bit planes (fraction of negative codes), not outlier size; GPT-2 `c_proj` 0.82 vs 0.39–0.49 elsewhere (`results/a5o_*/summary.md`).
 - [ ] Bit-serial vs bit-parallel on LLMs, compared with ASiM's CNN/ViT findings. **Deferred 2026-11-11 (deadline trim, §8).**
 - [ ] Input encoding study (F3): two's complement vs sign-magnitude vs offset-binary inputs, and skipping sign-extension planes — perplexity vs ADC bits at equal ADC conversions. Needs new encoding options in both executors (reference first, then fast, tested against each other). **Deferred 2026-11-11 (deadline trim, §8).**
-- [ ] ADC level alignment (F3): report error vs ADC bits for nrow aligned (2^b − 1 multiple of nrow) and not aligned, separately from ADC precision. Reduced: analysis of the step-1 sweep data only, no new runs.
+- [x] ADC level alignment (F3): report error vs ADC bits for nrow aligned (2^b − 1 multiple of nrow) and not aligned, separately from ADC precision. Reduced: analysis of the step-1 sweep data only, no new runs. Done 2026-11-15: alignment measured as the calibrated ADC step per layer; all 80 step-1 points with every step at 1 or 1/2 MAC unit are ≤ 1.05× W8A8, all 28 with a step > 1 are ≥ 1.42× (`scripts/a5_alignment.py`, `results/a5_alignment/summary.md`, `figures/a5_alignment.png`).
 - [ ] Statistical-mode speed before large sweeps (started under A4, see sub-task there): vectorise the exact saturation / rounding loop (noise-free speed-up now 6–15×; aim ≥ 30×), tested against the current implementation. **Deferred 2026-11-11 (deadline trim, §8).** Current speed is enough for the kept sweeps.
 - [x] Cache calibration histograms per (model, calibration tokens, nrow, bit widths, encoding, quantization): the MAC histogram is taken with all layers ideal, so it does not depend on ADC bits, ADC range method or noise; sweeps over those reuse one calibration (Qwen2.5-1.5B: 53 min each otherwise). Per-layer cache in `calib_cache/` (git-ignored), on by default (`--no-calib-cache`, `CIMSIM_CALIB_CACHE=off`). OPT-125M: calibration 273 s → 10 s on a hit, bit-identical PPL and full scales; ADC 5 b config hits the ADC 6 b histograms (`results/a5_calib_cache_check.md`). (`cimsim/calib_cache.py`, `tests/test_calib_cache.py`)
-- [ ] ADC range calibration study (F5): full vs MSE-calibrated (layer / cycle_plane) at ADC 4–8 b, nrow 64–256, on OPT-125M and GPT-2 (bit-accurate, 8k tokens), then result models via A3. Reduced: full-range vs MSE-calibrated at the step-1 boundary points (OPT-125M, GPT-2), layer granularity only; F5 data reused.
+- [x] ADC range calibration study (F5): full vs MSE-calibrated (layer / cycle_plane) at ADC 4–8 b, nrow 64–256, on OPT-125M and GPT-2 (bit-accurate, 8k tokens), then result models via A3. Reduced: full-range vs MSE-calibrated at the step-1 boundary points (OPT-125M, GPT-2), layer granularity only; F5 data reused. Done 2026-11-15 from existing data only: OPT-125M nrow 128, full range 6 / 7 / 8 b 12,962 / 30.61 / 30.48 vs calibrated 6 b 30.81 (W8A8 30.449); GPT-2 and other nrow not run (`docs/part_a_results.md` §3).
 
 ### A6 — Outlier mitigation at equal cost
 
@@ -277,7 +277,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 ## 6. Status
 
 - Current part: **A**
-- Current milestone: **A5** (sensitivity study); A4 done 2026-11-09
+- Current milestone: Part A done (deadline scope) 2026-11-15; next: paper draft, Part B (B0/B1)
 - Next tasks, in order:
   1. Done 2026-11-05: attention-on-CIM runs at 2,048-token windows (0.5B statistical = bit-accurate 12.043; 1.5B 8k analog full model 10.378 vs ideal 8-bit attention 10.413).
   2. Done 2026-11-06: zero-shot wrapper and Qwen2.5-0.5B runs (FP32 / W8A8 / statistical, 1,000 docs per task); analog = W8A8 within 0.4 pp, no significant difference.
@@ -297,6 +297,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
   4m. 2026-11-14: outlier statistics done on all three models (F15). Next, agent: Hadamard rotation, hybrid / Pareto configs for Sunday. Thomas: laptop free.
   4n. 2026-11-14 (night): Hadamard rotation + A6 runner done, OPT-125M sandbox checked (rotation removes the 0.8 % analog loss at 128 / 6 b, does not move the nrow / 2 boundary). Next, Thomas (Sunday): `a6_mitigation.py` on GPT-2 bit-accurate, then Qwen2.5-1.5B statistical, then OPT-125M bit-accurate check (commands in chat). Agent: Pareto figure scripts, `docs/part_a_results.md` outline.
   4o. 2026-11-15: A6 done (F16, figure `figures/a6_pareto.png`); remaining open A items: ADC level alignment and full-range vs calibrated ADC range (analyses of existing data), figure scripts for A5, `docs/part_a_results.md`. Agent next: those, then paper draft. Thomas: laptop free.
+  4p. 2026-11-15: Part A closed for the deadline scope: alignment analysis, full-range vs calibrated table, all figures (`scripts/make_figures.py`, `figures/`), `docs/part_a_results.md`, README results section. Next: paper draft (needs venue / page limit from Thomas); Part B M2 calibration.
   5. Note: compare statistical against bit-accurate on the same machine (fake-quant differs between Thomas's machine and the sandbox by 0.1–0.3 %).
 - Blockers: HuggingFace downloads blocked in the cloud sandbox — model runs happen on Thomas's machine. No GPU anywhere: bit-accurate runs are limited to the first 8,192 tokens; A3 statistical mode is on the critical path for everything at full scale.
 
@@ -379,6 +380,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-14 — A5 activation statistics on the laptop (Thomas, git e148283, 2,048 test tokens; GPT-2 in 1,024-token windows after a fix: the first version fed 2,048 tokens into GPT-2's 1,024-position context and failed). Sign-plane density (= fraction of negative 8-bit codes), median over layers: GPT-2 qkv 0.45, o 0.47, c_fc 0.47, `c_proj` 0.82; Qwen2.5-1.5B qkv 0.45, o 0.47, up_gate 0.46, down_proj 0.39. Peak / rms per token, p99, median [max]: GPT-2 `c_proj` 23.8 [36.6]; Qwen down_proj 59.0 [87.5], up to 195 outlier channels. GPT-2 `c_proj` needs one ADC bit more because its GELU input is mostly small negatives, which set every high plane; outlier size does not track the boundary (F15). Committed with the 0.05 % noise runs and the bit-accurate fc1 check (Thomas, 2cb8902). — `results/a5o_gpt2/`, `results/a5o_qwen15b/`, `results/a5o_opt125m_sandbox/`, `scripts/a5_outliers.py`, `docs/findings.md` F15
 - 2026-11-14 — A6: Hadamard rotation of CIM-layer inputs (`cimsim/models/rotate.py`): weight W → W Q offline before the CIM layers quantize it, input x → x Q online in front of the layer; Q block-diagonal normalised Sylvester Hadamard, block = largest power of two dividing K (OPT 768 → 256, Qwen 8960 → 256); fast Walsh-Hadamard cost counted as `hadamard_adds` (K log2 B per token, once per shared input). YAML `hadamard: {roles: [...]}`, applied in `eval.runner.swap_from_config`; rotation is added to the calibration data key. Mitigation runner `scripts/a6_mitigation.py` (variants base, had_down, had_all, dcim_down, down_b+1 at nrow:bits points; fake-quant and rotated fake-quant references; summary with analog ADC conversions, DCIM column ops, Hadamard adds; `pareto.png`). 6 tests (rotation exact in fp on tiny OPT / GPT-2 / Qwen2, changes fake-quant, events counted once for shared inputs, configs); 278 pass (30 skipped). Sandbox, OPT-125M, statistical, 4,096 tokens: W8A8 25.381, W8A8 rotated 25.026; all layers 128 / 6 b 25.591 (+0.8 %), with every input rotated 25.024 (= rotated W8A8), rotation without fc2 25.069, fc2 rotated only 25.592; fc2 on DCIM or at 7 b 25.591 (the base loss is not in fc2). Below the boundary rotation does not help: all layers 128 / 5 b 12,195 without, 6,534 with rotation of qkv / o / fc1 (both not valid in statistical mode, F13; the step-1 bit-accurate value is ~10k). All 6 b full scales stay 63 with rotation. `stat_inexact_layers` 0 at every 6 b point. — `cimsim/models/rotate.py`, `eval/runner.py`, `cimsim/events.py`, `scripts/a6_mitigation.py`, `tests/test_rotate.py`, `results/a6h_opt125m_sandbox/`, `results/a6m_opt125m_stat_sandbox/`
 - 2026-11-15 — A6 mitigation runs (Thomas, 14 threads, 8,192 tokens). GPT-2 bit-accurate (git 72fc415), PPL at nrow 128 / 6 b and 256 / 7 b (W8A8 33.776, rotated W8A8 33.728): no mitigation 198.38 / 68.80, `c_proj` input rotated 33.970 / 33.741, all inputs rotated 33.583 / 33.722, `c_proj` on DCIM 34.013 / 33.877, `c_proj` +1 ADC bit 34.013 / 33.877. OPT-125M bit-accurate (git 2b2bf0c; W8A8 at 72fc415): W8A8 30.460, rotated 30.127, 128 / 6 b 30.816, all rotated 30.104; sandbox statistical on the same tokens 30.799 / 30.113 (within 0.06 %; sandbox W8A8 30.484). Qwen2.5-1.5B statistical (git 89f7ad8; W8A8 at bd6a1dc): W8A8 10.338, rotated 10.133, 128 / 6 b 10.342, all rotated 10.229; `stat_inexact_layers` 0, full scale 63 on all layers. Qwen runs crashed with exit 3221225477 at model load and at the end of a window before a laptop restart; the end-of-window crash was in the HF loss, which copies and upcasts the 2,048 × 152k logits (~2.5 GB); `eval/perplexity.py` now computes the window NLL in blocks of 256 positions (89f7ad8; equal to the HF loss within 6e-8 relative on OPT-125M, test). One later Qwen attempt still crashed mid-window and passed on retry. Finding F16; figure `figures/a6_pareto.png` (`scripts/fig_a6_pareto.py`). — `results/a6m_gpt2_ba/`, `results/a6m_opt125m_ba/`, `results/a6m_qwen15b_stat/`, `results/a6m_opt125m_stat8k_sandbox/`, `eval/perplexity.py`, `tests/test_swap.py`, `scripts/fig_a6_pareto.py`, `figures/`, `docs/findings.md` F16
+- 2026-11-15 — Part A closed for the deadline scope. ADC step alignment from the step-1 sweeps (`scripts/a5_alignment.py`): 80 points with every changed layer at a calibrated step of 1 or 1/2 MAC unit, all ≤ 1.049× W8A8; 28 points with a step > 1 MAC unit on at least one layer, all ≥ 1.418×. Full-range vs calibrated ADC from existing OPT-125M data (nrow 128): full range 6 / 7 / 8 b 12,962 / 30.607 / 30.483, calibrated 6 b 30.808, W8A8 30.449. All Part A figures from one script (`scripts/make_figures.py`: a3_validation, a4_zeroshot, a5_boundary, a5_alignment, a5_planes, a5_noise, a6_pareto), write-up `docs/part_a_results.md`, README results section with the figures. — `scripts/a5_alignment.py`, `results/a5_alignment/`, `scripts/make_figures.py`, `figures/`, `docs/part_a_results.md`, `README.md`
 - 2026-11-03 — Part B plan written: cost model (event counts × cited per-action costs), calibration macro candidates M1–M4, GATE B1 normalisation rules. — `docs/part_b_plan.md`
 
 ---

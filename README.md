@@ -4,6 +4,37 @@ Simulates SRAM compute-in-memory execution of transformer / LLM layers: quantiza
 
 Plan and status: `CLAUDE.md`. Design and maths: `docs/part_a_plan.md`.
 
+## Part A results
+
+Full write-up: [`docs/part_a_results.md`](docs/part_a_results.md). All figures are rebuilt from the committed results with
+`python scripts/make_figures.py`.
+
+**A calibrated 6-bit ADC at nrow 128 adds no measurable loss to W8A8 on three result models** (full WikiText-2 test set:
+Qwen2.5-0.5B 13.329 vs 13.332, TinyLlama-1.1B 7.793 vs 7.793, Qwen2.5-1.5B 9.492 vs 9.487), and zero-shot accuracy stays
+within 0.8 pp:
+
+![zero-shot](figures/a4_zeroshot.png)
+
+**Where the ADC fails:** a layer works when 2^b − 1 ≥ nrow / 2. More exactly, it works when the calibrated ADC step
+resolves single MAC units:
+
+![boundary](figures/a5_boundary.png)
+![alignment](figures/a5_alignment.png)
+
+**Which layer needs more bits is set by the density of its high input bit planes, not by outliers.** GPT-2's
+post-GELU `c_proj` input is mostly small negatives:
+
+![bit planes](figures/a5_planes.png)
+
+**Rotating that one input (Hadamard) removes the extra bit at the same ADC cost:**
+
+![mitigation](figures/a6_pareto.png)
+
+**Statistical (fast) mode against bit-accurate**, and the analog-noise threshold:
+
+![validation](figures/a3_validation.png)
+![noise](figures/a5_noise.png)
+
 ## Git
 
 Code lives at https://github.com/thomvs-dev/larp (branch `main`). To link an existing `D:\japan` folder to it without touching your files:
