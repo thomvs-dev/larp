@@ -1,4 +1,4 @@
-# cimsim — SRAM CIM simulator for LLMs
+# cimsim : SRAM CIM simulator for LLMs
 
 Simulates SRAM compute-in-memory execution of transformer / LLM layers: quantization, bit-plane decomposition, row-parallel analog MAC, ADC quantization, analog noise, and event counts for later energy modelling.
 
