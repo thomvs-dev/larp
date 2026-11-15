@@ -2,7 +2,7 @@
 
 Owner: Thomas
 Folder: `D:\japan`
-Status: **Part A done for the deadline scope (2026-11-15; deferred items listed in A5–A7): results in `docs/part_a_results.md`, figures `python scripts/make_figures.py`. GATE A2, GATE A3 passed. Statistical mode limited to ADC steps of 1/n MAC unit (F13). Part B started in parallel (B0/B1 groundwork, `docs/part_b_plan.md`); result model: Qwen2.5-1.5B**
+Status: **Part A done for the deadline scope (2026-11-15; deferred items listed in A5–A7): results in `docs/part_a_results.md`, figures `python scripts/make_figures.py`. GATE A2, GATE A3 passed. Statistical mode limited to ADC steps of 1/n MAC unit (F13). Part B in progress: working plan of 2026-11-15 in `docs/part_b_plan.md` §6, current step B0 (ADC and DCIM models done, M4 calibrated); result models: Qwen2.5-1.5B, Qwen2.5-0.5B**
 Last updated: 2026-11-15
 
 ---
@@ -204,6 +204,8 @@ A working, tested tool that swaps Linear (and optionally attention matmul) layer
 
 Start only after Part A exit criteria are met (or Thomas says so). **Thomas, 2026-11-03: start B0/B1 now in parallel with A3/A4.** Detailed plan: `docs/part_b_plan.md`.
 
+**Working plan (Thomas, 2026-11-15, `docs/part_b_plan.md` §6):** analytical and trace-driven: Part A event counts × calibrated per-event costs, no new neural-network simulation. Order: (1) B0 analog per-action costs, digital units, node scaling to 22 nm; (2) B1 calibrate M2 then M1, GATE B1; (3) B2 + B3 analytic mapper and system model; (4) B4 sweeps + Pareto for Qwen2.5-0.5B and 1.5B; (5) B5 one CiMLoop case. Tasks below that are marked *(not in the 2026-11-15 plan)* are kept, not dropped; Thomas decides whether to defer them.
+
 ### End goal of Part B
 
 A single run of the simulator outputs **perplexity + energy/token + latency/token (prefill and decode separately) + area** for a configured SRAM CIM system running an edge LLM, with energy/area calibrated against published macros, and design-space sweeps that produce Pareto fronts.
@@ -225,7 +227,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
   - [ ] Bit-line / array activation, wordline driver / DAC, shift-add, buffers (analog macros).
 - [ ] Digital peripheral units: softmax, LayerNorm/RMSNorm, SiLU/GELU, RoPE.
 - [ ] Technology node scaling; every number cited in `docs/assumptions.md`.
-- [ ] Per-architecture ADC cost: energy / area / latency per conversion for SAR, flash, pipelined, single-slope at 4–8 b, plus ADC sharing ratio (columns per ADC) as a config field.
+- [ ] Per-architecture ADC cost: energy / area / latency per conversion for SAR, flash, pipelined, single-slope at 4–8 b, plus ADC sharing ratio (columns per ADC) as a config field. *(SAR, flash and the sharing ratio are in the 2026-11-15 plan; pipelined and single-slope are not.)*
 
 ### B1 — Macro model and calibration
 
@@ -240,6 +242,7 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 
 - [ ] Layer → array tiling, weight duplication, array allocation.
 - [ ] Policy for weights that do not fit on chip (reload schedule).
+- [ ] On-chip SRAM budget as a config field; arrays per layer from shapes, nrow and columns (analytic, no mapping search) (2026-11-15 plan).
 
 ### B3 — LLM system model
 
@@ -247,17 +250,19 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 - [ ] DRAM bandwidth/energy model for weight reload.
 - [ ] KV cache placement options: in CIM arrays (count writes) vs separate buffer; attention dataflow options.
 - [ ] Sequence length sweep (128 → 2K+) to show where attention / KV traffic dominates.
-- [ ] Conversion scheduling: ADC sharing (serialised conversions), pipelined ADC latency, and overlap of array compute with conversion (macro-level pipelining) in the latency model.
+- [ ] Conversion scheduling: ADC sharing (serialised conversions), pipelined ADC latency, and overlap of array compute with conversion (macro-level pipelining) in the latency model. *(ADC sharing is in the 2026-11-15 plan; pipelined ADC latency and macro-level pipelining are not.)*
+- [ ] `scripts/run_ppa.py`: reads a run's `events.json`, writes `ppa_report.json` (energy per layer / phase, latency, area) (2026-11-15 plan).
+- [ ] One short laptop decode-trace run to check the decode event counts derived from the prefill runs (2026-11-15 plan).
 
 ### B4 — Coupled runs and DSE
 
 - [ ] One command → perplexity + energy/latency/area per phase.
-- [ ] Sweeps: ADC bits, nrow, array size, number of macros, mapping policy (analog / DCIM / hybrid per layer).
-- [ ] Pareto fronts: perplexity vs energy/token.
+- [ ] Sweeps: ADC bits, nrow, array size, number of macros, mapping policy (analog / DCIM / hybrid per layer). *(Array size and number of macros are not named in the 2026-11-15 plan.)*
+- [ ] Pareto fronts: perplexity vs energy/token, prefill / decode split, Qwen2.5-0.5B and Qwen2.5-1.5B (2026-11-15 plan).
 
 ### B5 — Comparison with existing tools
 
-- [ ] Run overlapping cases in NeuroSim V1.5 and/or CiMLoop; compare energy and accuracy.
+- [ ] Run overlapping cases in NeuroSim V1.5 and/or CiMLoop; compare energy and accuracy. *(2026-11-15 plan: one CiMLoop case; NeuroSim not named.)*
 - [ ] **GATE B5:** differences explained in `validation/tool_comparison.md`.
 
 ---
@@ -276,8 +281,11 @@ A single run of the simulator outputs **perplexity + energy/token + latency/toke
 
 ## 6. Status
 
-- Current part: **A**
-- Current milestone: Part A done (deadline scope) 2026-11-15; next: paper draft, Part B (B0/B1)
+- Current part: **B** (Part A done for the deadline scope 2026-11-15)
+- Current milestone: **B0** (step 1 of the 2026-11-15 working plan, `docs/part_b_plan.md` §6)
+- Part B order (Thomas, 2026-11-15): 1. B0 analog per-action costs + digital units + node scaling to 22 nm → 2. B1 M2 then M1, GATE B1 → 3. B2 + B3 mapper and system model, `scripts/run_ppa.py`, one laptop decode-trace run → 4. B4 sweeps + Pareto (Qwen2.5-0.5B, 1.5B) → 5. B5 one CiMLoop case.
+- Open items from Thomas: Wang JSSC 2023 C-2C PDF (M3); paper venue / submission date / page limit; decision on the §4 tasks marked *(not in the 2026-11-15 plan)*.
+- History of Part A next-task notes (kept for reference):
 - Next tasks, in order:
   1. Done 2026-11-05: attention-on-CIM runs at 2,048-token windows (0.5B statistical = bit-accurate 12.043; 1.5B 8k analog full model 10.378 vs ideal 8-bit attention 10.413).
   2. Done 2026-11-06: zero-shot wrapper and Qwen2.5-0.5B runs (FP32 / W8A8 / statistical, 1,000 docs per task); analog = W8A8 within 0.4 pp, no significant difference.
@@ -383,6 +391,7 @@ Format: `YYYY-MM-DD — what was done — where (code / results path)`
 - 2026-11-15 — Part A closed for the deadline scope. ADC step alignment from the step-1 sweeps (`scripts/a5_alignment.py`): 80 points with every changed layer at a calibrated step of 1 or 1/2 MAC unit, all ≤ 1.049× W8A8; 28 points with a step > 1 MAC unit on at least one layer, all ≥ 1.418×. Full-range vs calibrated ADC from existing OPT-125M data (nrow 128): full range 6 / 7 / 8 b 12,962 / 30.607 / 30.483, calibrated 6 b 30.808, W8A8 30.449. All Part A figures from one script (`scripts/make_figures.py`: a3_validation, a4_zeroshot, a5_boundary, a5_alignment, a5_planes, a5_noise, a6_pareto), write-up `docs/part_a_results.md`, README results section with the figures. — `scripts/a5_alignment.py`, `results/a5_alignment/`, `scripts/make_figures.py`, `figures/`, `docs/part_a_results.md`, `README.md`
 - 2026-11-15 — Full-range vs calibrated ADC, all layers nrow 128, same bits on every layer (Thomas, git 5991359, 14 threads, 8,192 tokens, bit-accurate, base `a5_base_adc8full.yaml`): OPT-125M full range 6 / 7 / 8 b 12,661.8 / 30.614 / 30.487 (W8A8 30.460); GPT-2 70,519 / 34.985 / 33.962 (W8A8 33.776). Calibrated values at the same points from step 1: OPT 30.816 / 30.460 / 30.460, GPT-2 198.4 / 33.776 / 33.776. Calibration saves about one ADC bit; GPT-2 6 b fails in both (`c_proj`, F15). — `results/a5f_gpt2_ba/`, `results/a5f_opt125m_ba/`, `config/experiments/a5_base_adc8full.yaml`, `docs/part_a_results.md` §3
 - 2026-11-03 — Part B plan written: cost model (event counts × cited per-action costs), calibration macro candidates M1–M4, GATE B1 normalisation rules. — `docs/part_b_plan.md`
+- 2026-11-15 — Part B working plan (Thomas) written down: five steps B0 → B1 (M2, M1) → B2 + B3 → B4 → B5, analytical and trace-driven; differences to the 2026-11-11 reduced scope and the §4 tasks it does not name are listed. No numbers. — `docs/part_b_plan.md` §6, `CLAUDE.md` §4 / §6
 
 ---
 
@@ -434,6 +443,7 @@ Format: `YYYY-MM-DD — decision — reason`
 - 2026-11-13 — Statistical mode is used only at configs where every statistical layer's calibrated ADC step is 1/n MAC unit (Thomas chose this over restricting calibration to such full scales, or fixing the rounding model) — step 2 shows it is exact there and overestimates the error 7.5× to 3,000× in PPL where calibration picks a fractional step above 1 (F13). The headline results (lossless at 6 b / nrow 128, boundary 2^b − 1 ≥ nrow / 2) are all step-1 points. Cost: no result-model numbers in the partial-clipping regime (o-proj, GPT-2 `c_proj` near the boundary); those stay bit-accurate on OPT-125M / GPT-2. Restricting calibration would change the "calibrated ADC" definition used in F5 / A4; an exact fractional-step model is at least a day and loses most of the speed-up. The check lives in `scripts/run_ppl.py`, not `cimsim/core/layers.py`, so the calibration cache stays valid.
 - 2026-11-14 — A5 step 3 reduced to two all-layer points on Qwen2.5-1.5B (nrow 128 / 6 b and nrow 64 / 5 b); nrow 256 / 7 b, below-boundary and per-role points on the result model are not run (Thomas chose the one-extra-point option after asking to skip the crashing runs) — points at or below the boundary put most conversions on the exact saturation path (13–22 min per 2,048-token window on the laptop), two runs died with an unexplained access violation, and each new nrow costs a 60–90 min calibration; the deadline does not allow it. The per-role boundary map stays a bit-accurate result on OPT-125M / GPT-2; the paper states that the result models were checked at two boundary points only.
 - 2026-11-14 — Noise per layer type reported as a threshold result only, no per-type table (Thomas chose this over a 5-seed bit-accurate per-type table on OPT-125M, ~6 h, and over the statistical table with a caveat) — with a calibrated 1-MAC ADC step, noise below half a step (sigma ≤ 0.05 % of nominal full scale) is absorbed exactly on every layer type (OPT-125M: 25.594 = noise-free on all types and seeds); at 0.10 % the PPL is chaotic in both modes (OPT fc1 layer 1 alone: bit-accurate 52–245 over independent streams) and statistical may be ~2× pessimistic there (p ≈ 0.06), so a per-type ranking would rest on unvalidated numbers. Frees Sunday's laptop time for hybrid / Hadamard / Pareto.
+- 2026-11-15 — Part B follows Thomas's five-step working plan (`docs/part_b_plan.md` §6): M1 moves from optional into B1 after M2 (M4 + M2 + M1 can meet the ≥ 3 macro exit criterion without M3, whose PDF is still missing); KV cache in CIM arrays and in an SRAM buffer are both modelled; B4 uses Qwen2.5-0.5B and 1.5B; one laptop decode-trace run checks the derived decode counts — Part A is closed, every Part A run already has `events.json`, so Part B needs no new model simulation and the laptop is free. §4 tasks the plan does not name stay unticked until Thomas decides.
 - 2026-11-03 — Calibration macros: CiMLoop's validated SRAM set (Jia JSSC 2020, Sinangil JSSC 2021, Wang JSSC 2023) plus one digital CIM (Chih ISSCC 2021) — open CiMLoop models allow a direct B5 comparison, and the set covers bit-serial charge-domain, multi-bit analog and DCIM.
 
 ---

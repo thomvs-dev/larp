@@ -101,3 +101,48 @@ Order of work, minimum needed for a paper section:
 GATE B1 under this scope: M4 + M2 within 30 %, plus M3 if the PDF arrives. Fewer than three macros
 does not meet the Part B exit criterion (≥ 3); that criterion stays and is reported as not met if M3 / M1
 are not done.
+
+## 6. Working plan (Thomas, 2026-11-15) — supersedes the order in §5
+
+Method: analytical and trace-driven. Part A event counts (`events.json` of each run) × calibrated per-event
+costs. No new neural-network simulation, except one short decode-trace run that checks the derived decode
+counts. §1–§4 stay valid; where §5 and this section differ, this section applies.
+
+| Step | Content | Output | Status |
+|---|---|---|---|
+| 1. B0 | Analog per-action costs: bit-line / compute capacitor, wordline driver, shift-add, buffers, ADC sharing. Digital units (INT8 MAC, softmax, norm, activation, RoPE). Node scaling to 22 nm. Every number cited in `docs/assumptions.md` | `cimsim/circuits/{analog,digital,scaling}.py`, `config/circuits/*.yaml`, tests | started 2026-11-15 |
+| 2. B1 | Calibrate M2 (Sinangil JSSC'21, 4-b flash), then M1 (Jia JSSC'20, 8-b SAR). Fit 1–2 parameters per macro on one point; check held-out points. **GATE B1**: error table ≤ 20–30 % | `config/macros/m{1,2}_*.yaml`, `validation/b1_m{1,2}_*.py`, `results/b1_m*/`, table in `validation/macro_calibration.md` | open |
+| 3. B2 + B3 | Analytic mapper: array tiling, on-chip SRAM budget, weight streaming / reload policy. System model: prefill vs decode; DRAM pJ/bit + bandwidth roofline; KV cache in CIM arrays vs SRAM buffer; sequence-length sweep; `scripts/run_ppa.py` reading `events.json`; one short laptop decode-trace run to check the derived decode counts | `cimsim/mapper/`, `cimsim/system/`, `cimsim/ppa/`, `scripts/run_ppa.py`, `ppa_report.json` | open |
+| 4. B4 | Sweeps + Pareto: PPL (Part A) vs energy / token, prefill / decode split, Qwen2.5-0.5B and 1.5B | `results/b4_*/`, figure | open |
+| 5. B5 | One CiMLoop comparison case | `validation/tool_comparison.md` | open |
+
+Expected result (to be tested, not assumed): for a 1.5B model, decode energy is dominated by weight
+streaming from DRAM and writes into the arrays, not by ADC conversions.
+
+What this changes against §5 (reduced scope of 2026-11-11):
+
+- M1 moves from "optional" to step 2. With M4 + M2 + M1 the Part B exit criterion (≥ 3 macros) can be met
+  without M3.
+- M3 (Wang JSSC 2023) is not in the five steps. It stays an open item (PDF needed) and is added to the
+  GATE B1 table if the PDF arrives.
+- KV cache in CIM arrays vs SRAM buffer: both are modelled (was: buffer only, in-array if time allows).
+- Second result model for B4 is Qwen2.5-0.5B.
+- One laptop decode-trace run is added (the only new model run in Part B).
+
+`CLAUDE.md` §4 tasks that the five steps do not name (kept unticked, not dropped; Thomas decides whether
+to defer them): per-architecture ADC cost for pipelined and single-slope ADCs; conversion scheduling with
+pipelined-ADC latency and macro-level pipelining; mapping search and the sweep axes "array size / number
+of macros"; NeuroSim V1.5 comparison (B5 keeps CiMLoop only).
+
+Step 1 (B0) design:
+
+- One analog conversion (one column, one input cycle, one row chunk) costs
+  `nrow × (e_wl_cell × input density + e_bl_cell × bit-line activity) + E_ADC(bits) + E_shift-add + E_buffers`.
+  `e_wl_cell` and `e_bl_cell` are C·V² per bit cell; they are the 1–2 parameters B1 fits per macro.
+- Densities come from Part A data (`results/a5o_*`: input bit-plane densities per role) or a stated default.
+- ADC sharing (columns per ADC) changes latency and area, not conversion count.
+- Digital units are op counts per token from the model shapes × cited per-op energies (Horowitz ISSCC 2014,
+  45 nm), scaled to 22 nm.
+- Node scaling: E ∝ node^a · VDD², area ∝ node^2, with `a` a config field (classical scaling: a = 1). Used
+  only to move a calibrated or cited number to 22 nm; the M1 (65 nm) and M2 (7 nm) calibrations show how far
+  the rule is off and that spread is reported.
