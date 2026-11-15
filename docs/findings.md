@@ -180,6 +180,15 @@ Observations from runs that affect the design or the paper. Each entry: what was
 - Qwen2.5-1.5B down_proj has the largest outliers of all layer types measured (peak / rms per token p99 59, up to 195 channels above 6×; 47 % of codes |code| ≤ 1) but a lower sign-plane density (0.39) than its other layers, and all layers on CIM is lossless at the nrow / 2 boundary (step 3: 128 / 6 b, 64 / 5 b).
 - Consequence: per-token outliers shrink the codes but do not by themselves raise ADC saturation; the activation function before the layer (ReLU / GELU / SwiGLU) decides the high-plane density, and that sets the ADC bits. Supports the deferred input-encoding study (offset-binary or sign-magnitude inputs would remove the GELU effect).
 
+## F16 — Hadamard rotation of one layer's input removes the extra ADC bit that F15 predicts; on lossless models it only gives the 8-bit quantization gain
+
+- Method: `cimsim/models/rotate.py` (block Hadamard Q, W → W Q offline, x → x Q online), `scripts/a6_mitigation.py`; all layers analog, calibrated ADC, 8,192 WikiText-2 test tokens.
+- GPT-2, bit-accurate (git 72fc415, `results/a6m_gpt2_ba/`), PPL / W8A8 fake-quant (33.776): at nrow 128 / 6 b no mitigation 5.87, `c_proj` input rotated 1.006, all inputs rotated 0.994, `c_proj` on DCIM 1.007, `c_proj` at 7 b 1.007; at nrow 256 / 7 b 2.04 / 0.999 / 0.998 / 1.003 / 1.003. Rotating the input of the one layer type with dense high bit planes (F15) fixes the collapse at the same number and size of ADC conversions; DCIM or one more ADC bit on that layer do the same at a hardware cost. Extra digital work: 3.7e5 additions per token for `c_proj` against 4.2e7 conversions per token.
+- OPT-125M, bit-accurate (git 2b2bf0c, `results/a6m_opt125m_ba/`): W8A8 30.460, rotated W8A8 30.127; 128 / 6 b 30.816 (+1.2 %), all inputs rotated 30.104 (= rotated W8A8). Statistical mode on the same tokens (sandbox, `results/a6m_opt125m_stat8k_sandbox/`): 30.799 / 30.113, within 0.06 % of bit-accurate, so statistical mode stays valid with rotated inputs (same machine offset as before: sandbox W8A8 30.484, +0.08 %).
+- Qwen2.5-1.5B, statistical (git 89f7ad8, `results/a6m_qwen15b_stat/`): W8A8 10.338, rotated W8A8 10.133 (−2.0 %); 128 / 6 b 10.342 (= W8A8), all inputs rotated 10.229, i.e. +0.9 % above rotated W8A8 (paired per-window NLL +0.009 ± 0.005 nats, 4 windows) and −1.1 % against unrotated analog (−0.011 ± 0.008, not significant). Full scales stay 63 on all 196 layers.
+- Below the nrow / 2 boundary rotation does not help (OPT-125M 128 / 5 b, sandbox statistical, not valid under F13: 12,195 without, 6,534 with rotation): OPT's inputs already have sign-plane density ~0.5.
+- Consequence: the bit-plane density of a layer's input (F15) tells which layer needs a fix; rotation of that layer's input is the cheapest fix found (no extra ADC bits, conversions or DCIM). Where all layers are already at density ~0.5, rotation brings no analog benefit beyond the gain it gives 8-bit quantization.
+
 ## Machine / speed notes
 
 - Thomas's machine: Intel Core i7-12700H (6 P-cores + 8 E-cores, 20 threads), 16 GB DDR4, no GPU. torch uses 14 threads.

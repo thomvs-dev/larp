@@ -1,0 +1,47 @@
+{
+ "model": "/home/claude/hf_local/opt-125m",
+ "mode": "statistical",
+ "tokens": 8192,
+ "rows": [
+  {
+   "run": "fake_quant",
+   "ppl": 30.483591917426864,
+   "ratio_to_fake_quant": 1.0,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "fbd5bdf9aa9e744e00c75198a38fa9ecaa55e168"
+  },
+  {
+   "run": "fake_quant_had",
+   "ppl": 30.115963475462006,
+   "ratio_to_fake_quant": 0.9879401206078116,
+   "adc_conversions_analog": 173946175488,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 4831838208,
+   "stat_inexact_layers": 0,
+   "git": "fbd5bdf9aa9e744e00c75198a38fa9ecaa55e168"
+  },
+  {
+   "run": "n128_adc6_base",
+   "ppl": 30.79852680841485,
+   "ratio_to_fake_quant": 1.0103312920551184,
+   "adc_conversions_analog": 347892350976,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 0,
+   "stat_inexact_layers": 0,
+   "git": "fbd5bdf9aa9e744e00c75198a38fa9ecaa55e168"
+  },
+  {
+   "run": "n128_adc6_had_all",
+   "ppl": 30.113088780568443,
+   "ratio_to_fake_quant": 0.9878458175840291,
+   "adc_conversions_analog": 347892350976,
+   "dcim_column_ops": 0,
+   "hadamard_adds": 4831838208,
+   "stat_inexact_layers": 0,
+   "git": "fbd5bdf9aa9e744e00c75198a38fa9ecaa55e168"
+  }
+ ]
+}
