@@ -1,0 +1,48 @@
+{
+  "model": "gpt2",
+  "mode": "bit_accurate",
+  "tokens": 8192,
+  "collapse_factor": 2.0,
+  "fake_quant_ppl": 33.775581020943925,
+  "points": [
+    {
+      "point": "all_n128_adc6",
+      "role": "all",
+      "nrow": 128,
+      "adc_bits": 6,
+      "ppl": 70519.35169675433,
+      "ratio_to_fake_quant": 2087.8797511440566,
+      "adc_conversions": 347892350976,
+      "seconds": 471.9,
+      "calib_cache": "off",
+      "git": "5991359297666e1cbf1870e016632da1fc22b137",
+      "stat_inexact_layers": null
+    },
+    {
+      "point": "all_n128_adc7",
+      "role": "all",
+      "nrow": 128,
+      "adc_bits": 7,
+      "ppl": 34.98503040845211,
+      "ratio_to_fake_quant": 1.035808396212584,
+      "adc_conversions": 347892350976,
+      "seconds": 477.7,
+      "calib_cache": "off",
+      "git": "5991359297666e1cbf1870e016632da1fc22b137",
+      "stat_inexact_layers": null
+    },
+    {
+      "point": "all_n128_adc8",
+      "role": "all",
+      "nrow": 128,
+      "adc_bits": 8,
+      "ppl": 33.96192091702023,
+      "ratio_to_fake_quant": 1.0055170004613911,
+      "adc_conversions": 347892350976,
+      "seconds": 482.2,
+      "calib_cache": "off",
+      "git": "5991359297666e1cbf1870e016632da1fc22b137",
+      "stat_inexact_layers": null
+    }
+  ]
+}

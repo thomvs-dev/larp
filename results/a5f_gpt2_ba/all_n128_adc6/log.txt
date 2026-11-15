@@ -1,0 +1,44 @@
+W1115 14:48:10.930000 13032 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  14%|#3        | 20/148 [00:00<00:00, 192.78it/s]Loading weights:  82%|########2 | 122/148 [00:00<00:00, 427.74it/s]Loading weights: 100%|##########| 148/148 [00:00<00:00, 475.00it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (287644 > 1024). Running this sequence through the model will result in indexing errors
+  window 1/8  running ppl 72556.044  elapsed 0.9 min  eta 6.5 min  rss 1.4 GB
+  window 2/8  running ppl 66788.917  elapsed 1.9 min  eta 5.7 min  rss 1.5 GB
+  window 3/8  running ppl 56154.100  elapsed 2.9 min  eta 4.9 min  rss 1.5 GB
+  window 4/8  running ppl 56472.047  elapsed 3.9 min  eta 3.9 min  rss 1.5 GB
+  window 5/8  running ppl 60073.938  elapsed 4.9 min  eta 2.9 min  rss 1.4 GB
+  window 6/8  running ppl 65501.643  elapsed 5.9 min  eta 2.0 min  rss 1.4 GB
+  window 7/8  running ppl 69802.484  elapsed 6.9 min  eta 1.0 min  rss 1.4 GB
+  window 8/8  running ppl 70519.352  elapsed 7.9 min  eta 0.0 min  rss 1.5 GB
+{
+  "ppl": 70519.35169675433,
+  "nll": 11.163642443286825,
+  "tokens": 8184,
+  "windows": 8,
+  "nll_per_window": [
+    11.192114568059628,
+    11.026470285007331,
+    10.588980069724462,
+    10.958439294660312,
+    11.250652712228128,
+    11.522326099324902,
+    11.53499110306696,
+    11.235165414222873
+  ],
+  "resumed_windows": 0,
+  "model": "gpt2",
+  "config": "D:\\japan\\results\\a5f_gpt2_ba\\configs\\all_n128_adc6.yaml",
+  "seq_len": 1024,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 8,
+  "max_tokens": 8192,
+  "replaced_layers": 48,
+  "seconds": 471.9,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "calib_cache": "off",
+  "git": "5991359297666e1cbf1870e016632da1fc22b137"
+}

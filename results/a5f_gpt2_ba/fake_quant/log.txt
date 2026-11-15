@@ -1,0 +1,44 @@
+W1115 14:47:43.140000 3376 C:\Users\ASUS\scoop\persist\python313\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  30%|##9       | 44/148 [00:00<00:00, 431.01it/s]Loading weights:  59%|#####9    | 88/148 [00:00<00:00, 220.45it/s]Loading weights:  78%|#######8  | 116/148 [00:00<00:00, 165.51it/s]Loading weights: 100%|##########| 148/148 [00:00<00:00, 239.17it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (287644 > 1024). Running this sequence through the model will result in indexing errors
+  window 1/8  running ppl 16.884  elapsed 0.0 min  eta 0.1 min  rss 1.2 GB
+  window 2/8  running ppl 24.642  elapsed 0.0 min  eta 0.1 min  rss 1.1 GB
+  window 3/8  running ppl 26.373  elapsed 0.1 min  eta 0.1 min  rss 1.1 GB
+  window 4/8  running ppl 28.300  elapsed 0.1 min  eta 0.1 min  rss 1.1 GB
+  window 5/8  running ppl 31.002  elapsed 0.1 min  eta 0.1 min  rss 1.1 GB
+  window 6/8  running ppl 32.023  elapsed 0.1 min  eta 0.0 min  rss 1.1 GB
+  window 7/8  running ppl 33.688  elapsed 0.1 min  eta 0.0 min  rss 1.1 GB
+  window 8/8  running ppl 33.776  elapsed 0.2 min  eta 0.0 min  rss 1.3 GB
+{
+  "ppl": 33.775581020943925,
+  "nll": 3.519738086390938,
+  "tokens": 8184,
+  "windows": 8,
+  "nll_per_window": [
+    2.82634334620143,
+    3.582577165620418,
+    3.408146862876497,
+    3.554435662859696,
+    3.798762257148094,
+    3.628497141430688,
+    3.8213017706996886,
+    3.5378404842909945
+  ],
+  "resumed_windows": 0,
+  "model": "gpt2",
+  "config": "D:\\japan\\results\\a5f_gpt2_ba\\configs\\fake_quant.yaml",
+  "seq_len": 1024,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 14,
+  "max_windows": 8,
+  "max_tokens": 8192,
+  "replaced_layers": 48,
+  "seconds": 9.3,
+  "calibrated_layers": 0,
+  "calib_tokens": 0,
+  "calib_seconds": 0.0,
+  "calib_cache": "off",
+  "git": "5991359297666e1cbf1870e016632da1fc22b137"
+}
