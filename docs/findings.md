@@ -70,6 +70,8 @@ Observations from runs that affect the design or the paper. Each entry: what was
 - Evidence: `results/f5_opt125m_adc6_cal_layer/`, `results/f5_opt125m_adc6_cal_cp/` (incl. `adc_full_scale.json`), `results/sub8k_opt125m_ba_example/`.
 - Consequence: F3's collapse was ASiM's full-range ADC mapping, not a 6-bit limit. "Set the ADC LSB to one MAC unit (full scale 2^b − 1)" turns a 6-bit ADC from unusable to within ~1% of ideal on OPT-125M. This is a headline design rule for SRAM ACiM on LLMs. Open points for A5: ADC 4–5 b (where clipping becomes unavoidable), larger nrow, GPT-2, noise on top, and a headroom margin against saturation.
 
+- Update 2026-11-15 (all layers nrow 128, same bits everywhere, bit-accurate, 8,192 tokens, `results/a5f_*_ba/`): full range 6 / 7 / 8 b OPT-125M 12,662 / 30.614 / 30.487, GPT-2 70,519 / 34.985 / 33.962; calibrated OPT 30.816 / 30.460 / 30.460, GPT-2 198.4 / 33.776 / 33.776 (W8A8 30.460 / 33.776). Calibration is worth about one ADC bit on both models.
+
 ## F6 — At low ADC precision, whole-network results are chaotic
 
 - Seen: ResNet-20, nrow 128, ADC 6 b, no noise: cimsim and ASiM disagree on 30% of top-1 predictions for the same 10 images, although every one of the 20 conv layers matches ASiM to 1.3e-6 when given identical inputs (checked with hooks inside the network). At fake-quant and ADC 10 b the two agree on all predictions.

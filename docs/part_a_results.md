@@ -71,18 +71,23 @@ intervals contain 0 and every McNemar p ≥ 0.17.
 - attention costs 6.9 % more ADC conversions;
 - keys must be quantized per channel (F10; `results/a4_attention_summary.md`).
 
-**Full-range ADC vs calibrated full scale** (OPT-125M, nrow 128, bit-accurate, 8,192 tokens, fc2 at 2 bits more
-than the other layers in both rows):
+**Full-range ADC vs calibrated full scale** (bit-accurate, 8,192 tokens, all layers at nrow 128 and the same ADC
+bits; full range = ASiM default, full scale = nrow × L; `results/a5f_*_ba/` vs `results/a5s2_*_ba/`):
 
-| ADC | full range (ASiM default) | calibrated (MSE) |
-|---|---|---|
-| 6 b | 12,962 (`results/sub8k_opt125m_ba_example/`) | 30.81 (`results/f5_opt125m_adc6_cal_layer/`) |
-| 7 b | 30.61 (`results/a3g_opt125m_adc7/`) | – |
-| 8 b | 30.48 (`results/a3g_opt125m_adc8/`) | – |
+| ADC | OPT-125M full range | OPT-125M calibrated | GPT-2 full range | GPT-2 calibrated |
+|---|---|---|---|---|
+| 6 b | 12,662 | 30.816 (+1.2 %) | 70,519 | 198.4 |
+| 7 b | 30.614 (+0.5 %) | 30.460 (0.0 %) | 34.985 (+3.6 %) | 33.776 (0.0 %) |
+| 8 b | 30.487 (+0.1 %) | 30.460 (0.0 %) | 33.962 (+0.6 %) | 33.776 (0.0 %) |
 
-W8A8 on these tokens is 30.449. A full-range 6-bit ADC destroys the model. The reason is the
-two's-complement sign-extension planes with coarse ADC steps (F3). Calibration picks a step of exactly
-1 MAC unit and recovers the loss (F5). This comparison was only run on OPT-125M at nrow 128.
+W8A8 on these tokens is 30.460 for OPT-125M and 33.776 for GPT-2.
+
+- A full-range 6-bit ADC destroys both models. The reason is the two's-complement sign-extension planes with
+  coarse ADC steps (F3).
+- Calibration picks steps of 1 or ½ MAC unit (F5, F12). That makes 7 and 8 bits exactly lossless and
+  OPT-125M usable at 6 b, so it saves about one ADC bit.
+- GPT-2 at 6 b still fails even with calibration (198, against 70,519 for full range). Its `c_proj`
+  needs a 7-bit ADC (§4) or a rotated input (§5).
 
 ## 4. Where the ADC fails: the step of one MAC unit, and the bit-plane density of the input
 
