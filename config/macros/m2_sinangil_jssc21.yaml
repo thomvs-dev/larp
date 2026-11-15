@@ -1,0 +1,48 @@
+# M2: Sinangil et al., "A 7-nm Compute-in-Memory SRAM Macro Supporting Multi-Bit Input, Weight and Output
+# and Achieving 351 TOPS/W and 372.4 GOPS", IEEE JSSC 56(1):188-198, 2021.
+# Numbers are the paper's (Fig. 11, Fig. 13, Table I, Sec. III-IV); fitted values come from
+# validation/b1_m2_acim.py and are written to results/b1_m2_sinangil/.
+macro: m2_sinangil_jssc21
+type: acim
+node_nm: 7
+vdd: 0.8
+rows: 64                  # 64 x 64 bit cells = 4 kb (Fig. 11, Sec. V "our macro size (64 x 64)")
+cols: 64
+w_bits: 4                 # 4 bit columns (RBL[3:0]) per weight -> 16 outputs, 1024 4b x 4b MACs per cycle
+x_bits: 4                 # input = number of RWL pulses, 0..15
+adc_bits: 4               # 4-b flash, 15 comparators (Sec. III-C)
+t_cycle: 5.5e-9           # Fig. 11, 0.8 V
+macro_area_mm2: 0.0032    # Fig. 11, incl. test / reconfiguration blocks
+area_split: {sram_macro: 0.25, cim_circuits: 0.53, test: 0.22}   # Sec. IV
+bitcell_um2: 0.053        # Table I
+rwl_power_share: 0.05     # "RWL switching at the macro level accounts for ~5% of macro power" (Sec. III-A)
+# Fig. 13(a): measured macro energy per cycle (pJ) vs MAC result (4-b output code), 0.8 V, 5.5 ns.
+# Labelled points: 5.9 pJ "in average" (at code 6), 7.8 pJ (code 15). The others are read off the plot (+/- 0.1 pJ).
+energy_vs_mac_pj:
+  - {mac: 0, e: 3.3}
+  - {mac: 1, e: 4.55}
+  - {mac: 2, e: 5.05}
+  - {mac: 4, e: 5.45}
+  - {mac: 6, e: 5.9}
+  - {mac: 8, e: 6.3}
+  - {mac: 10, e: 6.65}
+  - {mac: 12, e: 7.05}
+  - {mac: 15, e: 7.8}
+# Calibration points: the two labelled energies of Fig. 13(a).
+calib_points:
+  - {mac: 6, e_pj: 5.9}
+  - {mac: 15, e_pj: 7.8}
+check_points:
+  tops_w_0p8v: {avg: 351.0, min: 262.3, max: 610.5}       # Fig. 11 / Table I
+  tops_w_1p0v: {avg: 321.0, min: 189.3, max: 435.5}       # Table I
+  throughput_gops: {0.8: 372.4, 1.0: 455.1}               # Table I (1024 MAC x 2 ops / cycle time)
+  t_cycle_1p0v: 4.5e-9
+  # Fig. 13(b): maximum energy (MAC = 15) vs VDD, pJ. Labelled: 5.1 at 0.65 V, 7.8 at 0.8 V; others read off (+/- 0.15).
+  max_energy_vs_vdd_pj:
+    - {vdd: 0.65, e: 5.1}
+    - {vdd: 0.70, e: 5.9}
+    - {vdd: 0.75, e: 6.8}
+    - {vdd: 0.85, e: 9.0}
+    - {vdd: 0.90, e: 10.3}
+    - {vdd: 0.95, e: 11.7}
+    - {vdd: 1.00, e: 13.1}

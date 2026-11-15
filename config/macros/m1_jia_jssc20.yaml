@@ -1,0 +1,21 @@
+# M1: Jia et al., "A Programmable Heterogeneous Microprocessor Based on Bit-Scalable In-Memory Computing",
+# IEEE JSSC 55(9):2609-2621, 2020. Numbers are the paper's (Table I, Fig. 12, Sec. II-III, abstract);
+# fitted values come from validation/b1_m1_acim.py and are written to results/b1_m1_jia/.
+macro: m1_jia_jssc20
+type: acim
+node_nm: 65
+vdd: 1.2
+nrow: 2304                # column dimensionality N (Sec. II-B); 590 kb CIMA
+adc_bits: 8               # 8-b SAR, one per column (Sec. III-C)
+adc_c_unit: 1.2e-15       # "1.2-fF unit capacitor" of the SAR DAC (Sec. III-C)
+bitcell_um2: 1.8          # M-BC (Sec. II-A)
+data_dependent_share: 0.66   # broadcast of x / xb + charging of the cell capacitors: "roughly 66% of the CIMA energy" (Sec. III-B)
+calib_activity: 0.5       # assumption: the Table I measurement used uniformly distributed 1-b inputs (half the rows active)
+# Table I, energy per CIMA column and evaluation, at 1.2 V | 0.85 V (0.7 V for the standard SRAMs):
+energy_pj:
+  1.2:  {cima: 20.4, adc: 3.56, abn: 9.78, reshape_32b: 35.0, load_32b: 19.2, nmc_output: 14.7}
+  0.85: {cima: 9.7,  adc: 1.79, abn: 4.92, reshape_32b: 12.0, load_32b: 9.6,  nmc_output: 8.3}
+check_points:
+  tops_w_1b: {1.2: 192.0, 0.85: 400.0}       # abstract: 1b-TOPS/W "for MAC hardware"
+  fig12_fj_per_1b_mac: {reshape: 0.47, adc: 1.55, cima: 8.85, total: 10.87, load_per_bit: 600.0}   # Fig. 12, 1.2 V
+  adc_energy_overhead: 0.18                  # Sec. II-B: "18% energy overhead"

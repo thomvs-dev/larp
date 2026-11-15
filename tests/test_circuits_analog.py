@@ -23,6 +23,7 @@ def test_conversion_energy_is_the_sum_of_its_parts():
     s = spec()
     b = s.conversion_breakdown(wl_pulses=7.5, bl_activity=0.25)
     assert b["wordline"] == pytest.approx(64 * 0.1e-15 * 7.5)
+    assert b["cell_fixed"] == 0.0 and spec(e_cell_fixed=1e-16).conversion_breakdown(0, 0)["cell_fixed"] == pytest.approx(64e-16)
     assert b["bitline"] == pytest.approx(64 * 0.5e-15 * 0.25)
     assert b["adc"] == pytest.approx(15 * 2e-15)
     assert b["shift_add"] == pytest.approx(12e-15)

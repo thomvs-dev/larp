@@ -3,7 +3,8 @@
 One *conversion* is one column read out for one input cycle and one chunk of
 `nrow` rows (event counter `adc_conversions`). Its energy is
 
-    nrow * (e_wl_cell * wl_pulses + e_bl_cell * bl_activity)   array
+    nrow * (e_wl_cell * wl_pulses + e_bl_cell * bl_activity    array, data-dependent
+            + e_cell_fixed)                                     array, data-independent
     + e_col_fixed                                              column reset / precharge / sampling
     + E_ADC(bits)                                              cimsim.circuits.adc
     + acc_bits * e_add_bit                                     digital shift-add
@@ -44,6 +45,7 @@ class AnalogArraySpec:
     adc: ADCSpec
     e_wl_cell: float              # J per (cell, input pulse)
     e_bl_cell: float              # J per cell at bl_activity = 1
+    e_cell_fixed: float = 0.0     # J per (cell, conversion), independent of data (clocking, reset of the cell)
     e_col_fixed: float = 0.0      # J per conversion, independent of data and nrow
     e_add_bit: float = 0.0        # J per adder bit (shift-add)
     e_reg_bit: float = 0.0        # J per register bit (input / output buffers)
@@ -63,7 +65,7 @@ class AnalogArraySpec:
     def __post_init__(self):
         if self.nrow < 1 or self.adc_share < 1 or self.in_bits < 0 or self.acc_bits < 0 or self.out_bits < 0:
             raise ValueError("nrow, adc_share must be >= 1; bit widths >= 0")
-        for name in ("e_wl_cell", "e_bl_cell", "e_col_fixed", "e_add_bit", "e_reg_bit", "t_array", "t_adc",
+        for name in ("e_wl_cell", "e_bl_cell", "e_cell_fixed", "e_col_fixed", "e_add_bit", "e_reg_bit", "t_array", "t_adc",
                      "area_cell", "area_adc", "area_col_periph", "area_row_periph"):
             if getattr(self, name) < 0:
                 raise ValueError(f"{name} must be >= 0")
@@ -94,6 +96,7 @@ class AnalogArraySpec:
         return {
             "wordline": self.nrow * self.e_wl_cell * wl_pulses,
             "bitline": self.nrow * self.e_bl_cell * bl_activity,
+            "cell_fixed": self.nrow * self.e_cell_fixed,
             "column_fixed": self.e_col_fixed,
             "adc": adc.energy_per_conversion(),
             "shift_add": self.acc_bits * self.e_add_bit,
