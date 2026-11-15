@@ -1,0 +1,293 @@
+{
+  "all_equal": true,
+  "checks": [
+    {
+      "what": "prefill, 64 tokens",
+      "measured": {
+        "macs": 83852525568,
+        "adc_conversions": 41926262784,
+        "array_cycles": 2035712,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 83852525568,
+        "adc_conversions": 41926262784,
+        "array_cycles": 2035712,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 1 (position 65)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 2 (position 66)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 3 (position 67)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 4 (position 68)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 5 (position 69)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 6 (position 70)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 7 (position 71)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 8 (position 72)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 9 (position 73)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 10 (position 74)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 11 (position 75)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 12 (position 76)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 13 (position 77)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 14 (position 78)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 15 (position 79)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    },
+    {
+      "what": "decode step 16 (position 80)",
+      "measured": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "expected": {
+        "macs": 1310195712,
+        "adc_conversions": 655097856,
+        "array_cycles": 31808,
+        "kv_bits_written": 0
+      },
+      "equal": true
+    }
+  ],
+  "git": "0314dae4c2696b210c0a3c123c03f49527ba2166",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "shape": "config/models/qwen2.5-1.5b.yaml",
+  "config": {
+    "default": {
+      "mode": "fake_quant",
+      "macro": "acim",
+      "w_bits": 8,
+      "x_bits": 8,
+      "nrow": 128
+    }
+  },
+  "prompt": 64,
+  "steps": 16,
+  "replaced_layers": 196,
+  "seconds": 20.1
+}
