@@ -1,0 +1,124 @@
+{
+  "our_git": "2931d87",
+  "accelforge": {
+    "accelforge_version": "1.0.551",
+    "accelforge_repo_git": "df6a79f4",
+    "our_git": "2931d87"
+  },
+  "rows": [
+    {
+      "bits": 1,
+      "vdd": 0.85,
+      "accelforge": {
+        "array_per_column_J": 1.0012572560869954e-11,
+        "adc_per_column_J": 1.7859818389774226e-12,
+        "nmc_per_column_J": 7.713628240780742e-12,
+        "zero_gating_per_column_J": 2.4692261577161137e-13,
+        "per_mac_J": 5.12090034715598e-15,
+        "per_mac_all_J": 8.576000534642327e-15,
+        "tops_w": 390.5563213488733,
+        "groups_total_J": {
+          "adc": 4.572113507782202e-10,
+          "array": 2.5632185755827083e-09,
+          "nmc_datapath": 1.97468882963987e-09,
+          "zero_gating": 6.321218963753251e-11
+        }
+      },
+      "ours": {
+        "array_per_column_J": 1.0235416666666667e-11,
+        "adc_per_column_J": 1.786180555555556e-12,
+        "per_mac_J": 5.217707127700618e-15,
+        "tops_w": 383.3101304943071
+      },
+      "paper": {
+        "array_per_column_J": 9.7e-12,
+        "adc_per_column_J": 1.79e-12,
+        "nmc_per_column_J": 8.3e-12,
+        "tops_w": 400.0
+      }
+    },
+    {
+      "bits": 1,
+      "vdd": 1.2,
+      "accelforge": {
+        "array_per_column_J": 1.967098928769401e-11,
+        "adc_per_column_J": 3.559603962490995e-12,
+        "nmc_per_column_J": 1.4699107426052884e-11,
+        "zero_gating_per_column_J": 4.909274500343621e-13,
+        "per_mac_J": 1.008272276483724e-14,
+        "per_mac_all_J": 1.667561984297979e-14,
+        "tops_w": 198.35911846698798,
+        "groups_total_J": {
+          "adc": 9.112586143976947e-10,
+          "array": 5.035773257649666e-09,
+          "nmc_datapath": 3.762971501069538e-09,
+          "zero_gating": 1.256774272087967e-10
+        }
+      },
+      "ours": {
+        "array_per_column_J": 2.04e-11,
+        "adc_per_column_J": 3.56e-12,
+        "per_mac_J": 1.0399305555555555e-14,
+        "tops_w": 192.32053422370618
+      },
+      "paper": {
+        "array_per_column_J": 2.04e-11,
+        "adc_per_column_J": 3.56e-12,
+        "nmc_per_column_J": 1.4699999999999998e-11,
+        "tops_w": 192.0
+      }
+    },
+    {
+      "bits": 8,
+      "vdd": 0.85,
+      "accelforge": {
+        "array_per_column_J": 6.859789901804046e-10,
+        "adc_per_column_J": 1.1430283769455505e-10,
+        "nmc_per_column_J": 1.1435970740996742e-10,
+        "zero_gating_per_column_J": 2.1291605631357235e-11,
+        "per_mac_J": 3.4734454334850677e-13,
+        "per_mac_all_J": 4.062209854760783e-13,
+        "tops_w": 5.757971508646713,
+        "groups_total_J": {
+          "adc": 2.9261526449806092e-08,
+          "array": 1.7561062148618357e-07,
+          "nmc_datapath": 2.927608509695166e-08,
+          "zero_gating": 5.450651041627452e-09
+        }
+      },
+      "ours": {
+        "array_per_column_J": 1.0235416666666667e-11,
+        "adc_per_column_J": 1.786180555555556e-12,
+        "per_mac_J": 3.3393325617283954e-13,
+        "tops_w": 5.989220788973548
+      },
+      "paper": null
+    },
+    {
+      "bits": 8,
+      "vdd": 1.2,
+      "accelforge": {
+        "array_per_column_J": 1.348895735017236e-09,
+        "adc_per_column_J": 2.2781465359942367e-10,
+        "nmc_per_column_J": 1.847428752673846e-10,
+        "zero_gating_per_column_J": 4.2091115315390226e-11,
+        "per_mac_J": 6.843361061704252e-13,
+        "per_mac_all_J": 7.827883606230719e-13,
+        "tops_w": 2.9225404875269345,
+        "groups_total_J": {
+          "adc": 5.832055132145246e-08,
+          "array": 3.4531730816441243e-07,
+          "nmc_datapath": 4.7294176068450456e-08,
+          "zero_gating": 1.0775325520739898e-08
+        }
+      },
+      "ours": {
+        "array_per_column_J": 2.04e-11,
+        "adc_per_column_J": 3.56e-12,
+        "per_mac_J": 6.655555555555555e-13,
+        "tops_w": 3.005008347245409
+      },
+      "paper": null
+    }
+  ]
+}

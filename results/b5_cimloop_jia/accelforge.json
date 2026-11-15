@@ -1,0 +1,160 @@
+{
+  "our_git": "2931d87",
+  "accelforge_version": "1.0.551",
+  "accelforge_repo_git": "df6a79f4",
+  "workload": {
+    "M": 1,
+    "N": 256,
+    "K": 2304
+  },
+  "cases": {
+    "1b_0.85V": {
+      "bits": 1,
+      "vdd": 0.85,
+      "energy_total_J": {
+        "RowDrivers": 6.098669510782488e-10,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 6.321218963753251e-11,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 4.572113507782202e-10,
+        "ShiftAdd": 3.371184987688455e-10,
+        "OutDatapath": 1.6375703308710245e-09,
+        "BitcellCapacitor": 1.9176652799999997e-09,
+        "CimUnit": 2.2040742495010868e-11,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 1.3645602009448865e-11
+      },
+      "energy_per_mac_J": {
+        "RowDrivers": 1.0339812406668587e-15,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 1.0717127419781208e-16,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 7.751657243112098e-16,
+        "ShiftAdd": 5.715577824364605e-16,
+        "OutDatapath": 2.7763711348960695e-15,
+        "BitcellCapacitor": 3.2512499999999993e-15,
+        "CimUnit": 3.7368337467058704e-17,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 2.3135040666858757e-17
+      },
+      "per_mac_total_J": 8.576000534642327e-15,
+      "latency_per_mac_s": 2.288818359375e-12,
+      "seconds": 6.7
+    },
+    "1b_1.2V": {
+      "bits": 1,
+      "vdd": 1.2,
+      "energy_total_J": {
+        "RowDrivers": 1.1935812889901073e-09,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 1.256774272087967e-10,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 9.112586143976947e-10,
+        "ShiftAdd": 6.143238336898461e-10,
+        "OutDatapath": 3.1486476673796925e-09,
+        "BitcellCapacitor": 3.822059519999999e-09,
+        "CimUnit": 1.243428363745247e-11,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 7.698165022107517e-12
+      },
+      "energy_per_mac_J": {
+        "RowDrivers": 2.023622790573929e-15,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 2.1307615018852521e-16,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 1.5449670005500255e-15,
+        "ShiftAdd": 1.0415375304985954e-15,
+        "OutDatapath": 5.338283394330524e-15,
+        "BitcellCapacitor": 6.479999999999998e-15,
+        "CimUnit": 2.1081346420514152e-17,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 1.3051630417679157e-17
+      },
+      "per_mac_total_J": 1.667561984297979e-14,
+      "latency_per_mac_s": 9.146260283694502e-13,
+      "seconds": 1.9
+    },
+    "8b_0.85V": {
+      "bits": 8,
+      "vdd": 0.85,
+      "energy_total_J": {
+        "RowDrivers": 5.0596117517898165e-08,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 5.450651041627452e-09,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 2.9261526449806092e-08,
+        "ShiftAdd": 2.157558392120611e-08,
+        "OutDatapath": 7.70050117574555e-09,
+        "BitcellCapacitor": 1.2273057791999998e-07,
+        "CimUnit": 1.4106075196806955e-09,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 8.733185286047274e-10
+      },
+      "energy_per_mac_J": {
+        "RowDrivers": 8.578172352134705e-14,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 9.241148089269256e-15,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 4.9610606355917425e-14,
+        "ShiftAdd": 3.657969807593347e-14,
+        "OutDatapath": 1.3055591175015082e-14,
+        "BitcellCapacitor": 2.0807999999999996e-13,
+        "CimUnit": 2.391573597891757e-15,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 1.4806426026789605e-15
+      },
+      "per_mac_total_J": 4.062209854760783e-13,
+      "latency_per_mac_s": 1.46484375e-10,
+      "seconds": 1.7
+    },
+    "8b_1.2V": {
+      "bits": 8,
+      "vdd": 1.2,
+      "energy_total_J": {
+        "RowDrivers": 9.941702217020065e-08,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 1.0775325520739898e-08,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 5.832055132145246e-08,
+        "ShiftAdd": 3.931672535615015e-08,
+        "OutDatapath": 7.977450712300307e-09,
+        "BitcellCapacitor": 2.4461180927999994e-07,
+        "CimUnit": 7.957941527969581e-10,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 4.926825614148811e-10
+      },
+      "energy_per_mac_J": {
+        "RowDrivers": 1.685537153644015e-13,
+        "DummyRowDriverMemory": 0.0,
+        "InputZeroGating": 1.8268713432756552e-14,
+        "MainMemory": 0.0,
+        "ColumnBandwidthLimiter": 0.0,
+        "ColumnDrivers": 0.0,
+        "ADC": 9.887788803520163e-14,
+        "ShiftAdd": 6.66584019519101e-14,
+        "OutDatapath": 1.3525137237153548e-14,
+        "BitcellCapacitor": 4.1471999999999987e-13,
+        "CimUnit": 1.3492061709129057e-15,
+        "FreeCompute": 0.0,
+        "WeightDrivers": 8.353043467314661e-16
+      },
+      "per_mac_total_J": 7.827883606230719e-13,
+      "latency_per_mac_s": 5.853606581564481e-11,
+      "seconds": 1.6
+    }
+  }
+}
