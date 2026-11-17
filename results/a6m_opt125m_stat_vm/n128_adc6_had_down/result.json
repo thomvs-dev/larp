@@ -1,0 +1,28 @@
+{
+  "ppl": 25.59247199204921,
+  "nll": 3.2422982454299927,
+  "tokens": 4094,
+  "windows": 2,
+  "nll_per_window": [
+    3.054698944091797,
+    3.4298975467681885
+  ],
+  "resumed_windows": 0,
+  "model": "/home/claude/hf_local/opt-125m",
+  "config": "/home/claude/larp/results/a6m_opt125m_stat_vm/configs/n128_adc6_had_down.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 2,
+  "max_windows": 2,
+  "max_tokens": 4096,
+  "replaced_layers": 72,
+  "seconds": 40.3,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 379.2,
+  "calib_cache": "miss",
+  "git": "afa986a65e001c82aa3489a9392c441425a81993",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}

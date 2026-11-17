@@ -1,7 +1,7 @@
 """A5: size of the statistical-mode saturation plan on Qwen2.5-1.5B-shaped layers (synthetic weights and
 inputs) at calibrated ADC 6 b (lossless) and 5 b (every column saturates). Prints index memory per layer.
 
-    python scripts/a5_plan_mem.py > results/a5_plan_mem_sandbox/result.txt
+    python scripts/a5_plan_mem.py > results/a5_plan_mem_vm/result.txt
 """
 import sys, torch, time
 sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parents[1]))

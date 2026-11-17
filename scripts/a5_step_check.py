@@ -3,7 +3,7 @@
 One synthetic 768 -> 256 layer (outlier input channels as in tests/test_stat_saturation.py), full scale
 forced to a given value. Step = FS / (2^b - 1) MAC units. Writes results/<name>/result.json.
 
-    python scripts/a5_step_check.py --name a5_step_check_sandbox
+    python scripts/a5_step_check.py --name a5_step_check_vm
 """
 import argparse, json, sys
 from pathlib import Path

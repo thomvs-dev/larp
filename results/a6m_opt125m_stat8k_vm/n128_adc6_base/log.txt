@@ -1,0 +1,37 @@
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s]Loading weights:  57%|█████▋    | 112/196 [00:00<00:00, 1119.46it/s]Loading weights: 100%|██████████| 196/196 [00:00<00:00, 1364.37it/s]
+calibrating (ADC range / statistical error model) on 2048 train tokens ...
+calibrated 72 layers in 16.4 s (histogram cache: hit, 72 layers from cache)
+  window 1/4  running ppl 21.172  elapsed 0.2 min  eta 0.6 min  rss 2.4 GB
+  window 2/4  running ppl 25.591  elapsed 0.3 min  eta 0.3 min  rss 2.5 GB
+  window 3/4  running ppl 30.005  elapsed 0.5 min  eta 0.2 min  rss 2.5 GB
+  window 4/4  running ppl 30.799  elapsed 0.6 min  eta 0.0 min  rss 2.5 GB
+{
+  "ppl": 30.79852680841485,
+  "nll": 3.427466857939973,
+  "tokens": 8188,
+  "windows": 4,
+  "nll_per_window": [
+    3.0526866381728595,
+    3.431802799017999,
+    3.7195711569140815,
+    3.5058068376549523
+  ],
+  "resumed_windows": 0,
+  "model": "/home/claude/hf_local/opt-125m",
+  "config": "/home/claude/larp/results/a6m_opt125m_stat8k_vm/configs/n128_adc6_base.yaml",
+  "seq_len": 2048,
+  "dtype": "torch.float32",
+  "device": "cpu",
+  "threads": 2,
+  "max_windows": 4,
+  "max_tokens": 8192,
+  "replaced_layers": 72,
+  "seconds": 37.6,
+  "calibrated_layers": 72,
+  "calib_tokens": 2048,
+  "calib_seconds": 16.4,
+  "calib_cache": "hit",
+  "git": "fbd5bdf9aa9e744e00c75198a38fa9ecaa55e168",
+  "stat_inexact_layers": 0,
+  "stat_inexact_names": []
+}

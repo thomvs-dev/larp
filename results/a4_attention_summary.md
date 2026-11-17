@@ -7,15 +7,15 @@ working tree on top of git 2d1d11f; committed with this file).
 
 | Run | config | PPL | results |
 |---|---|---|---|
-| FP32 | none | 17.411 | `results/a4s_qwen05b_fp32_s512_sandbox/` |
-| W8A8 linear (ideal) | `e0_w8a8.yaml` | 17.895 | `results/a4s_qwen05b_w8a8_s512_sandbox/` |
-| + 8-bit Q·Kᵀ only, keys per **token** | `a4_attn_qk_only_ktoken.yaml` | 18.642 | `results/a4s_qwen05b_attn_qk_only_ktoken_s512_sandbox/` |
-| + 8-bit Q·Kᵀ only, keys per **channel** | `a4_attn_qk_only_kchannel.yaml` | 17.636 | `results/a4s_qwen05b_attn_qk_only_kchannel_s512_sandbox/` |
-| + 8-bit Q, K, P, V (keys per channel, values per token) | `a4_attn_w8a8.yaml` | 17.737 | `results/a4s_qwen05b_w8a8_attn_s512_sandbox/` |
-| + attention on analog CIM, ADC 6 b calibrated: statistical | `a4_attn_only_adc6cal.yaml` | 17.596 | `results/a3g_qwen05b_attn_only_adc6cal_sandbox/` |
+| FP32 | none | 17.411 | `results/a4s_qwen05b_fp32_s512_vm/` |
+| W8A8 linear (ideal) | `e0_w8a8.yaml` | 17.895 | `results/a4s_qwen05b_w8a8_s512_vm/` |
+| + 8-bit Q·Kᵀ only, keys per **token** | `a4_attn_qk_only_ktoken.yaml` | 18.642 | `results/a4s_qwen05b_attn_qk_only_ktoken_s512_vm/` |
+| + 8-bit Q·Kᵀ only, keys per **channel** | `a4_attn_qk_only_kchannel.yaml` | 17.636 | `results/a4s_qwen05b_attn_qk_only_kchannel_s512_vm/` |
+| + 8-bit Q, K, P, V (keys per channel, values per token) | `a4_attn_w8a8.yaml` | 17.737 | `results/a4s_qwen05b_w8a8_attn_s512_vm/` |
+| + attention on analog CIM, ADC 6 b calibrated: statistical | `a4_attn_only_adc6cal.yaml` | 17.596 | `results/a3g_qwen05b_attn_only_adc6cal_vm/` |
 | same, bit-accurate | (same run) | 17.596 | (same) |
-| all linear layers on analog CIM (ADC 6 b cal.), attention float | `a4_stat_adc6cal.yaml` | 17.838 | `results/a4s_qwen05b_stat_adc6cal_s512_sandbox/` |
-| all linear layers **and** attention on analog CIM | `a4_stat_adc6cal_attn.yaml` | 17.620 | `results/a4s_qwen05b_stat_adc6cal_attn_s512_sandbox/` |
+| all linear layers on analog CIM (ADC 6 b cal.), attention float | `a4_stat_adc6cal.yaml` | 17.838 | `results/a4s_qwen05b_stat_adc6cal_s512_vm/` |
+| all linear layers **and** attention on analog CIM | `a4_stat_adc6cal_attn.yaml` | 17.620 | `results/a4s_qwen05b_stat_adc6cal_attn_s512_vm/` |
 
 Findings (see `docs/findings.md` F10):
 - 8-bit Q·Kᵀ with one scale per **key token** costs +4.2 % over W8A8 linear (18.642 vs 17.895). Qwen's keys

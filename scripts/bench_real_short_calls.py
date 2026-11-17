@@ -8,7 +8,7 @@ BATCH_T_MAX tokens also with the batched path forced, and checks that loop and b
 (fake-quant floor).
 
     CIMSIM_WIKITEXT_DIR=<dir with train/test.parquet> python scripts/bench_real_short_calls.py \\
-        --model <model dir> --name bench_real_short_calls_qwen05b_sandbox --threads 2
+        --model <model dir> --name bench_real_short_calls_qwen05b_vm --threads 2
 
 Writes results/<name>/result.json."""
 from __future__ import annotations

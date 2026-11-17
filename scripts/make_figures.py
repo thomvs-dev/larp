@@ -128,7 +128,7 @@ def a5_alignment():
 
 
 def a5_planes():
-    models = [("OPT-125M", "a5o_opt125m_sandbox"), ("GPT-2", "a5o_gpt2"), ("Qwen2.5-1.5B", "a5o_qwen15b")]
+    models = [("OPT-125M", "a5o_opt125m_vm"), ("GPT-2", "a5o_gpt2"), ("Qwen2.5-1.5B", "a5o_qwen15b")]
     act = {"OPT-125M": "ReLU", "GPT-2": "GELU", "Qwen2.5-1.5B": "SwiGLU"}
     fig, axes = plt.subplots(1, 3, figsize=(11, 3.4), sharey=True)
     for ax, (mname, run) in zip(axes, models):
@@ -185,7 +185,7 @@ def a3_validation():
             r = al.get(p["point"])
             exact = r is not None and r["aligned_layers"] == r["layers"]
             pts.append((ba[p["point"]], p["ppl"], "A5 step 2, step 1/n MAC" if exact else "A5 step 2, step > 1 MAC (F13)"))
-    a6s = {r["run"]: r["ppl"] for r in j("a6m_opt125m_stat8k_sandbox/summary.json")["rows"]}
+    a6s = {r["run"]: r["ppl"] for r in j("a6m_opt125m_stat8k_vm/summary.json")["rows"]}
     for r in j("a6m_opt125m_ba/summary.json")["rows"]:
         if r["run"].startswith("n128"):
             pts.append((r["ppl"], a6s[r["run"]], "A6, OPT-125M (rotation)"))

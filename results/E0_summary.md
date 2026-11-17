@@ -29,5 +29,5 @@ Extra reference: OPT-125M FP32 at seq 1024 = 31.761 (`results/e0_opt125m_fp32/`)
 
 ## Open items
 
-- `git` hash is `unknown` for all runs: `D:\japan` is not a git repository yet.
+- `git` hash is `unknown` for all runs: the project folder was not a git repository yet.
 - Finding 2 confirmed (asymmetric runs added 2026-11-02).

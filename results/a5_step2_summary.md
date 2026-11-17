@@ -19,7 +19,7 @@ Sources: `results/a5s2_opt125m_ba/`, `results/a5s2_gpt2_ba/`, `results/a5v2_opt1
 
 - 5 of 8 points pass, each within 0.02 %. At all five every swept layer has an ADC step of exactly 1 MAC unit, so the only error is saturation, which statistical mode computes exactly.
 - The 3 failing points are the ones where MSE calibration chose a full scale above 2^b − 1 (less clipping, step above 1 MAC unit and not 1/n). Rounding error is then non-zero on most conversions and correlated across bit planes; statistical mode gives it to the analytic model, which assumes independent conversions and overestimates it (findings F13).
-- Layer-level confirmation on a synthetic layer (`results/a5_step_check_sandbox/result.json`): statistical = bit-accurate at steps 1 and 1/3; at steps 1.04–2.0 the statistical error is 1.4–4.3× the bit-accurate error.
+- Layer-level confirmation on a synthetic layer (`results/a5_step_check_vm/result.json`): statistical = bit-accurate at steps 1 and 1/3; at steps 1.04–2.0 the statistical error is 1.4–4.3× the bit-accurate error.
 
 ## Consequence (decision 2026-11-13, `docs/decisions.md`)
 

@@ -1,7 +1,7 @@
 # GATE A3 — evaluation of the v1 chain (the author's machine, git 33e49ce) with statistical v2 numbers
 
 Bit-accurate and v1 statistical PPLs: `results/a3g_opt125m_*/gate.json` (14 threads, i7-12700H).
-Statistical v2 PPLs: `results/a3s_opt125m_*_v2_sandbox/` (cloud VM, 2 threads, same calibration
+Statistical v2 PPLs: `results/a3s_opt125m_*_v2_vm/` (cloud VM, 2 threads, same calibration
 tokens; fake-quant differs between the machines by +0.11 % at 8,192 tokens and +0.29 % at 4,096 tokens,
 float summation order). Official v2 numbers need the `--reuse-ba` reruns on the author's machine.
 Pass: |median statistical − bit-accurate (fast, seed 0)| / bit-accurate ≤ max(2 %, bit-accurate spread).
@@ -23,7 +23,7 @@ Causes of the two failures (findings F9):
   conversions are the same correlated sign-extension rows as in F8, and M3's independent-conversion sum
   overestimates the residual 4–5× on the layers that have it (L2 q_proj σ 5.8 % vs measured 1.1 % of the
   ideal RMS), adding spurious noise → PPL too high (+2.3 % at 7 b, +0.5 % at 8 b).
-- rn010: the Gaussian has the right variance per layer (ratio 1.00–1.03, `results/a3s_opt125m_rn010_layer_shape_sandbox/`)
+- rn010: the Gaussian has the right variance per layer (ratio 1.00–1.03, `results/a3s_opt125m_rn010_layer_shape_vm/`)
   but bit-accurate error at this noise level is rare large ADC code flips (median 3.5 % of outputs non-zero,
   up to ~2·10^4 MAC units). Whole-model PPL 137–143 vs 30.8 for the Gaussian: error shape, not size, decides PPL here.
 
@@ -46,7 +46,7 @@ sampler (git 1916262); f5 / adc8 / adc7 are noise-free and identical in both.
 rn010: the statistical PPL varies by a factor ~6 across seeds; both bit-accurate seeds lie inside its
 interquartile range (133–301). Layer level on real activations the v3 error matches bit-accurate (std ratio
 0.99–1.06, fraction of non-zero outputs within 2 %, kurtosis ~620 vs ~680, per-position flip rates equal:
-`results/a3s_opt125m_rn010_layer_shape_sandbox/`, `results/a3s_opt125m_rn010_token_rates_sandbox/`).
+`results/a3s_opt125m_rn010_layer_shape_vm/`, `results/a3s_opt125m_rn010_token_rates_vm/`).
 Whether bit-accurate PPL is equally variable is not known from two seeds; the author's run with seeds 2–4 decides.
 Cost: noise-free v3 ~11–12 ms/token on 2 threads (fake-quant ~1.9); rn010 ~17 ms/token (thinning);
 rn02_hyb6 24 ms/token (many low-significance flip pairs, tunable with `stat_flip_lambda_max`).
@@ -78,7 +78,7 @@ A config is "chaotic" when the sd of log PPL over ≥ 5 bit-accurate seeds excee
 pass if (1) Mann-Whitney between ≥ 5 bit-accurate and ≥ 8 statistical seeds gives p > 0.05, (2) the
 statistical median lies inside the bit-accurate interquartile range widened by 2 % (here 134.5–153.5: 150.4
 inside), and (3) layer-level error agrees (std ratio within 10 %, non-zero fraction within 5 %; done for rn010
-in `results/a3s_opt125m_rn010_layer_shape_sandbox/`). All other configs keep the 2 % rule. rn010 passes all
+in `results/a3s_opt125m_rn010_layer_shape_vm/`). All other configs keep the 2 % rule. rn010 passes all
 three. The report states that whole-model PPL at the noise cliff is a distribution, not a number, and gives
 both distributions.
 
@@ -114,7 +114,7 @@ Statistical v3 on the same machine as the bit-accurate runs (`results/a3g_opt125
 - Noise-free speed-up is 6–15×, below the 30–50× hoped for in the A3 plan; the exact saturation /
   rounding loop (Python, per chunk and cycle) dominates. Enough for A4 (Qwen2.5-1.5B statistical); an
   optimisation task is added for A5 sweeps.
-- v3.1 check in the cloud VM (2 threads, git 8c94c01, `results/a3s_opt125m_rn02_hyb6_v31_sandbox/`):
+- v3.1 check in the cloud VM (2 threads, git 8c94c01, `results/a3s_opt125m_rn02_hyb6_v31_vm/`):
   rn02_hyb6 statistical 29.444 / 29.777 / 29.063 (median 29.444, +0.72 % vs bit-accurate 29.232; equal
   to v2 as expected, since only the fc2 layers had flips) at 12.5 ms/token (v3 on the author's machine:
   450 ms/token). Official number needs one rerun of rn02_hyb6 on the author's machine.

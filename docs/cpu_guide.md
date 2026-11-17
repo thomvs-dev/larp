@@ -34,7 +34,7 @@ Fast vs reference executor on one 768×3072 layer: 2.4–3.4× faster noise-free
 
 ## Zero-shot runs (A4)
 
-Zero-shot requests are short (about 30–150 tokens per forward call). Statistical mode has a per-call cost (Python loop over row chunks and input cycles in the exact saturation term), so per token it is slower on short calls than on 2,048-token windows: random-weight Qwen2-0.5B-shaped model, 2 threads, 16.9 ms/token at 64 tokens vs 5.3 at 2,048 (`results/bench_short_calls_sandbox/`; 31.5 before the per-layer saturation plan cache, `results/bench_short_calls_sandbox_before/`). Batching requests (default 8 when attention is not on CIM) brings calls back to a few hundred tokens.
+Zero-shot requests are short (about 30–150 tokens per forward call). Statistical mode has a per-call cost (Python loop over row chunks and input cycles in the exact saturation term), so per token it is slower on short calls than on 2,048-token windows: random-weight Qwen2-0.5B-shaped model, 2 threads, 16.9 ms/token at 64 tokens vs 5.3 at 2,048 (`results/bench_short_calls_vm/`; 31.5 before the per-layer saturation plan cache, `results/bench_short_calls_vm_before/`). Batching requests (default 8 when attention is not on CIM) brings calls back to a few hundred tokens.
 
 Measured model tokens per document (0-shot, lm-eval prompts, Qwen2.5-0.5B tokenizer): ARC-e 109 (4 choices), PIQA 70 (2 choices), HellaSwag 170 (4 choices); `--limit 1000` on all three tasks is 0.35M model tokens. Full HellaSwag alone is about 1.7M.
 
@@ -48,7 +48,7 @@ Measured on the i7-12700H (14 threads, batch 8, Qwen2.5-0.5B, `--limit 1000`, `r
 
 The 20-document smoke runs gave 32–42 ms/token for statistical mode; the full runs were 1.7× slower and the cause is not identified. Plan with the full-run numbers: Qwen2.5-1.5B would be about 3.5× slower per token (~24 h per 1,000 documents per task set). Use `--limit` on the local machine.
 
-Since fa06edf (2026-11-06) statistical mode is 1.4–1.7× faster on real calls with bit-identical output. cloud VM, 2 threads, real Qwen2.5-0.5B (`results/bench_stat_speed_qwen05b_sandbox/`):
+Since fa06edf (2026-11-06) statistical mode is 1.4–1.7× faster on real calls with bit-identical output. cloud VM, 2 threads, real Qwen2.5-0.5B (`results/bench_stat_speed_qwen05b_vm/`):
 
 | Call shape | statistical before | statistical now | fake-quant |
 |---|---|---|---|
@@ -56,7 +56,7 @@ Since fa06edf (2026-11-06) statistical mode is 1.4–1.7× faster on real calls 
 | 1 × 64 | 42.7 | 28.5 | 11.1 |
 | 1 × 2048 (perplexity window) | 22.2 | 15.5 | 5.8 |
 
-The local machine ran the old code at 51–73 ms/token on zero-shot, 2.3–3× slower than the cloud VM on 2 threads, and its W8A8 run (7.6–8.4) was slower than the cloud VM fake-quant floor. Before long runs, measure the thread count: `python scripts/bench_real_short_calls.py --model Qwen/Qwen2.5-0.5B --name bench_stat_speed_qwen05b_laptop --threads 14,8,6,4` (one calibration, then each thread count on the three shapes).
+The local machine ran the old code at 51–73 ms/token on zero-shot, 2.3–3× slower than the cloud VM on 2 threads, and its W8A8 run (7.6–8.4) was slower than the cloud VM fake-quant floor. Before long runs, measure the thread count: `python scripts/bench_real_short_calls.py --model Qwen/Qwen2.5-0.5B --name bench_stat_speed_qwen05b_local --threads 14,8,6,4` (one calibration, then each thread count on the three shapes).
 
 ## Practical settings
 

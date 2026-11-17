@@ -7,7 +7,7 @@ budgets_mbit: [min, 2048]
 drams: [default, gddr5]
 dcim:
   results: results/b1_m4_chih/results.json   # calibrated M4: energy per 1b x 1b product = base + toggle * rate, 22 nm, 0.72 V
-  toggle_rate: 0.31                           # input toggle rate of 8-b activations (results/b1_toggle_opt125m_sandbox: 0.31-0.32 on OPT-125M; not measured on Qwen)
+  toggle_rate: 0.31                           # input toggle rate of 8-b activations (results/b1_toggle_opt125m_vm: 0.31-0.32 on OPT-125M; not measured on Qwen)
 adc_variants:                                 # analog ADC energy: the calibrated macro's SAR, or a survey line (config/circuits/adc_survey_lines.yaml)
   m1: null
   best_sar: bound_best_sar

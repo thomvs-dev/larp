@@ -2,7 +2,7 @@
 initialised Qwen2-0.5B-shaped model with 4 layers (no download). Zero-shot requests are short (30-150
 tokens), perplexity windows are 2,048 tokens; this shows the per-call overhead.
 
-    python scripts/bench_short_calls.py --threads 2 --name bench_short_calls_sandbox
+    python scripts/bench_short_calls.py --threads 2 --name bench_short_calls_vm
 
 Writes results/<name>/result.json. Random weights: the exact-saturation work differs from a trained
 model, so use the numbers as ratios between call lengths, not as absolute model speeds.

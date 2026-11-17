@@ -188,7 +188,7 @@ Throughput 2 · 256 · (64 / ⌈w_bits / 4⌉) / ((x_bits + 1) · 2 ns): 3277 GO
 (paper estimate 917). Area and throughput only check internal consistency (macro area is an input); the
 independent checks are the 8b/8b estimate and the toggle-rate curve, all within ±13 %. The fitted line is too
 flat at very low toggle rates (−12.7 % at 6.25 %), which matters for post-ReLU layers (OPT fc2 toggles 2.5 %,
-`results/b1_toggle_opt125m_sandbox/`).
+`results/b1_toggle_opt125m_vm/`).
 
 M2 model (`config/macros/m2_sinangil_jssc21.yaml`, `validation/b1_m2_acim.py`, `results/b1_m2_sinangil/`): one
 conversion = one 4-b output = 4 bit columns × 64 rows = 256 cells = 64 MACs; macro energy = 16 conversions,

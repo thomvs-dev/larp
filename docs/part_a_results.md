@@ -43,7 +43,7 @@ python scripts/make_figures.py
     other run (`stat_inexact_layers`). All headline results satisfy this.
 - **Other checks:**
   - With rotated inputs (A6, OPT-125M), statistical and bit-accurate agree within 0.06 %
-    (`results/a6m_opt125m_stat8k_sandbox/`, `results/a6m_opt125m_ba/`).
+    (`results/a6m_opt125m_stat8k_vm/`, `results/a6m_opt125m_ba/`).
   - Qwen2.5-0.5B: 11.994 statistical vs 11.993 bit-accurate (`results/a3g_qwen05b_adc6cal/`).
   - With attention on CIM: 12.043 in both modes (`results/a3g_qwen05b_attn_only_adc6cal/`).
 
