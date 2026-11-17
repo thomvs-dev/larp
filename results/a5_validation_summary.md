@@ -1,6 +1,6 @@
 # A5: statistical vs bit-accurate at sweep points outside GATE A3
 
-OPT-125M, cloud sandbox (2 threads), git f59892f, first 4,096 WikiText-2 test tokens (2 windows), W8A8
+OPT-125M, cloud VM (2 threads), git f59892f, first 4,096 WikiText-2 test tokens (2 windows), W8A8
 bit-serial, MSE-calibrated ADC range per layer, no noise, calibration on 2,048 train tokens.
 Script `scripts/a3_gate.py` (one calibration shared by both modes; statistical is deterministic without noise).
 

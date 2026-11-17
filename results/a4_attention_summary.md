@@ -1,7 +1,7 @@
-# A4 — attention matmuls (Q·Kᵀ, P·V) on CIM arrays — Qwen2.5-0.5B, sandbox
+# A4 — attention matmuls (Q·Kᵀ, P·V) on CIM arrays — Qwen2.5-0.5B, cloud VM
 
-Cloud sandbox, 2 threads, Qwen2.5-0.5B (bf16 copy loaded as float32), first 2,048 WikiText-2 test tokens in
-4 windows of **512** tokens (2,048-token windows do not fit the sandbox's 7 GB: logits + log-softmax of a
+Cloud cloud VM, 2 threads, Qwen2.5-0.5B (bf16 copy loaded as float32), first 2,048 WikiText-2 test tokens in
+4 windows of **512** tokens (2,048-token windows do not fit the cloud VM's 7 GB: logits + log-softmax of a
 152k vocabulary ≈ 2.5 GB). Calibration on 512 train tokens. Code: `cimsim/core/attention.py` (runs used the
 working tree on top of git 2d1d11f; committed with this file).
 
@@ -30,9 +30,9 @@ Findings (see `docs/findings.md` F10):
 - Cost of attention at 512-token windows: +3.1 % MACs (7.55e11 vs 7.33e11), +5.0 % ADC conversions
   (3.85e11 vs 3.66e11), 1.0e8 KV bits written for 2,048 tokens (24 layers × 2 KV heads × 64 × 8 b × K and V).
   Attention's share grows linearly with context length.
-- Not yet run on Thomas's machine at 2,048-token windows or on Qwen2.5-1.5B.
+- Not yet run on the author's machine at 2,048-token windows or on Qwen2.5-1.5B.
 
-## Thomas's machine, 2,048-token windows (git 67b4623)
+## the author's machine, 2,048-token windows (git 67b4623)
 
 | Run | PPL | results |
 |---|---|---|

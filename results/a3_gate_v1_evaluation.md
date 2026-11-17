@@ -1,9 +1,9 @@
-# GATE A3 — evaluation of the v1 chain (Thomas's machine, git 33e49ce) with statistical v2 numbers
+# GATE A3 — evaluation of the v1 chain (the author's machine, git 33e49ce) with statistical v2 numbers
 
 Bit-accurate and v1 statistical PPLs: `results/a3g_opt125m_*/gate.json` (14 threads, i7-12700H).
-Statistical v2 PPLs: `results/a3s_opt125m_*_v2_sandbox/` (cloud sandbox, 2 threads, same calibration
+Statistical v2 PPLs: `results/a3s_opt125m_*_v2_sandbox/` (cloud VM, 2 threads, same calibration
 tokens; fake-quant differs between the machines by +0.11 % at 8,192 tokens and +0.29 % at 4,096 tokens,
-float summation order). Official v2 numbers need the `--reuse-ba` reruns on Thomas's machine.
+float summation order). Official v2 numbers need the `--reuse-ba` reruns on the author's machine.
 Pass: |median statistical − bit-accurate (fast, seed 0)| / bit-accurate ≤ max(2 %, bit-accurate spread).
 
 | Config | bit-accurate | spread | statistical v1 (median) | v1 diff | statistical v2 (median) | v2 diff | verdict |
@@ -15,8 +15,8 @@ Pass: |median statistical − bit-accurate (fast, seed 0)| / bit-accurate ≤ ma
 | rn010 (noise 0.10 %) | 137.197 / 143.281 (seed 1) | 4.43 % | 57.876 | −57.8 % | 30.812 | −77.5 % | **fail** |
 | rn02_hyb6 (noise 0.2 %, hybrid 6) | 29.232 / 28.954 (seed 1) | 0.96 % | 52.874 | +80.9 % | 29.444 | +0.73 % | pass (v2) |
 
-Speed-up of statistical v1 over bit-accurate (Thomas's machine): 10–15× noise-free, 94–102× with noise
-(noisy bit-accurate costs 464–505 ms/token). v2 adds the saturation path (sandbox: ~1 % of bit-accurate MACs).
+Speed-up of statistical v1 over bit-accurate (the author's machine): 10–15× noise-free, 94–102× with noise
+(noisy bit-accurate costs 464–505 ms/token). v2 adds the saturation path (cloud VM: ~1 % of bit-accurate MACs).
 
 Causes of the two failures (findings F9):
 - adc7: full-range ADC error is a pure gain only for MAC ≤ 64; above that the rounding is nonlinear. Those
@@ -27,7 +27,7 @@ Causes of the two failures (findings F9):
   but bit-accurate error at this noise level is rare large ADC code flips (median 3.5 % of outputs non-zero,
   up to ~2·10^4 MAC units). Whole-model PPL 137–143 vs 30.8 for the Gaussian: error shape, not size, decides PPL here.
 
-## Statistical v3 (sandbox, 2 threads; bit-accurate from Thomas's runs above)
+## Statistical v3 (cloud VM, 2 threads; bit-accurate from the author's runs above)
 
 v3 = exact sparse deterministic readout term (saturation and nonlinear rounding above the exactly linear
 region) + discrete ADC code flips for rare noise flips (`stat_noise: auto`). rn010 uses the final flip
@@ -47,11 +47,11 @@ rn010: the statistical PPL varies by a factor ~6 across seeds; both bit-accurate
 interquartile range (133–301). Layer level on real activations the v3 error matches bit-accurate (std ratio
 0.99–1.06, fraction of non-zero outputs within 2 %, kurtosis ~620 vs ~680, per-position flip rates equal:
 `results/a3s_opt125m_rn010_layer_shape_sandbox/`, `results/a3s_opt125m_rn010_token_rates_sandbox/`).
-Whether bit-accurate PPL is equally variable is not known from two seeds; Thomas's run with seeds 2–4 decides.
+Whether bit-accurate PPL is equally variable is not known from two seeds; the author's run with seeds 2–4 decides.
 Cost: noise-free v3 ~11–12 ms/token on 2 threads (fake-quant ~1.9); rn010 ~17 ms/token (thinning);
 rn02_hyb6 24 ms/token (many low-significance flip pairs, tunable with `stat_flip_lambda_max`).
 
-## rn010 with 5 bit-accurate seeds (Thomas's machine, git db1c52f, `--ref median`)
+## rn010 with 5 bit-accurate seeds (the author's machine, git db1c52f, `--ref median`)
 
 Run: `results/a3g_opt125m_rn010/gate.json` (4,096 test tokens, 14 threads; bit-accurate seeds 0–1 reused
 from git 33e49ce, seeds 2–4 new; the bit-accurate executor is unchanged between the two commits).
@@ -72,7 +72,7 @@ from git 33e49ce, seeds 2–4 new; the bit-accurate executor is unchanged betwee
   weak here: any statistical median between ~0 and ~330 would pass. See the criterion proposal below.
 - Speed: statistical 26 ms/token vs bit-accurate 443–515 ms/token → 17.7×.
 
-### Proposed criterion for configs at the noise cliff (awaiting Thomas)
+### Proposed criterion for configs at the noise cliff (awaiting approval)
 
 A config is "chaotic" when the sd of log PPL over ≥ 5 bit-accurate seeds exceeds 0.10 (≈ 10 %). For those:
 pass if (1) Mann-Whitney between ≥ 5 bit-accurate and ≥ 8 statistical seeds gives p > 0.05, (2) the
@@ -82,7 +82,7 @@ in `results/a3s_opt125m_rn010_layer_shape_sandbox/`). All other configs keep the
 three. The report states that whole-model PPL at the noise cliff is a distribution, not a number, and gives
 both distributions.
 
-## Official v3 reruns (Thomas's machine, git 79b2b4a, `--reuse-ba`)
+## Official v3 reruns (the author's machine, git 79b2b4a, `--reuse-ba`)
 
 Statistical v3 on the same machine as the bit-accurate runs (`results/a3g_opt125m_*/gate.json`,
 `results/a3_gate_summary.md`). Reference = bit-accurate fast seed 0; rn010 = median of 5 seeds.
@@ -114,19 +114,19 @@ Statistical v3 on the same machine as the bit-accurate runs (`results/a3g_opt125
 - Noise-free speed-up is 6–15×, below the 30–50× hoped for in the A3 plan; the exact saturation /
   rounding loop (Python, per chunk and cycle) dominates. Enough for A4 (Qwen2.5-1.5B statistical); an
   optimisation task is added for A5 sweeps.
-- v3.1 check in the sandbox (2 threads, git 8c94c01, `results/a3s_opt125m_rn02_hyb6_v31_sandbox/`):
+- v3.1 check in the cloud VM (2 threads, git 8c94c01, `results/a3s_opt125m_rn02_hyb6_v31_sandbox/`):
   rn02_hyb6 statistical 29.444 / 29.777 / 29.063 (median 29.444, +0.72 % vs bit-accurate 29.232; equal
-  to v2 as expected, since only the fc2 layers had flips) at 12.5 ms/token (v3 on Thomas's machine:
-  450 ms/token). Official number needs one rerun of rn02_hyb6 on Thomas's machine.
+  to v2 as expected, since only the fc2 layers had flips) at 12.5 ms/token (v3 on the author's machine:
+  450 ms/token). Official number needs one rerun of rn02_hyb6 on the author's machine.
 
 ## GATE A3 verdict (2026-11-04)
 
-rn02_hyb6 rerun with v3.1 on Thomas's machine (git 0517165, `results/a3g_opt125m_rn02_hyb6/gate.json`):
+rn02_hyb6 rerun with v3.1 on the author's machine (git 0517165, `results/a3g_opt125m_rn02_hyb6/gate.json`):
 statistical 29.544 / 29.891 / 29.012 (median 29.544) vs bit-accurate 29.232 → +1.07 %, tolerance 2 %, pass;
-9.2 ms/token vs 505 ms/token bit-accurate → 55×. (Sandbox v3.1 median 29.444; the 0.3 % difference is the
+9.2 ms/token vs 505 ms/token bit-accurate → 55×. (cloud VM v3.1 median 29.444; the 0.3 % difference is the
 known machine-to-machine offset.)
 
-All six configs pass. rn010 passes under the noise-cliff rule approved by Thomas on 2026-11-04 (Mann-Whitney
+All six configs pass. rn010 passes under the noise-cliff rule approved by the author on 2026-11-04 (Mann-Whitney
 p = 0.35, statistical median 150.4 inside the bit-accurate interquartile range 137.2–150.5 widened by 2 %,
 layer-level std ratio 0.99–1.06 and non-zero fraction within 2 %). **GATE A3 passed.**
 

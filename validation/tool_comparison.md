@@ -11,7 +11,7 @@ GATE B5: differences between this simulator and an existing CIM tool on an overl
   (M = 1, N = 256 outputs, K = 2,304 inputs). Four runs: 1-b and 8-b inputs and weights, at 0.85 V and 1.2 V.
 - This simulator: the M1 calibration (`results/b1_m1_jia/`), fitted to Table I at 1.2 V and moved to
   0.85 V by VDD².
-- Run: the i7-12700H laptop, WSL Ubuntu, Python 3.14, our git 2931d87 (AccelForge does not install on native
+- Run: the i7-12700H machine, WSL Ubuntu, Python 3.14, our git 2931d87 (AccelForge does not install on native
   Windows: `islpy` has no Windows wheel, and `hwcomponents-neurosim` exceeds the path length limit). The
   compare step ran in the project environment at the same commit.
 - Script: `scripts/b5_cimloop_jia.py` (`run`, then `compare`). Results: `results/b5_cimloop_jia/`

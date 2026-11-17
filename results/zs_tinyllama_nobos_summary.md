@@ -1,6 +1,6 @@
 # TinyLlama-1.1B v1.1 zero-shot without BOS (A4)
 
-Thomas's laptop, git 6169ebe, lm-eval 0.4.13, `add_bos_token=False` (findings F11), batch 8, first 1,000 documents per task, 0-shot, 6 threads. Replaces `results/zs_tinyllama_summary.md` (those runs had `<s>` at the start of every request).
+the author's local machine, git 6169ebe, lm-eval 0.4.13, `add_bos_token=False` (findings F11), batch 8, first 1,000 documents per task, 0-shot, 6 threads. Replaces `results/zs_tinyllama_summary.md` (those runs had `<s>` at the start of every request).
 Analog config: `config/experiments/a4_stat_adc6cal.yaml` (W8A8, bit-serial, nrow 128, ADC 6 b MSE-calibrated, statistical mode); calibration chose FS 63 on all 154 layers.
 
 Reference: `results/zs_tinyllama_w8a8_nobos`. Δ = run − reference on the same documents (pp); 95 % interval from the paired standard error; p = exact McNemar.

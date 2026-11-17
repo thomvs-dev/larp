@@ -95,7 +95,7 @@ flowchart LR
   - *bit-accurate*: every bit plane, row group, ADC conversion and noise sample is computed. Exact, slow.
   - *statistical*: the error each layer makes is computed from a short calibration run and added to an
     ordinary matrix multiply. 6–55× faster, within 2 % of bit-accurate where it is valid. This is what makes
-    1.5B-parameter models practical on a laptop CPU.
+    1.5B-parameter models practical on a consumer-grade CPU.
 - **Cost side.** While the model runs, every hardware event is counted. The cost model multiplies the counts by
   per-event energies taken from three published SRAM CIM chips, scaled to 22 nm. A mapper places weights in
   arrays under an on-chip memory budget; the system model adds DRAM traffic for weights that do not fit, the KV
@@ -197,7 +197,7 @@ These are the decisions that shaped the tool, with the reasoning behind each. Th
    model shape, so any sequence length and memory budget can be costed without rerunning the model. The derived
    counts equal the counted ones exactly: in every Part A run, and in a prefill-plus-decode trace on
    Qwen2.5-1.5B (17 of 17 checks).
-8. **Work within a CPU-only budget.** Everything ran on a laptop CPU. Bit-accurate runs use the first 8,192
+8. **Work within a CPU-only budget.** Everything ran on a consumer-grade CPU. Bit-accurate runs use the first 8,192
    test tokens of small models. The result models run in statistical mode, with calibration histograms cached so
    that a sweep over ADC settings costs one calibration.
 

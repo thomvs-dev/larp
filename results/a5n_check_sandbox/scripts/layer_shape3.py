@@ -1,4 +1,4 @@
-# Usage: CIMSIM_WIKITEXT_DIR=<dir> python scripts/a3_layer_shape.py <config name without .yaml> <tokens>  (paths below assume the cloud sandbox)
+# Usage: CIMSIM_WIKITEXT_DIR=<dir> python scripts/a3_layer_shape.py <config name without .yaml> <tokens>  (paths below assume the cloud VM)
 # Layer-level shape of the analog-noise error at rn010 on real OPT-125M activations (one window, 2,048 test tokens):
 # bit-accurate noisy error vs the statistical model's Gaussian. Stats per layer: std, excess kurtosis,
 # fraction of outputs with any error.

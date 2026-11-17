@@ -5,7 +5,7 @@ ARC-e requests (context / continuation split from HFLM._encode_pair), decoded to
 Part 2: accuracy (default task ARC-e) on the first N documents for each (config, add_bos_token) pair, with per-choice
 log-likelihoods saved so FP32 and W8A8 can be compared per request.
 
-Example (laptop):
+Example (local machine):
     python scripts/diag_zs_tokens.py --model TinyLlama/TinyLlama_v1.1 --name diag_zs_tokens_tinyllama --tokens-only
     python scripts/diag_zs_tokens.py --model TinyLlama/TinyLlama_v1.1 --name diag_zs_tokens_tinyllama --limit 200 --threads 6
 

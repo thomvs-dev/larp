@@ -15,7 +15,7 @@ OPT-125M-sized model (12 layers, d=768, FFN 3072), random weights, 128 tokens, *
 | bit_accurate, bit-serial, ADC 8, 1% noise | 148 | 2.5 min | ~12 h |
 | bit_accurate, `backend: reference` | 186 | 3.2 min | ~15 h |
 
-**the i7-12700H laptop (i7-12700H, 14 threads):** OPT-125M, first 8,192 tokens: fake_quant 10 s total; bit-accurate bit-serial 608 s (≈ 74 ms/token, ~2.5 min per 2048-token window). FP32 full test set ≈ 5 min. ADC range calibration (2,048 train tokens, OPT-125M, 72 layers): ≈ 5.5 min. ResNet-20, 200 CIFAR-10 images, bit-accurate: cimsim ≈ 12 s, ASiM ≈ 103 s.
+**the i7-12700H machine (i7-12700H, 14 threads):** OPT-125M, first 8,192 tokens: fake_quant 10 s total; bit-accurate bit-serial 608 s (≈ 74 ms/token, ~2.5 min per 2048-token window). FP32 full test set ≈ 5 min. ADC range calibration (2,048 train tokens, OPT-125M, 72 layers): ≈ 5.5 min. ResNet-20, 200 CIFAR-10 images, bit-accurate: cimsim ≈ 12 s, ASiM ≈ 103 s.
 
 Fast vs reference executor on one 768×3072 layer: 2.4–3.4× faster noise-free, ~1.5× with noise (random number generation dominates). Configs where the ADC is lossless (e.g. nrow 255 with an 8-bit ADC, or no ADC) skip the bit-level loop and cost the same as fake_quant.
 
@@ -46,9 +46,9 @@ Measured on the i7-12700H (14 threads, batch 8, Qwen2.5-0.5B, `--limit 1000`, `r
 | W8A8 fake-quant | 8.4 / 8.3 / 7.6 | 46 min |
 | Statistical, ADC 6 b calibrated | 72 / 73 / 51 | 6.0 h + 14 min calibration |
 
-The 20-document smoke runs gave 32–42 ms/token for statistical mode; the full runs were 1.7× slower and the cause is not identified. Plan with the full-run numbers: Qwen2.5-1.5B would be about 3.5× slower per token (~24 h per 1,000 documents per task set). Use `--limit` on the laptop.
+The 20-document smoke runs gave 32–42 ms/token for statistical mode; the full runs were 1.7× slower and the cause is not identified. Plan with the full-run numbers: Qwen2.5-1.5B would be about 3.5× slower per token (~24 h per 1,000 documents per task set). Use `--limit` on the local machine.
 
-Since fa06edf (2026-11-06) statistical mode is 1.4–1.7× faster on real calls with bit-identical output. Sandbox, 2 threads, real Qwen2.5-0.5B (`results/bench_stat_speed_qwen05b_sandbox/`):
+Since fa06edf (2026-11-06) statistical mode is 1.4–1.7× faster on real calls with bit-identical output. cloud VM, 2 threads, real Qwen2.5-0.5B (`results/bench_stat_speed_qwen05b_sandbox/`):
 
 | Call shape | statistical before | statistical now | fake-quant |
 |---|---|---|---|
@@ -56,7 +56,7 @@ Since fa06edf (2026-11-06) statistical mode is 1.4–1.7× faster on real calls 
 | 1 × 64 | 42.7 | 28.5 | 11.1 |
 | 1 × 2048 (perplexity window) | 22.2 | 15.5 | 5.8 |
 
-The laptop ran the old code at 51–73 ms/token on zero-shot, 2.3–3× slower than the sandbox on 2 threads, and its W8A8 run (7.6–8.4) was slower than the sandbox fake-quant floor. Before long runs, measure the thread count: `python scripts/bench_real_short_calls.py --model Qwen/Qwen2.5-0.5B --name bench_stat_speed_qwen05b_laptop --threads 14,8,6,4` (one calibration, then each thread count on the three shapes).
+The local machine ran the old code at 51–73 ms/token on zero-shot, 2.3–3× slower than the cloud VM on 2 threads, and its W8A8 run (7.6–8.4) was slower than the cloud VM fake-quant floor. Before long runs, measure the thread count: `python scripts/bench_real_short_calls.py --model Qwen/Qwen2.5-0.5B --name bench_stat_speed_qwen05b_laptop --threads 14,8,6,4` (one calibration, then each thread count on the three shapes).
 
 ## Practical settings
 

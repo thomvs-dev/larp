@@ -1,6 +1,6 @@
 # A5: calibration histogram cache, real-model check
 
-OPT-125M, cloud sandbox (2 threads), git 35f7427, first 4,094 WikiText-2 test tokens (2 windows of 2,048),
+OPT-125M, cloud VM (2 threads), git 35f7427, first 4,094 WikiText-2 test tokens (2 windows of 2,048),
 calibration on 2,048 WikiText-2 train tokens, statistical mode, W8A8 bit-serial, nrow 128, MSE-calibrated
 ADC range per layer. Cache directory empty before the first run.
 

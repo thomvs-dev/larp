@@ -25,7 +25,7 @@ python scripts/make_figures.py
 - Models:
   - development models, bit-accurate on the first 8,192 test tokens: OPT-125M and GPT-2;
   - result models, statistical: Qwen2.5-0.5B, TinyLlama-1.1B and Qwen2.5-1.5B.
-- Hardware: CPU only (i7-12700H laptop, 2-core 2-core cloud VM).
+- Hardware: CPU only (i7-12700H machine, 2-core cloud VM).
 
 ## 2. Statistical mode is validated where it is used
 

@@ -1,6 +1,6 @@
-# Noise per layer type: statistical vs bit-accurate check (sandbox, 2026-11-14)
+# Noise per layer type: statistical vs bit-accurate check (cloud VM, 2026-11-14)
 
-OPT-125M, base `a4_stat_adc6cal.yaml` (all layers nrow 128, calibrated ADC 6 b, statistical, noise-free), noise 0.10 % on the listed fc1 layers only, first 4,096 WikiText-2 test tokens (2 windows), 2 sandbox threads, git 78c9d39 + working tree (no code change). "BA" = those fc1 layers bit-accurate, all other layers statistical (noise-free); "stat" = everything statistical. Noise-free: 25.594 (stat), 25.591 (fc1 layer 1 bit-accurate).
+OPT-125M, base `a4_stat_adc6cal.yaml` (all layers nrow 128, calibrated ADC 6 b, statistical, noise-free), noise 0.10 % on the listed fc1 layers only, first 4,096 WikiText-2 test tokens (2 windows), 2 cloud VM threads, git 78c9d39 + working tree (no code change). "BA" = those fc1 layers bit-accurate, all other layers statistical (noise-free); "stat" = everything statistical. Noise-free: 25.594 (stat), 25.591 (fc1 layer 1 bit-accurate).
 
 | Noisy fc1 layers | Stat (seed 0 / 1 / 2 / 3) | BA, layer generator (seed 0 / 1 / 2 / 3) | BA, independent generator 500+seed (0 / 1 / 2 / 3) |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Layer-level comparison on the same inputs (fc1, all 12 layers, 512 tokens; layer
 
 Reading:
 - Damage comes almost entirely from layers 1 and 2; layers 0, 3, 4, 5 alone change PPL by < 2 %.
-- Bit-accurate PPL at this point is itself chaotic: layer 1 alone gives 52–245 over independent generators (sd of log PPL ≈ 0.5). The tight bit-accurate triple on the laptop (122 / 135 / 123, all fc1) and 88.1 / 88.0 / 89.4 here come from the per-layer generator streams of seeds 0–2; why these streams give nearly equal PPL is not explained (the streams themselves are independent: correlation of draws < 3e-4, no shared flip positions).
+- Bit-accurate PPL at this point is itself chaotic: layer 1 alone gives 52–245 over independent generators (sd of log PPL ≈ 0.5). The tight bit-accurate triple on the local machine (122 / 135 / 123, all fc1) and 88.1 / 88.0 / 89.4 here come from the per-layer generator streams of seeds 0–2; why these streams give nearly equal PPL is not explained (the streams themselves are independent: correlation of draws < 3e-4, no shared flip positions).
 - Pooling the 8 bit-accurate and 5 statistical layer-1 values: geometric means 102 vs 190, Mann-Whitney one-sided p ≈ 0.06. Statistical may still be ~2× pessimistic here; not proven either way with these sample sizes.
 - No layer-level difference was found between the two modes.
 

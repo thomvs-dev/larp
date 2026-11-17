@@ -1,6 +1,6 @@
 # A4: full WikiText-2 test-set perplexity, result models
 
-Thomas's laptop (i7-12700H, 6 threads, CPU float32), git 811eead, 2,048-token non-overlapping windows,
+the author's local machine (i7-12700H, 6 threads, CPU float32), git 811eead, 2,048-token non-overlapping windows,
 statistical runs calibrated on 2,048 WikiText-2 train tokens. Config `a4_stat_adc6cal.yaml`: W8A8
 (per-channel weights, per-token activations), bit-serial inputs, nrow 128, 6-bit ADC with MSE-calibrated
 range, noise-free, all linear layers on analog CIM, LM head and attention digital.
@@ -23,7 +23,7 @@ Runtime (evaluation only, calibration separate):
 | Qwen2.5-0.5B | 22 min (4.5 ms/token) | 37 min (7.4) | 83 min (16.6) | 22 min |
 | TinyLlama-1.1B | 74 min (13.0) | 61 min (10.8) | 214 min (37.9) | 32 min |
 
-TinyLlama FP32 was slower than W8A8; not investigated (other load on the laptop is the likely cause).
+TinyLlama FP32 was slower than W8A8; not investigated (other load on the local machine is the likely cause).
 Statistical mode costs 2.2–3.5× W8A8 fake-quant on 2,048-token windows with the code at 811eead
 (Qwen2.5-1.5B before the speed-up: 69 ms/token).
 

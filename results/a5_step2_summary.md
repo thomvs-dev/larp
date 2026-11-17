@@ -1,6 +1,6 @@
 # A5 step 2 — statistical mode at 8 transition points
 
-Thomas's laptop, git b5f6e16, 14 threads, first 8,192 WikiText-2 test tokens, noise-free, other layers at calibrated ADC 8 b (`a5_base_adc8cal.yaml`). Bit-accurate reference: step 1 rerun (git 695e2ba). Pass = statistical within 2 % of bit-accurate. Full scales are identical in both modes at every point (`adc_full_scale.json`).
+the author's local machine, git b5f6e16, 14 threads, first 8,192 WikiText-2 test tokens, noise-free, other layers at calibrated ADC 8 b (`a5_base_adc8cal.yaml`). Bit-accurate reference: step 1 rerun (git 695e2ba). Pass = statistical within 2 % of bit-accurate. Full scales are identical in both modes at every point (`adc_full_scale.json`).
 
 | Model | Point (role:nrow:bits) | Bit-accurate | Statistical | Stat / BA | Full scale of the swept layers | ADC step (MAC units) | 2 % rule |
 |---|---|---|---|---|---|---|---|
