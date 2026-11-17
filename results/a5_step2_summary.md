@@ -21,7 +21,7 @@ Sources: `results/a5s2_opt125m_ba/`, `results/a5s2_gpt2_ba/`, `results/a5v2_opt1
 - The 3 failing points are the ones where MSE calibration chose a full scale above 2^b − 1 (less clipping, step above 1 MAC unit and not 1/n). Rounding error is then non-zero on most conversions and correlated across bit planes; statistical mode gives it to the analytic model, which assumes independent conversions and overestimates it (findings F13).
 - Layer-level confirmation on a synthetic layer (`results/a5_step_check_sandbox/result.json`): statistical = bit-accurate at steps 1 and 1/3; at steps 1.04–2.0 the statistical error is 1.4–4.3× the bit-accurate error.
 
-## Consequence (decision 2026-11-13, CLAUDE.md §8)
+## Consequence (decision 2026-11-13, `docs/decisions.md`)
 
 Statistical mode is used only at points where every statistical layer has an ADC step of 1/n MAC unit. `run_ppl.py` records `stat_inexact_layers` in `result.json` and prints a warning; `a5_sweep.py` marks such points `*` in `summary.md`. Points in the gradual-degradation regime (OPT o-proj, GPT-2 `mlp.c_proj` near their boundary) are reported from bit-accurate runs on OPT-125M / GPT-2 only.
 

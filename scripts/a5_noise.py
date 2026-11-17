@@ -1,4 +1,4 @@
-"""A5 noise sensitivity per layer type (reduced plan, CLAUDE.md A5).
+"""A5 noise sensitivity per layer type (reduced plan).
 
 Operating point: every layer on analog CIM, W8A8 bit-serial, nrow 128, calibrated ADC 6 b, statistical mode.
 Gaussian analog noise (rand_noise_sigma, % of nominal full scale) is switched on for one layer type at a

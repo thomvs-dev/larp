@@ -8,3 +8,7 @@ ASiM/
 results/**/samples.pt
 hf_local/
 calib_cache/
+
+# Local agent notes (not part of the public repo)
+CLAUDE.md
+docs/part_b_plan.md

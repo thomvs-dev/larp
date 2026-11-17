@@ -1,6 +1,6 @@
 # Part A — Detailed Plan: LLM Accuracy under SRAM ACiM Non-idealities
 
-Companion to `CLAUDE.md` (Section 3). `CLAUDE.md` holds the checklist and status; this file holds the design, the maths, the interfaces and the experiment matrix. If they disagree, fix one of them in the same session.
+Design of the accuracy simulator: the maths, the interfaces and the experiment matrix. Results are in `docs/part_a_results.md`, findings in `docs/findings.md`, decisions in `docs/decisions.md`.
 
 ---
 
